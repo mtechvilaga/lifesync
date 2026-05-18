@@ -1005,9 +1005,8 @@ export default function Home() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: showSplash ? "auto" : "40px",
-            marginBottom: showSplash ? "auto" : "10px",
-            transform: showSplash ? "scale(1.1)" : "scale(0.85)",
+            marginTop: showSplash ? "auto" : "16px",
+            marginBottom: showSplash ? "auto" : "6px",
             textAlign: "center", 
             zIndex: 10, 
             transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)", 
@@ -1015,11 +1014,11 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div className="logo" style={{ width: "110px", height: "110px", margin: "0 auto 16px", background: "transparent", border: "none", boxShadow: "none" }}>
+          <div className="logo" style={{ width: showSplash ? "110px" : "75px", height: showSplash ? "110px" : "75px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "32px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 3s" }} />
+            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: showSplash ? "32px" : "22px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.8s" }} />
           </div>
-          <h1 style={{ fontSize: "40px", fontWeight: 900, letterSpacing: "1px", margin: 0 }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
+          <h1 style={{ fontSize: showSplash ? "40px" : "32px", fontWeight: 900, letterSpacing: "1px", margin: 0, transition: "all 0.8s" }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
           
           <div style={{ marginTop: "12px", height: "30px", position: "relative", display: showSplash ? "block" : "none" }}>
              {showSplash && (
