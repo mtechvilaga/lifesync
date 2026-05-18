@@ -1020,9 +1020,9 @@ export default function Home() {
           </div>
           <h1 style={{ fontSize: showSplash ? "40px" : "36px", fontWeight: 900, letterSpacing: "1px", margin: 0, transition: "all 0.8s" }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
           
-          <div style={{ marginTop: "12px", height: "30px", position: "relative", display: showSplash ? "block" : "none", width: "100%" }}>
+          <div style={{ marginTop: "10px", display: showSplash ? "block" : "none", width: "100%", padding: "0 10px" }}>
              {showSplash && (
-               <p style={{ position: "absolute", width: "100%", left: "50%", transform: "translateX(-50%)", textAlign: "center", fontSize: "15px", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", margin: 0 }}>
+               <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.75)", margin: 0, fontWeight: 500, lineHeight: "1.4" }}>
                   {"Memories that matter. Life in sync.".split(" ").map((word, idx) => (
                      <span key={idx} className="word-fade" style={{ animationDelay: `${1.2 + idx * 0.35}s`, display: "inline-block" }}>{word}&nbsp;</span>
                   ))}
