@@ -1039,7 +1039,7 @@ export default function Home() {
               padding: "26px 20px", 
               borderRadius: "28px", 
               zIndex: 5,
-              animation: "slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
+              animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
               marginBottom: "40px"
             }}

@@ -154,3 +154,8 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
   0% { transform: translate(-50%, 20px); opacity: 0; }
   100% { transform: translate(-50%, 0); opacity: 1; }
 }
+
+@keyframes form-slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
