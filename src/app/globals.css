@@ -3,16 +3,16 @@
 :root {
   --bg-gradient: radial-gradient(circle at top left, #ffcc80, transparent 40%), radial-gradient(circle at bottom right, #4facfe, transparent 40%), linear-gradient(135deg, #2b1d3d, #1a233a);
   --text-color: #ffffff;
-  --card-bg: rgba(255, 255, 255, 0.16);
-  --card-border: rgba(255, 255, 255, 0.22);
-  --card-shadow: rgba(0, 0, 0, 0.18);
-  --input-bg: rgba(255, 255, 255, 0.08);
-  --input-border: rgba(255, 255, 255, 0.2);
-  --glass-card-bg: rgba(255, 255, 255, 0.07);
-  --glass-card-border: rgba(255, 255, 255, 0.14);
-  --glass-blur: blur(24px);
-  --bottom-nav-bg: rgba(255, 255, 255, 0.16);
-  --bottom-nav-border: rgba(255, 255, 255, 0.22);
+  --card-bg: rgba(20, 16, 35, 0.55);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --input-bg: rgba(0, 0, 0, 0.25);
+  --input-border: rgba(255, 255, 255, 0.08);
+  --glass-card-bg: rgba(15, 12, 25, 0.35);
+  --glass-card-border: rgba(255, 255, 255, 0.05);
+  --glass-blur: blur(30px);
+  --bottom-nav-bg: rgba(20, 16, 35, 0.65);
+  --bottom-nav-border: rgba(255, 255, 255, 0.08);
   --nav-text-color: white;
 }
 
@@ -166,6 +166,9 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
   }
   .header {
     margin-bottom: 12px !important;
+  }
+  .status {
+    display: none !important;
   }
   .brand h1 {
     font-size: 24px !important;
