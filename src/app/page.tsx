@@ -1115,11 +1115,6 @@ export default function Home() {
 
   return (
     <main className="phone">
-      <div className="status">
-        <span>{currentTime}</span>
-        <span>{isOnline ? "●●● Wi-Fi 🔋" : "⚠️ Offline 🪫"}</span>
-      </div>
-
       <section className="header">
         <div>
           <div className="brand" onClick={playLogoSound} style={{ cursor: "pointer" }}>
