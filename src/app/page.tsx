@@ -762,7 +762,7 @@ export default function Home() {
       } else {
         localStorage.setItem('remembered_login_email', email);
         setShowSplash(true);
-        setTimeout(() => setShowSplash(false), 6000);
+        setTimeout(() => setShowSplash(false), 2500);
       }
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
