@@ -1034,7 +1034,7 @@ export default function Home() {
         {/* Login Form */}
         {!showSplash && (
           <div 
-            className="glass-card" 
+            className="glass-card login-card" 
             style={{ 
               width: "100%",
               maxWidth: "360px",
