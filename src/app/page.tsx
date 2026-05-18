@@ -987,7 +987,7 @@ export default function Home() {
 
   if (!session || showSplash) {
     return (
-      <main className="phone" style={{ position: "relative", padding: "30px", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <main className="phone" style={{ position: "relative", padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: showSplash ? "center" : "flex-start", alignItems: "center", minHeight: "100%", gap: "20px" }}>
         {!showSplash && (
           <div className="theme-toggle" onClick={toggleTheme} style={{ position: "absolute", top: "25px", right: "25px", cursor: "pointer", zIndex: 100 }}>
             {isDarkMode ? "☀️" : "🌙"}
@@ -995,16 +995,32 @@ export default function Home() {
         )}
         
         {/* Brand Container */}
-        <div onClick={playLogoSound} style={{ position: "absolute", left: 0, right: 0, top: showSplash ? "50%" : "15%", transform: showSplash ? "translateY(-50%) scale(1.1)" : "translateY(0) scale(1)", textAlign: "center", zIndex: 10, transition: "all 3s cubic-bezier(0.25, 0.8, 0.25, 1)", cursor: "pointer" }}>
-          <div className="logo" style={{ width: "110px", height: "110px", margin: "0 auto 20px" }}>
+        <div 
+          onClick={playLogoSound} 
+          style={{ 
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: showSplash ? "auto" : "40px",
+            marginBottom: showSplash ? "auto" : "10px",
+            transform: showSplash ? "scale(1.1)" : "scale(0.85)",
+            textAlign: "center", 
+            zIndex: 10, 
+            transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)", 
+            cursor: "pointer",
+            flexShrink: 0
+          }}
+        >
+          <div className="logo" style={{ width: "110px", height: "110px", margin: "0 auto 16px", background: "transparent", border: "none", boxShadow: "none" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "32px", boxShadow: showSplash ? "0 10px 40px rgba(255, 112, 67, 0.4)" : "none", transition: "all 3s" }} />
+            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "32px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 3s" }} />
           </div>
-          <h1 style={{ fontSize: "44px", fontWeight: 900, letterSpacing: "1px" }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
+          <h1 style={{ fontSize: "40px", fontWeight: 900, letterSpacing: "1px", margin: 0 }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
           
-          <div style={{ marginTop: "16px", height: "30px", position: "relative" }}>
+          <div style={{ marginTop: "12px", height: "30px", position: "relative", display: showSplash ? "block" : "none" }}>
              {showSplash && (
-               <p style={{ position: "absolute", width: "100%", textAlign: "center", fontSize: "16px", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap" }}>
+               <p style={{ position: "absolute", width: "100%", left: 0, transform: "translateX(-50%)", textAlign: "center", fontSize: "15px", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", margin: 0 }}>
                  {"Memories that matter. Life in sync.".split(" ").map((word, idx) => (
                     <span key={idx} className="word-fade" style={{ animationDelay: `${1.8 + idx * 0.4}s`, display: "inline-block" }}>{word}&nbsp;</span>
                  ))}
@@ -1014,34 +1030,48 @@ export default function Home() {
         </div>
 
         {/* Login Form */}
-        <div className="glass-card" style={{ position: "absolute", left: "30px", right: "30px", top: "42%", padding: "30px", borderRadius: "28px", opacity: showSplash ? 0 : 1, transform: showSplash ? "translateY(40px) scale(0.95)" : "translateY(0) scale(1)", pointerEvents: showSplash ? "none" : "auto", transition: "all 0.6s cubic-bezier(0.25, 1, 0.5, 1)", zIndex: 5 }}>
-          <h2 style={{ fontSize: "24px", fontWeight: 600, marginBottom: "24px", textAlign: "center" }}>
-            {isLoginMode ? "Bejelentkezés" : "Regisztráció"}
-          </h2>
+        {!showSplash && (
+          <div 
+            className="glass-card" 
+            style={{ 
+              width: "100%",
+              maxWidth: "360px",
+              padding: "26px 20px", 
+              borderRadius: "28px", 
+              zIndex: 5,
+              animation: "slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+              marginBottom: "40px"
+            }}
+          >
+            <h2 style={{ fontSize: "22px", fontWeight: 600, marginBottom: "20px", textAlign: "center" }}>
+              {isLoginMode ? "Bejelentkezés" : "Regisztráció"}
+            </h2>
 
-          <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div>
-              <label style={{ fontSize: "14px", opacity: 0.9, marginBottom: "8px", display: "block" }}>Email cím</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@lifesync.hu" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "14px 16px", borderRadius: "16px", color: "white", outline: "none" }} />
+            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Email cím</label>
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@lifesync.hu" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
+              </div>
+              
+              <div>
+                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Jelszó</label>
+                <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
+              </div>
+
+              <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "15px", cursor: "pointer" }}>
+                {isLoginMode ? "Belépés" : "Fiók létrehozása"}
+              </button>
+            </form>
+
+            <div style={{ textAlign: "center", marginTop: "18px", fontSize: "13.5px" }}>
+              <span style={{ opacity: 0.7 }}>{isLoginMode ? "Nincs még fiókod?" : "Már van fiókod?"}</span>{" "}
+              <span onClick={() => setIsLoginMode(!isLoginMode)} style={{ color: "#ffcc80", fontWeight: 600, cursor: "pointer" }}>
+                {isLoginMode ? "Regisztráció" : "Bejelentkezés"}
+              </span>
             </div>
-            
-            <div>
-              <label style={{ fontSize: "14px", opacity: 0.9, marginBottom: "8px", display: "block" }}>Jelszó</label>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "14px 16px", borderRadius: "16px", color: "white", outline: "none" }} />
-            </div>
-
-            <button type="submit" style={{ marginTop: "10px", padding: "16px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "18px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "16px" }}>
-              {isLoginMode ? "Belépés" : "Fiók létrehozása"}
-            </button>
-          </form>
-
-          <div style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}>
-            <span style={{ opacity: 0.7 }}>{isLoginMode ? "Nincs még fiókod?" : "Már van fiókod?"}</span>{" "}
-            <span onClick={() => setIsLoginMode(!isLoginMode)} style={{ color: "#ffcc80", fontWeight: 600, cursor: "pointer" }}>
-              {isLoginMode ? "Regisztráció" : "Bejelentkezés"}
-            </span>
           </div>
-        </div>
+        )}
       </main>
     );
   }

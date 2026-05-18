@@ -1,0 +1,17 @@
+{
+  "name": "LifeSync App",
+  "short_name": "LifeSync",
+  "description": "Memories that matter. Life in sync.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a233a",
+  "theme_color": "#ff9800",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
