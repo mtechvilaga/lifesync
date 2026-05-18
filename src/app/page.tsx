@@ -762,7 +762,7 @@ export default function Home() {
       } else {
         localStorage.setItem('remembered_login_email', email);
         setShowSplash(true);
-        setTimeout(() => setShowSplash(false), 2500);
+        setTimeout(() => setShowSplash(false), 4000);
       }
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
@@ -1014,18 +1014,18 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div className="logo" style={{ width: showSplash ? "110px" : "75px", height: showSplash ? "110px" : "75px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
+          <div className="logo" style={{ width: showSplash ? "110px" : "92px", height: showSplash ? "110px" : "92px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: showSplash ? "32px" : "22px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.8s" }} />
+            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: showSplash ? "32px" : "26px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.8s" }} />
           </div>
-          <h1 style={{ fontSize: showSplash ? "40px" : "32px", fontWeight: 900, letterSpacing: "1px", margin: 0, transition: "all 0.8s" }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
+          <h1 style={{ fontSize: showSplash ? "40px" : "36px", fontWeight: 900, letterSpacing: "1px", margin: 0, transition: "all 0.8s" }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
           
-          <div style={{ marginTop: "12px", height: "30px", position: "relative", display: showSplash ? "block" : "none" }}>
+          <div style={{ marginTop: "12px", height: "30px", position: "relative", display: showSplash ? "block" : "none", width: "100%" }}>
              {showSplash && (
-               <p style={{ position: "absolute", width: "100%", left: 0, transform: "translateX(-50%)", textAlign: "center", fontSize: "15px", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", margin: 0 }}>
-                 {"Memories that matter. Life in sync.".split(" ").map((word, idx) => (
-                    <span key={idx} className="word-fade" style={{ animationDelay: `${1.8 + idx * 0.4}s`, display: "inline-block" }}>{word}&nbsp;</span>
-                 ))}
+               <p style={{ position: "absolute", width: "100%", left: "50%", transform: "translateX(-50%)", textAlign: "center", fontSize: "15px", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", margin: 0 }}>
+                  {"Memories that matter. Life in sync.".split(" ").map((word, idx) => (
+                     <span key={idx} className="word-fade" style={{ animationDelay: `${1.2 + idx * 0.35}s`, display: "inline-block" }}>{word}&nbsp;</span>
+                  ))}
                </p>
              )}
           </div>

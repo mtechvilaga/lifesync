@@ -135,69 +135,69 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
     border-radius: 0 !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 12px 14px !important;
+    padding: 10px 10px !important;
     overflow-x: hidden !important;
   }
   .bottom-nav {
-    left: 16px !important;
-    right: 16px !important;
-    bottom: calc(16px + env(safe-area-inset-bottom, 12px)) !important;
-    height: 72px !important;
-    border-radius: 24px !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 8px)) !important;
+    height: 64px !important;
+    border-radius: 20px !important;
   }
   .add {
-    width: 52px !important;
-    height: 52px !important;
-    font-size: 30px !important;
-    margin-top: -26px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 26px !important;
+    margin-top: -24px !important;
   }
   .header {
-    margin-bottom: 16px !important;
+    margin-bottom: 12px !important;
   }
   .brand h1 {
-    font-size: 28px !important;
+    font-size: 24px !important;
   }
   .logo {
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 12px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
   }
   .subtitle {
     display: none !important;
   }
   .theme-toggle, .search {
-    width: 40px !important;
-    height: 40px !important;
-    font-size: 16px !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 14px !important;
   }
   .search svg {
-    width: 18px !important;
-    height: 18px !important;
+    width: 16px !important;
+    height: 16px !important;
   }
   .glass-card {
-    border-radius: 20px !important;
+    border-radius: 16px !important;
   }
   .greeting {
-    padding: 16px !important;
-    margin-bottom: 12px !important;
+    padding: 12px !important;
+    margin-bottom: 8px !important;
   }
   .greeting h2 {
-    font-size: 22px !important;
+    font-size: 19px !important;
   }
   .memory {
-    padding: 12px !important;
-    margin-bottom: 12px !important;
+    padding: 10px !important;
+    margin-bottom: 8px !important;
   }
   .memory img {
-    width: 80px !important;
-    height: 80px !important;
-    border-radius: 14px !important;
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 12px !important;
   }
   .memory-text h3 {
-    font-size: 17px !important;
+    font-size: 15px !important;
   }
   .timeline {
-    padding: 12px !important;
+    padding: 10px !important;
   }
 }
 
