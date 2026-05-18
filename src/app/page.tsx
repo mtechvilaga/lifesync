@@ -55,6 +55,9 @@ export default function Home() {
   // Timeline Expand/Collapse State
   const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>({});
 
+  // Password Visibility Toggle State
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -1054,9 +1057,44 @@ export default function Home() {
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@lifesync.hu" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
               </div>
               
-              <div>
+                            <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Jelszó</label>
-                <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
+                <div style={{ position: "relative", width: "100%" }}>
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    required 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="••••••••" 
+                    style={{ 
+                      width: "100%", 
+                      background: "rgba(255,255,255,0.08)", 
+                      border: "1px solid rgba(255,255,255,0.2)", 
+                      padding: "12px 42px 12px 14px", 
+                      borderRadius: "14px", 
+                      color: "white", 
+                      outline: "none", 
+                      fontSize: "14px" 
+                    }} 
+                  />
+                  <span 
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ 
+                      position: "absolute", 
+                      right: "14px", 
+                      top: "50%", 
+                      transform: "translateY(-50%)", 
+                      cursor: "pointer", 
+                      fontSize: "16px",
+                      opacity: showPassword ? 0.95 : 0.4,
+                      transition: "opacity 0.2s ease",
+                      userSelect: "none",
+                      padding: "4px"
+                    }}
+                  >
+                    👁️
+                  </span>
+                </div>
               </div>
 
               <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "15px", cursor: "pointer" }}>
