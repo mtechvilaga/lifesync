@@ -151,6 +151,54 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
     font-size: 30px !important;
     margin-top: -26px !important;
   }
+  .header {
+    margin-bottom: 16px !important;
+  }
+  .brand h1 {
+    font-size: 28px !important;
+  }
+  .logo {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+  }
+  .subtitle {
+    display: none !important;
+  }
+  .theme-toggle, .search {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 16px !important;
+  }
+  .search svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .glass-card {
+    border-radius: 20px !important;
+  }
+  .greeting {
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+  }
+  .greeting h2 {
+    font-size: 22px !important;
+  }
+  .memory {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+  .memory img {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 14px !important;
+  }
+  .memory-text h3 {
+    font-size: 17px !important;
+  }
+  .timeline {
+    padding: 12px !important;
+  }
 }
 
 @keyframes slide-up {
