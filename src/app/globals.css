@@ -131,7 +131,7 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
   }
   .phone {
     width: 100% !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     border-radius: 0 !important;
     border: none !important;
     box-shadow: none !important;
@@ -139,10 +139,10 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
     overflow-x: hidden !important;
   }
   .bottom-nav {
-    left: 12px !important;
-    right: 12px !important;
-    bottom: 12px !important;
-    height: 70px !important;
+    left: 16px !important;
+    right: 16px !important;
+    bottom: calc(16px + env(safe-area-inset-bottom, 12px)) !important;
+    height: 72px !important;
     border-radius: 24px !important;
   }
   .add {
