@@ -52,6 +52,9 @@ export default function Home() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Timeline Expand/Collapse State
+  const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -1244,11 +1247,24 @@ export default function Home() {
                    {event.category === 'event' ? '🎂' : event.category === 'utility' ? '⚡' : '🏔'}
                  </div>
                  
-                 <div className="glass-card" style={{ flex: 1, padding: "16px", borderRadius: "20px", position: "relative" }}>
+                 <div 
+                   className="glass-card" 
+                   onClick={(e) => {
+                     if ((e.target as HTMLElement).closest('.menu-trigger') || (e.target as HTMLElement).closest('.options-menu')) {
+                       return;
+                     }
+                     setExpandedEvents(prev => ({ ...prev, [event.id]: !prev[event.id] }));
+                   }}
+                   style={{ flex: 1, padding: "16px", borderRadius: "20px", position: "relative", cursor: "pointer", transition: "all 0.3s ease", border: expandedEvents[event.id] ? "1px solid rgba(255, 152, 0, 0.4)" : "1px solid var(--card-border)" }}
+                 >
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
                      <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>{event.event_date}</span>
                      <span 
-                       onClick={() => setActiveMenuId(activeMenuId === event.id ? null : event.id)} 
+                       className="menu-trigger"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         setActiveMenuId(activeMenuId === event.id ? null : event.id);
+                       }} 
                        style={{ opacity: 0.7, cursor: "pointer", padding: "0 8px", fontSize: "16px", letterSpacing: "1px" }}
                      >
                        •••
@@ -1256,83 +1272,134 @@ export default function Home() {
                    </div>
 
                    {activeMenuId === event.id && (
-                     <div style={{ position: "absolute", right: "16px", top: "40px", background: "rgba(30,30,30,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", padding: "6px", zIndex: 10, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", backdropFilter: "blur(10px)", display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <button onClick={() => handleEditEvent(event)} style={{ background: "transparent", border: "1px solid transparent", color: "white", fontSize: "14px", fontWeight: 500, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
+                     <div className="options-menu" style={{ position: "absolute", right: "16px", top: "40px", background: "rgba(30,30,30,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", padding: "6px", zIndex: 10, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", backdropFilter: "blur(10px)", display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <button onClick={(e) => { e.stopPropagation(); handleEditEvent(event); }} style={{ background: "transparent", border: "1px solid transparent", color: "white", fontSize: "14px", fontWeight: 500, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
                           Módosítás
                         </button>
-                        <button onClick={() => handleDeleteEvent(event.id)} style={{ background: "rgba(255, 50, 50, 0.1)", border: "1px solid rgba(255, 50, 50, 0.2)", color: "#ff6b6b", fontSize: "14px", fontWeight: 600, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event.id); }} style={{ background: "rgba(255, 50, 50, 0.1)", border: "1px solid rgba(255, 50, 50, 0.2)", color: "#ff6b6b", fontSize: "14px", fontWeight: 600, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
                           Törlés
                         </button>
                      </div>
                    )}
                    
-                   {(() => {
-                      let attachments: any[] = [];
-                      try {
-                        if (event.image_url && event.image_url.startsWith("[")) {
-                          attachments = JSON.parse(event.image_url);
-                        } else if (event.image_url) {
-                          attachments = [{ name: "Csatolt kép", url: event.image_url, type: "image/jpeg" }];
-                        }
-                      } catch (e) {
-                        if (event.image_url) {
-                          attachments = [{ name: "Csatolt kép", url: event.image_url, type: "image/jpeg" }];
-                        }
-                      }
+                   <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: expandedEvents[event.id] ? "6px" : "0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                     <span>{event.title}</span>
+                     <span style={{ fontSize: "12px", opacity: 0.5, fontWeight: 400, marginLeft: "8px" }}>
+                       {expandedEvents[event.id] ? "🔼" : "🔽"}
+                     </span>
+                   </h3>
 
-                      if (attachments.length === 0) return null;
+                   {!expandedEvents[event.id] && (
+                     <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
+                       {(() => {
+                         let attachments: any[] = [];
+                         try {
+                           if (event.image_url && event.image_url.startsWith("[")) {
+                             attachments = JSON.parse(event.image_url);
+                           } else if (event.image_url) {
+                             attachments = [{ type: "image/jpeg" }];
+                           }
+                         } catch (e) {
+                           if (event.image_url) {
+                             attachments = [{ type: "image/jpeg" }];
+                           }
+                         }
+                         if (attachments.length === 0) return null;
+                         const images = attachments.filter(att => att.type?.startsWith("image/")).length;
+                         const audios = attachments.filter(att => att.type?.startsWith("audio/")).length;
+                         const docs = attachments.filter(att => !att.type?.startsWith("image/") && !att.type?.startsWith("audio/")).length;
 
-                      const images = attachments.filter(att => att.type?.startsWith("image/"));
-                      const audios = attachments.filter(att => att.type?.startsWith("audio/"));
-                      const docs = attachments.filter(att => !att.type?.startsWith("image/") && !att.type?.startsWith("audio/"));
+                         const parts = [];
+                         if (images > 0) parts.push(`📸 ${images} kép`);
+                         if (audios > 0) parts.push(`🎙️ ${audios} hang`);
+                         if (docs > 0) parts.push(`📄 ${docs} dokumentum`);
+                         
+                         return (
+                           <span style={{ fontSize: "11px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", padding: "4px 8px", borderRadius: "10px", alignSelf: "flex-start", opacity: 0.8, display: "flex", alignItems: "center", gap: "4px" }}>
+                             📎 {parts.join(" • ")}
+                           </span>
+                         );
+                       })()}
+                       {event.description && (
+                         <span style={{ fontSize: "13px", opacity: 0.5, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
+                           {event.description}
+                         </span>
+                       )}
+                     </div>
+                   )}
 
-                      return (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
-                          {/* Képek kirajzolása */}
-                          {images.length > 0 && (
-                            <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
-                              {images.map((img, idx) => (
-                                <a key={idx} href={img.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", flexShrink: 0, width: images.length === 1 ? "100%" : "120px", height: images.length === 1 ? "160px" : "100px", borderRadius: "14px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={img.url} alt={img.name || "Kép"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                </a>
-                              ))}
-                            </div>
-                          )}
+                   {expandedEvents[event.id] && (
+                     <div style={{ marginTop: "12px", animation: "fade-in 0.2s ease-out" }} onClick={(e) => e.stopPropagation()}>
+                       {event.description && (
+                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{event.description}</p>
+                       )}
 
-                          {/* Hangjegyzetek lejátszása */}
-                          {audios.length > 0 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              {audios.map((audio, idx) => (
-                                <div key={idx} style={{ background: "rgba(255,255,255,0.06)", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                                    <span style={{ fontSize: "16px" }}>🎙️</span>
-                                    <span style={{ fontSize: "13px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{audio.name || "Hangfelvétel"}</span>
-                                  </div>
-                                  <audio controls src={audio.url} style={{ width: "100%", height: "36px", outline: "none" }} />
+                       {(() => {
+                          let attachments: any[] = [];
+                          try {
+                            if (event.image_url && event.image_url.startsWith("[")) {
+                              attachments = JSON.parse(event.image_url);
+                            } else if (event.image_url) {
+                              attachments = [{ name: "Csatolt kép", url: event.image_url, type: "image/jpeg" }];
+                            }
+                          } catch (e) {
+                            if (event.image_url) {
+                              attachments = [{ name: "Csatolt kép", url: event.image_url, type: "image/jpeg" }];
+                            }
+                          }
+
+                          if (attachments.length === 0) return null;
+
+                          const images = attachments.filter(att => att.type?.startsWith("image/"));
+                          const audios = attachments.filter(att => att.type?.startsWith("audio/"));
+                          const docs = attachments.filter(att => !att.type?.startsWith("image/") && !att.type?.startsWith("audio/"));
+
+                          return (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "4px" }}>
+                              {/* Képek kirajzolása */}
+                              {images.length > 0 && (
+                                <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
+                                  {images.map((img, idx) => (
+                                    <a key={idx} href={img.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", flexShrink: 0, width: images.length === 1 ? "100%" : "120px", height: images.length === 1 ? "160px" : "100px", borderRadius: "14px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img src={img.url} alt={img.name || "Kép"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    </a>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
-                          )}
+                              )}
 
-                          {/* Dokumentumok kirajzolása pill-ként */}
-                          {docs.length > 0 && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                              {docs.map((doc, idx) => (
-                                <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", color: "white", textDecoration: "none", fontSize: "13px", fontWeight: 500, transition: "background 0.2s" }} className="doc-pill">
-                                  <span style={{ fontSize: "16px" }}>📄</span>
-                                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{doc.name || "Dokumentum"}</span>
-                                  <span style={{ fontSize: "12px", opacity: 0.5 }}>Megnyitás ↗</span>
-                                </a>
-                              ))}
+                              {/* Hangjegyzetek lejátszása */}
+                              {audios.length > 0 && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                  {audios.map((audio, idx) => (
+                                    <div key={idx} style={{ background: "rgba(255,255,255,0.06)", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                                        <span style={{ fontSize: "16px" }}>🎙️</span>
+                                        <span style={{ fontSize: "13px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{audio.name || "Hangfelvétel"}</span>
+                                      </div>
+                                      <audio controls src={audio.url} style={{ width: "100%", height: "36px", outline: "none" }} />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Dokumentumok kirajzolása pill-ként */}
+                              {docs.length > 0 && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                  {docs.map((doc, idx) => (
+                                    <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", color: "white", textDecoration: "none", fontSize: "13px", fontWeight: 500, transition: "background 0.2s" }} className="doc-pill">
+                                      <span style={{ fontSize: "16px" }}>📄</span>
+                                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{doc.name || "Dokumentum"}</span>
+                                      <span style={{ fontSize: "12px", opacity: 0.5 }}>Megnyitás ↗</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                   
-                   <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "6px" }}>{event.title}</h3>
-                   <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4 }}>{event.description}</p>
+                          );
+                       })()}
+                     </div>
+                   )}
                  </div>
                </div>
              ))}
