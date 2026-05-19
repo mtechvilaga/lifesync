@@ -30,6 +30,7 @@ export default function Home() {
 
   // Custom Confirm state
   const [eventToDeleteId, setEventToDeleteId] = useState<string | null>(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
   // Greeting Inline Edit state
   const [isEditingGreetingName, setIsEditingGreetingName] = useState(false);
@@ -858,6 +859,18 @@ export default function Home() {
     daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
   };
 
+  const handleDeleteAll = async () => {
+    if (!session) return;
+    const { error } = await supabase.from('events').delete().eq('user_id', session.user.id);
+    if (error) {
+      showToast("Hiba törlés közben: " + error.message, 'error');
+    } else {
+      setEvents([]);
+      showToast("Összes esemény törölve!", 'success');
+    }
+    setShowDeleteAllConfirm(false);
+  };
+
   const handleEditEvent = (event: any) => {
     setEditingEventId(event.id);
     setNewEventTitle(event.title);
@@ -1378,7 +1391,17 @@ export default function Home() {
       {activeTab === "Timeline" && (
         <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div style={{ padding: "0 4px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>Timeline</h2>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+              <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Timeline</h2>
+              {events.length > 0 && (
+                <button
+                  onClick={() => setShowDeleteAllConfirm(true)}
+                  style={{ fontSize: "12px", padding: "6px 12px", borderRadius: "20px", border: "1px solid rgba(255,80,80,0.3)", background: "rgba(255,80,80,0.1)", color: "#ff6b6b", cursor: "pointer", fontWeight: 600 }}
+                >
+                  🗑️ Összes törlése
+                </button>
+              )}
+            </div>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>Az összes esemény és dokumentum egy helyen.</p>
           </div>
 
@@ -2485,6 +2508,21 @@ export default function Home() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Összes törlése megerősítés */}
+      {showDeleteAllConfirm && (
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div className="glass-card" style={{ padding: "24px", borderRadius: "20px", textAlign: "center", maxWidth: "320px", width: "100%" }}>
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>🗑️</div>
+            <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>Összes esemény törlése</h3>
+            <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>Biztosan törölni szeretnéd az összes eseményedet? Ez a művelet nem vonható vissza!</p>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button onClick={() => setShowDeleteAllConfirm(false)} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.1)", border: "none", color: "white", fontWeight: 600, cursor: "pointer" }}>Mégsem</button>
+              <button onClick={handleDeleteAll} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "#ff6b6b", border: "none", color: "white", fontWeight: 600, cursor: "pointer" }}>Törlés</button>
+            </div>
           </div>
         </div>
       )}
