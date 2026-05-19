@@ -14,6 +14,8 @@
   --bottom-nav-bg: rgba(255, 255, 255, 0.16);
   --bottom-nav-border: rgba(255, 255, 255, 0.22);
   --nav-text-color: white;
+  --nav-height: 72px;
+  --header-height: 120px;
 }
 
 body.light-mode {
@@ -32,60 +34,397 @@ body.light-mode {
   --nav-text-color: #1e293b;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; } 
-body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: var(--bg-gradient); color: var(--text-color); overflow: auto; padding: 40px 0; transition: background 0.3s ease, color 0.3s ease; }
-.phone { width: 440px; height: 1220px; border-radius: 42px; padding: 28px 22px; background: var(--glass-card-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-card-border); box-shadow: 0 30px 80px var(--card-shadow); position: relative; overflow: hidden; transition: all 0.3s ease; } 
-.status { display: flex; justify-content: space-between; font-size: 14px; opacity: 0.9; margin-bottom: 30px; } 
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; } 
-.brand { display: flex; align-items: center; gap: 14px; } 
-.logo { width: 50px; height: 50px; border-radius: 16px; background: transparent; display: grid; place-items: center; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2); } 
-.brand h1 { font-size: 38px; letter-spacing: 1px; font-weight: 850; } 
-.text-life { background: linear-gradient(to right, #2563eb, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.text-sync { background: linear-gradient(to right, #8b5cf6, #ec4899, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } 
-.subtitle { font-size: 14.5px; color: var(--text-color); margin-top: 10px; padding: 7px 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 20px; display: inline-block; font-weight: 500; transition: all 0.3s ease; } 
-.search { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--card-bg); border: 1px solid var(--card-border); font-size: 22px; transition: all 0.3s ease; } 
-.glass-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 26px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 14px 35px var(--card-shadow); transition: all 0.3s ease; } 
-.greeting { padding: 24px; margin-bottom: 18px; } 
-.greeting p { opacity: 0.75; margin-bottom: 8px; } 
-.greeting h2 { font-size: 28px; font-weight: 650; margin-bottom: 8px; } 
-.memory { padding: 18px; margin-bottom: 18px; } 
-.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-weight: 600; } 
-.section-head span:last-child { color: #ff9800; font-size: 14px; } 
-.memory-content { display: flex; gap: 16px; align-items: center; } 
-.memory img { width: 110px; height: 110px; border-radius: 20px; object-fit: cover; } 
-.memory-text h3 { font-size: 20px; margin-bottom: 8px; } 
-.memory-text small { opacity: 0.72; } 
-.memory-text p { margin-top: 10px; line-height: 1.4; opacity: 0.8; font-size: 14px; } 
-.timeline { padding: 18px; margin-bottom: 18px; } 
-.stats { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; padding: 4px 0 6px; } 
-.stats::-webkit-scrollbar { display: none; }
-.stat { flex: 0 0 100%; scroll-snap-align: center; padding: 26px 20px; border-radius: 22px; background: var(--glass-card-bg); border: 1px solid var(--glass-card-border); display: flex; flex-direction: row; align-items: center; gap: 16px; text-align: left; transition: all 0.3s ease; } 
-.stat .icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #ff7043, #ffb74d); font-size: 22px; flex-shrink: 0; } 
-.stat strong { font-size: 26px; display: block; margin-bottom: 2px; font-weight: 750; } 
-.stat small { opacity: 0.7; font-size: 13px; font-weight: 500; } 
-.recent { padding: 18px; } 
-.photos { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 10px; } 
-.photos::-webkit-scrollbar { display: none; }
-.photo { flex: 0 0 120px; cursor: pointer; }
-.photo img { width: 100%; height: 120px; border-radius: 16px; object-fit: cover; margin-bottom: 8px; } 
-.photo strong { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; } 
-.photo small { display: block; opacity: 0.65; font-size: 12px; } 
-.bottom-nav { position: absolute; left: 22px; right: 22px; bottom: 24px; height: 78px; border-radius: 28px; background: var(--bottom-nav-bg); border: 1px solid var(--bottom-nav-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 12px 30px var(--card-shadow); z-index: 50; transition: all 0.3s ease; } 
-.nav-item { text-align: center; font-size: 11px; opacity: 0.75; color: var(--nav-text-color); transition: all 0.3s ease; } 
-.nav-item.active { color: #ff9800; opacity: 1; } 
-.nav-item .nav-icon { font-size: 22px; margin-bottom: 4px; } 
-.add { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #e65100, #ff9800); display: grid; place-items: center; font-size: 34px; margin-top: -30px; box-shadow: 0 12px 30px rgba(230, 81, 0, 0.5); }
-.theme-toggle { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--card-bg); border: 1px solid var(--card-border); font-size: 20px; transition: all 0.3s ease; }
-input, textarea, select { background: var(--input-bg) !important; border: 1px solid var(--input-border) !important; color: var(--text-color) !important; transition: all 0.3s ease; }
-input::placeholder, textarea::placeholder { color: var(--text-color) !important; opacity: 0.5 !important; }
-
-@keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); opacity: 0; }
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg-gradient);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ─── TELEFON KERET (asztali nézetben) ─── */
+.phone {
+  width: min(440px, 100vw);
+  height: min(1220px, 100dvh);
+  border-radius: clamp(0px, 4vw, 42px);
+  padding: clamp(12px, 3vw, 28px) clamp(10px, 3vw, 22px);
+  background: var(--glass-card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-card-border);
+  box-shadow: 0 30px 80px var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* ─── STÁTUSZ SOR ─── */
+.status {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(11px, 2.5vw, 14px);
+  opacity: 0.9;
+  margin-bottom: clamp(12px, 3vw, 30px);
+}
+
+/* ─── FEJLÉC ─── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(10px, 2.5vw, 28px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 14px);
+}
+
+.logo {
+  width: clamp(32px, 8vw, 50px);
+  height: clamp(32px, 8vw, 50px);
+  border-radius: clamp(8px, 2vw, 16px);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.brand h1 {
+  font-size: clamp(22px, 6vw, 38px);
+  letter-spacing: 1px;
+  font-weight: 850;
+}
+
+.text-life {
+  background: linear-gradient(to right, #2563eb, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-sync {
+  background: linear-gradient(to right, #8b5cf6, #ec4899, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: clamp(11px, 2.5vw, 14.5px);
+  color: var(--text-color);
+  margin-top: 10px;
+  padding: 7px 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 20px;
+  display: inline-block;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55vw;
+}
+
+.search {
+  width: clamp(36px, 9vw, 48px);
+  height: clamp(36px, 9vw, 48px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  font-size: clamp(16px, 4vw, 22px);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* ─── KÁRTYÁK ─── */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: clamp(14px, 4vw, 26px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 14px 35px var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+/* ─── ÜDVÖZLŐ KÁRTYA ─── */
+.greeting {
+  padding: clamp(14px, 4vw, 24px);
+  margin-bottom: clamp(10px, 2.5vw, 18px);
+}
+
+.greeting p {
+  opacity: 0.75;
+  margin-bottom: 8px;
+  font-size: clamp(13px, 3vw, 16px);
+}
+
+.greeting h2 {
+  font-size: clamp(20px, 5.5vw, 28px);
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+/* ─── STATISZTIKÁK ─── */
+.timeline {
+  padding: clamp(12px, 3vw, 18px);
+  margin-bottom: clamp(10px, 2.5vw, 18px);
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding: 4px 0 6px;
+}
+
+.stats::-webkit-scrollbar { display: none; }
+
+.stat {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  padding: clamp(14px, 3.5vw, 26px) clamp(12px, 3vw, 20px);
+  border-radius: clamp(14px, 3.5vw, 22px);
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(10px, 2.5vw, 16px);
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.stat .icon {
+  width: clamp(36px, 9vw, 48px);
+  height: clamp(36px, 9vw, 48px);
+  border-radius: clamp(10px, 2.5vw, 14px);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ff7043, #ffb74d);
+  font-size: clamp(18px, 4.5vw, 22px);
+  flex-shrink: 0;
+}
+
+.stat strong {
+  font-size: clamp(18px, 5vw, 26px);
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 750;
+}
+
+.stat small {
+  opacity: 0.7;
+  font-size: clamp(11px, 2.5vw, 13px);
+  font-weight: 500;
+}
+
+/* ─── LEGUTÓBBI EMLÉKEK ─── */
+.recent {
+  padding: clamp(12px, 3vw, 18px);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(10px, 2.5vw, 14px);
+  font-weight: 600;
+  font-size: clamp(13px, 3vw, 16px);
+}
+
+.section-head span:last-child {
+  color: #ff9800;
+  font-size: clamp(12px, 3vw, 14px);
+}
+
+.photos {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+}
+
+.photos::-webkit-scrollbar { display: none; }
+
+.photo {
+  flex: 0 0 clamp(90px, 25vw, 120px);
+  cursor: pointer;
+}
+
+.photo img {
+  width: 100%;
+  height: clamp(90px, 25vw, 120px);
+  border-radius: clamp(10px, 3vw, 16px);
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.photo strong {
+  font-size: clamp(11px, 2.5vw, 13px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.photo small {
+  display: block;
+  opacity: 0.65;
+  font-size: clamp(10px, 2vw, 12px);
+}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav {
+  position: absolute;
+  left: clamp(10px, 3vw, 22px);
+  right: clamp(10px, 3vw, 22px);
+  bottom: clamp(10px, 3vw, 24px);
+  height: clamp(64px, 14vw, 78px);
+  border-radius: clamp(18px, 5vw, 28px);
+  background: var(--bottom-nav-bg);
+  border: 1px solid var(--bottom-nav-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 12px 30px var(--card-shadow);
+  z-index: 50;
+  transition: all 0.3s ease;
+  padding: 0 clamp(4px, 1.5vw, 10px);
+}
+
+.nav-item {
+  text-align: center;
+  font-size: clamp(9px, 2.2vw, 11px);
+  opacity: 0.75;
+  color: var(--nav-text-color);
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.nav-item.active {
+  color: #ff9800;
+  opacity: 1;
+}
+
+.nav-item .nav-icon {
+  font-size: clamp(18px, 4.5vw, 22px);
+  margin-bottom: clamp(2px, 0.5vw, 4px);
+}
+
+.add {
+  width: clamp(50px, 13vw, 60px);
+  height: clamp(50px, 13vw, 60px);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e65100, #ff9800);
+  display: grid;
+  place-items: center;
+  font-size: clamp(26px, 7vw, 34px);
+  margin-top: clamp(-25px, -6.5vw, -30px);
+  box-shadow: 0 12px 30px rgba(230, 81, 0, 0.5);
+  flex-shrink: 0;
+}
+
+/* ─── TÉMAVÁLTÓ ─── */
+.theme-toggle {
+  width: clamp(36px, 9vw, 48px);
+  height: clamp(36px, 9vw, 48px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  font-size: clamp(15px, 4vw, 20px);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* ─── FORM ELEMEK ─── */
+input, textarea, select {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-color) !important;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-color) !important;
+  opacity: 0.5 !important;
+}
+
+/* ─── MOBIL (max 480px) ─── */
+@media (max-width: 480px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  body {
+    padding: 0;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .phone {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: env(safe-area-inset-top, 14px) 14px 0 14px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .bottom-nav {
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    height: 68px;
+    border-radius: 22px;
+  }
+}
+
+/* ─── ANIMÁCIÓK ─── */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
@@ -103,64 +442,190 @@ input::placeholder, textarea::placeholder { color: var(--text-color) !important;
   100% { opacity: 1; filter: blur(0); }
 }
 
-.react-datepicker-wrapper { width: 100%; }
-.react-datepicker { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background: rgba(30, 40, 60, 0.85) !important; backdrop-filter: blur(20px) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 16px !important; color: white !important; overflow: hidden; }
-.react-datepicker__header { background: rgba(255, 255, 255, 0.05) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; border-top-left-radius: 16px !important; border-top-right-radius: 16px !important; }
-.react-datepicker__current-month, .react-datepicker-time__header, .react-datepicker-year-header { color: white !important; font-weight: 600 !important; }
-.react-datepicker__day-name, .react-datepicker__day, .react-datepicker__time-name { color: white !important; }
-.react-datepicker__day:hover, .react-datepicker__month-text:hover, .react-datepicker__quarter-text:hover, .react-datepicker__year-text:hover { background-color: rgba(255, 255, 255, 0.15) !important; border-radius: 50% !important; }
-.react-datepicker__day--selected, .react-datepicker__day--in-selecting-range, .react-datepicker__day--in-range, .react-datepicker__month-text--selected, .react-datepicker__month-text--in-selecting-range, .react-datepicker__month-text--in-range, .react-datepicker__quarter-text--selected, .react-datepicker__quarter-text--in-selecting-range, .react-datepicker__quarter-text--in-range, .react-datepicker__year-text--selected, .react-datepicker__year-text--in-selecting-range, .react-datepicker__year-text--in-range { background-color: #ff9800 !important; color: white !important; border-radius: 50% !important; }
-.react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected { background-color: rgba(255, 152, 0, 0.5) !important; border-radius: 50% !important; }
-.react-datepicker-time__header { color: white !important; }
-.react-datepicker__time-container { border-left: 1px solid rgba(255, 255, 255, 0.1) !important; }
-.react-datepicker__time-container .react-datepicker__time { background: transparent !important; }
-.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item { height: 30px; padding: 5px 10px; }
-.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover { background-color: rgba(255, 255, 255, 0.15) !important; }
-.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected { background-color: #ff9800 !important; color: white !important; }
-
-.custom-datepicker { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); padding: 10px 14px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
-.custom-datepicker::placeholder { color: rgba(255,255,255,0.5); }
-
-/* Mobil reszponzív nézet: a telefon keret eltűnik, és kitölti a teljes képernyőt */
-@media (max-width: 480px) {
-  html, body {
-    overscroll-behavior: none !important;
-  }
-  body {
-    padding: 0 !important;
-    overflow: hidden;
-  }
-  .phone {
-    width: 100% !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 12px 14px !important;
-  }
-  .brand h1 {
-    font-size: 26px !important;
-  }
-  .logo {
-    width: 36px !important;
-    height: 36px !important;
-  }
-  .bottom-nav {
-    left: 12px !important;
-    right: 12px !important;
-    bottom: 12px !important;
-    height: 70px !important;
-    border-radius: 24px !important;
-  }
-  .add {
-    width: 52px !important;
-    height: 52px !important;
-    font-size: 30px !important;
-    margin-top: -26px !important;
-  }
-}
-
 @keyframes slide-up {
   0% { transform: translate(-50%, 20px); opacity: 0; }
   100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes form-slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ─── DATEPICKER ─── */
+.react-datepicker-wrapper { width: 100%; }
+.react-datepicker { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background: rgba(30, 40, 60, 0.85) !important; backdrop-filter: blur(20px) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 16px !important; color: white !important; overflow: hidden; }
+.react-datepicker__header { background: rgba(255, 255, 255, 0.05) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; border-top-left-radius: 16px !important; border-top-right-radius: 16px !important; }
+.react-datepicker__current-month, .react-datepicker-time__header { color: white !important; font-weight: 600 !important; }
+.react-datepicker__day-name, .react-datepicker__day { color: white !important; }
+.react-datepicker__day:hover { background-color: rgba(255, 255, 255, 0.15) !important; border-radius: 50% !important; }
+.react-datepicker__day--selected { background-color: #ff9800 !important; color: white !important; border-radius: 50% !important; }
+.react-datepicker__time-container { border-left: 1px solid rgba(255, 255, 255, 0.1) !important; }
+.react-datepicker__time-container .react-datepicker__time { background: transparent !important; }
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover { background-color: rgba(255, 255, 255, 0.15) !important; }
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected { background-color: #ff9800 !important; color: white !important; }
+.custom-datepicker { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); padding: 10px 14px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
+.custom-datepicker::placeholder { color: rgba(255,255,255,0.5); }
+
+/* ─── NAPTÁR NÉZET ─── */
+.cal-view-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 16px;
+  padding: 4px;
+}
+
+.cal-toggle-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 12px;
+  border: none;
+  font-size: clamp(12px, 3vw, 13px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+.cal-toggle-btn.active {
+  background: linear-gradient(135deg, #ffb74d, #ff7043);
+  color: white;
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(255, 112, 67, 0.35);
+}
+
+.cal-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cal-month-title {
+  font-size: clamp(14px, 4vw, 17px);
+  font-weight: 700;
+}
+
+.cal-nav-btn {
+  width: clamp(28px, 7vw, 34px);
+  height: clamp(28px, 7vw, 34px);
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: clamp(14px, 3.5vw, 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.cal-day-name {
+  text-align: center;
+  font-size: clamp(9px, 2.2vw, 11px);
+  opacity: 0.5;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: clamp(6px, 1.5vw, 10px);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cal-cell:hover { background: var(--input-bg); }
+
+.cal-cell.selected {
+  background: rgba(255, 112, 67, 0.2);
+  border: 1px solid rgba(255, 112, 67, 0.4);
+}
+
+.cal-cell.today .cal-num {
+  background: linear-gradient(135deg, #ffb74d, #ff7043);
+  color: white;
+  width: clamp(22px, 5.5vw, 28px);
+  height: clamp(22px, 5.5vw, 28px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.cal-num {
+  font-size: clamp(10px, 2.5vw, 13px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cal-num.cal-muted { opacity: 0.25; }
+
+.cal-dots {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+  justify-content: center;
+}
+
+.cal-dot {
+  width: clamp(3px, 0.8vw, 4px);
+  height: clamp(3px, 0.8vw, 4px);
+  border-radius: 50%;
+}
+
+.cal-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cal-event-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 14px);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: clamp(12px, 3vw, 16px);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cal-event-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cal-event-title {
+  font-size: clamp(13px, 3vw, 14px);
+  font-weight: 600;
+  flex: 1;
+}
+
+.cal-empty {
+  text-align: center;
+  padding: 24px 0;
+  opacity: 0.5;
+  font-size: clamp(12px, 3vw, 14px);
 }

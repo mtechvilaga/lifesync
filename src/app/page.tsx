@@ -897,8 +897,9 @@ export default function Home() {
       } else {
         showToast("Az esemény sikeresen frissítve!", 'success');
         resetForm();
-        fetchEvents();
-        setActiveTab("Timeline");
+        const { data } = await supabase.from('events').select('*').order('event_date', { ascending: false });
+if (data) setEvents(data);
+setActiveTab("Timeline");
       }
     } else {
       const { error } = await supabase.from('events').insert([
@@ -1142,7 +1143,7 @@ export default function Home() {
 
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
-        <div key="Home" className="page-transition" style={{ height: "calc(100% - 210px)", overflowY: "auto", paddingBottom: "200px", scrollbarWidth: "none" }}>
+        <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none" }}>
           <section className="glass-card greeting" style={{ position: "relative" }}>
             {isEditingGreetingName ? (
               <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
@@ -1288,7 +1289,7 @@ export default function Home() {
       )}
 
       {activeTab === "Timeline" && (
-        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 210px)", overflowY: "auto", paddingBottom: "200px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div style={{ padding: "0 4px" }}>
             <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>Timeline</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>Az összes esemény és dokumentum egy helyen.</p>
@@ -1470,7 +1471,7 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(100% - 210px)", overflowY: "auto", paddingBottom: "220px", scrollbarWidth: "none" }}>
+        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "300px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "16px" }}>
             <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : "Új bejegyzés"}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? "Módosítsd a kiválasztott emléket." : "Rögzíts egy emléket vagy számlát."}</p>
@@ -1717,7 +1718,7 @@ export default function Home() {
       )}
 
       {activeTab === "Profile" && (
-        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 210px)", overflowY: "auto", paddingBottom: "200px", scrollbarWidth: "none" }}>
+        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "20px" }}>
             <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>Profil</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>Személyes beállítások és fiók.</p>
@@ -1909,7 +1910,7 @@ export default function Home() {
       )}
 
       {activeTab === "Vault" && (
-        <div key="Vault" className="page-transition" style={{ height: "calc(100% - 210px)", overflowY: "auto", paddingBottom: "200px", scrollbarWidth: "none" }}>
+        <div key="Vault" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none" }}>
           {activeVaultFolder ? (
             // FOLDER DETAIL VIEW
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -2229,19 +2230,19 @@ export default function Home() {
               <>
                 {/* Timeline Eredmények */}
                 {(() => {
-                  const filteredEvents = events.filter(e => (e.event_title?.toLowerCase().includes(searchQuery.toLowerCase())) || (e.event_desc?.toLowerCase().includes(searchQuery.toLowerCase())));
+                  const filteredEvents = events.filter(e => (e.title?.toLowerCase().includes(searchQuery.toLowerCase())) || (e.description?.toLowerCase().includes(searchQuery.toLowerCase())));
                   return filteredEvents.length > 0 && (
                     <div>
                       <h4 style={{ fontSize: "13px", fontWeight: 700, opacity: 0.5, marginBottom: "12px", letterSpacing: "1px" }}>ESEMÉNYEK ({filteredEvents.length})</h4>
                       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                         {filteredEvents.map(event => (
-                          <div key={event.id} onClick={() => { setIsSearchOpen(false); setActiveTab("Timeline"); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
+                          <div key={event.id} onClick={() => { setIsSearchOpen(false); setScrollToEventId(event.id); setActiveTab("Timeline"); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                               <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
                                 {event.event_type === 'memory' ? '💭' : '📅'}
                               </div>
                               <div>
-                                <h5 style={{ fontSize: "15px", fontWeight: 600 }}>{event.event_title}</h5>
+                                <h5 style={{ fontSize: "15px", fontWeight: 600 }}>{event.title}</h5>
                                 <p style={{ fontSize: "12px", opacity: 0.6 }}>{new Date(event.event_date).toLocaleDateString()}</p>
                               </div>
                             </div>
@@ -2303,7 +2304,7 @@ export default function Home() {
                 })()}
 
                 {/* Nincs találat */}
-                {events.filter(e => (e.event_title?.toLowerCase().includes(searchQuery.toLowerCase())) || (e.event_desc?.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 &&
+                {events.filter(e => (e.title?.toLowerCase().includes(searchQuery.toLowerCase())) || (e.description?.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 &&
                  vaultFolders.filter(f => f.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 &&
                  allVaultFiles.filter(f => f.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
                   <div style={{ textAlign: "center", marginTop: "40px", opacity: 0.6 }}>
