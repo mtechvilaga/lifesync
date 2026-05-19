@@ -792,72 +792,70 @@ export default function Home() {
     await supabase.auth.signOut();
   };
 
-  const handleDeleteEvent = (id: string, groupId?: string) => {
+  const handleDeleteEvent = (id: string, recurringType?: string) => {
     setEventToDeleteId(id);
-    setEventToDeleteGroupId(groupId || null);
-    setDeleteMode(groupId ? null : "single");
+    setDeleteMode(recurringType ? null : "single");
     setActiveMenuId(null);
   };
 
   const confirmDelete = async () => {
     if (!eventToDeleteId) return;
-    if (deleteMode === "all" && eventToDeleteGroupId) {
-      const eventDate = events.find(e => e.id === eventToDeleteId)?.event_date;
-      const { error } = await supabase.from('events').delete().eq('recurring_group_id', eventToDeleteGroupId).gte('event_date', eventDate || '');
-      if (!error) {
-        setEvents(events.filter(e => !(e.recurring_group_id === eventToDeleteGroupId && e.event_date >= (eventDate || ''))));
-        showToast("Összes jövőbeli esemény törölve!", 'success');
-      }
+    const { error } = await supabase.from('events').delete().eq('id', eventToDeleteId);
+    if (error) {
+      showToast("Hiba törlés közben: " + error.message, 'error');
     } else {
-      const { error } = await supabase.from('events').delete().eq('id', eventToDeleteId);
-      if (error) {
-        showToast("Hiba törlés közben: " + error.message, 'error');
-      } else {
-        setEvents(events.filter(e => e.id !== eventToDeleteId));
-        showToast("Esemény törölve!", 'success');
-      }
+      setEvents(events.filter(e => e.id !== eventToDeleteId));
+      showToast("Esemény törölve!", 'success');
     }
     setEventToDeleteId(null);
-    setEventToDeleteGroupId(null);
     setDeleteMode(null);
   };
 
-  const generateRecurringDates = (startDate: string, type: string, days: number[]): string[] => {
-    const dates: string[] = [];
+  const getNextRecurringDate = (startDate: string, type: string, days?: string | null): string => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const start = new Date(startDate);
-    const endDate = new Date(start);
-    endDate.setFullYear(endDate.getFullYear() + 2);
+    const daysList = days ? days.split(",").map(Number) : [];
+
     if (type === "daily") {
-      const current = new Date(start);
-      while (current <= endDate) { dates.push(current.toISOString().split("T")[0]); current.setDate(current.getDate() + 1); }
+      if (start >= today) return startDate;
+      return today.toISOString().split("T")[0];
     } else if (type === "weekly") {
-      if (days.length === 0) {
+      if (daysList.length === 0) {
         const current = new Date(start);
-        while (current <= endDate) { dates.push(current.toISOString().split("T")[0]); current.setDate(current.getDate() + 7); }
+        while (current < today) current.setDate(current.getDate() + 7);
+        return current.toISOString().split("T")[0];
       } else {
-        const current = new Date(start);
-        const dow = current.getDay();
-        const offset = dow === 0 ? -6 : 1 - dow;
-        current.setDate(current.getDate() + offset);
-        while (current <= endDate) {
-          days.forEach(day => {
-            const d = new Date(current); d.setDate(d.getDate() + day);
-            if (d >= start && d <= endDate) dates.push(d.toISOString().split("T")[0]);
-          });
-          current.setDate(current.getDate() + 7);
+        let nearest: Date | null = null;
+        const check = new Date(today);
+        for (let i = 0; i < 14; i++) {
+          const dow = check.getDay();
+          const mapped = dow === 0 ? 6 : dow - 1;
+          if (daysList.includes(mapped) && check >= start) {
+            if (!nearest || check < nearest) nearest = new Date(check);
+          }
+          check.setDate(check.getDate() + 1);
         }
+        return nearest ? nearest.toISOString().split("T")[0] : startDate;
       }
     } else if (type === "biweekly") {
       const current = new Date(start);
-      while (current <= endDate) { dates.push(current.toISOString().split("T")[0]); current.setDate(current.getDate() + 14); }
+      while (current < today) current.setDate(current.getDate() + 14);
+      return current.toISOString().split("T")[0];
     } else if (type === "monthly") {
       const current = new Date(start);
-      while (current <= endDate) { dates.push(current.toISOString().split("T")[0]); current.setMonth(current.getMonth() + 1); }
+      while (current < today) current.setMonth(current.getMonth() + 1);
+      return current.toISOString().split("T")[0];
     } else if (type === "yearly") {
       const current = new Date(start);
-      while (current <= endDate) { dates.push(current.toISOString().split("T")[0]); current.setFullYear(current.getFullYear() + 1); }
+      while (current < today) current.setFullYear(current.getFullYear() + 1);
+      return current.toISOString().split("T")[0];
     }
-    return [...new Set(dates)].sort();
+    return startDate;
+  };
+
+  const recurringTypeLabel: Record<string, string> = {
+    daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
   };
 
   const handleEditEvent = (event: any) => {
@@ -969,22 +967,22 @@ export default function Home() {
       }
     } else {
       if (isRecurring) {
-        const groupId = crypto.randomUUID();
-        const dates = generateRecurringDates(newEventDate, recurringType, recurringDays);
-        const eventsToInsert = dates.map(date => ({
-          title: newEventTitle, event_date: date, category: newEventType,
-          description: newEventDesc, user_id: session.user.id, image_url: finalImageUrl,
-          recurring_group_id: groupId, recurring_type: recurringType,
-        }));
-        const chunkSize = 100;
-        let hasError = false;
-        for (let i = 0; i < eventsToInsert.length; i += chunkSize) {
-          const chunk = eventsToInsert.slice(i, i + chunkSize);
-          const { error } = await supabase.from('events').insert(chunk);
-          if (error) { hasError = true; showToast("Hiba: " + error.message, 'error'); break; }
-        }
-        if (!hasError) {
-          showToast(`✅ ${dates.length} ismétlődő esemény létrehozva!`, 'success');
+        // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
+        const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
+        const { error } = await supabase.from('events').insert([{
+          title: newEventTitle,
+          event_date: newEventDate,
+          category: newEventType,
+          description: newEventDesc,
+          user_id: session.user.id,
+          image_url: finalImageUrl,
+          recurring_type: recurringType,
+          recurring_days: recurringDaysStr,
+        }]);
+        if (error) {
+          showToast("Hiba mentés közben: " + error.message, 'error');
+        } else {
+          showToast("✅ Ismétlődő esemény létrehozva!", 'success');
           resetForm();
           fetchEvents();
           setActiveTab("Timeline");
@@ -1410,7 +1408,16 @@ export default function Home() {
                    style={{ flex: 1, padding: "16px", borderRadius: "20px", position: "relative", cursor: "pointer", transition: "all 0.3s ease", border: expandedEvents[event.id] ? "1px solid rgba(255, 152, 0, 0.4)" : "1px solid var(--card-border)" }}
                  >
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                     <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>{event.event_date}</span>
+                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                       <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>
+                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}
+                       </span>
+                       {event.recurring_type && (
+                         <span style={{ fontSize: "10px", background: "rgba(255,183,77,0.2)", border: "1px solid rgba(255,183,77,0.4)", borderRadius: "10px", padding: "1px 7px", color: "#ffb74d", fontWeight: 600 }}>
+                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}
+                         </span>
+                       )}
+                     </div>
                      <span 
                        className="menu-trigger"
                        onClick={(e) => {
@@ -1428,7 +1435,7 @@ export default function Home() {
                         <button onClick={(e) => { e.stopPropagation(); handleEditEvent(event); }} style={{ background: "transparent", border: "1px solid transparent", color: "white", fontSize: "14px", fontWeight: 500, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
                           Módosítás
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event.id, event.recurring_group_id); }} style={{ background: "rgba(255, 50, 50, 0.1)", border: "1px solid rgba(255, 50, 50, 0.2)", color: "#ff6b6b", fontSize: "14px", fontWeight: 600, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event.id, event.recurring_type); }} style={{ background: "rgba(255, 50, 50, 0.1)", border: "1px solid rgba(255, 50, 50, 0.2)", color: "#ff6b6b", fontSize: "14px", fontWeight: 600, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
                           Törlés
                         </button>
                      </div>
@@ -2457,15 +2464,14 @@ export default function Home() {
       {eventToDeleteId && (
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
           <div className="glass-card" style={{ padding: "24px", borderRadius: "20px", textAlign: "center", maxWidth: "320px", width: "100%", animation: "fade-in 0.2s ease-out" }}>
-            {eventToDeleteGroupId && !deleteMode ? (
+            {events.find(e => e.id === eventToDeleteId)?.recurring_type && !deleteMode ? (
               <>
                 <div style={{ fontSize: "40px", marginBottom: "16px" }}>🔁</div>
                 <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>Ismétlődő esemény</h3>
-                <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>Mit szeretnél törölni?</p>
+                <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>Ez egy ismétlődő esemény. Törölni szeretnéd?</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <button onClick={() => { setDeleteMode("single"); confirmDelete(); }} style={{ padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: "white", fontWeight: 600, cursor: "pointer", fontSize: "14px" }}>Csak ezt az alkalmat</button>
-                  <button onClick={() => { setDeleteMode("all"); confirmDelete(); }} style={{ padding: "14px", borderRadius: "14px", background: "rgba(255,80,80,0.15)", border: "1px solid rgba(255,80,80,0.3)", color: "#ff6b6b", fontWeight: 600, cursor: "pointer", fontSize: "14px" }}>Ezt és az összes jövőbeli alkalmat</button>
-                  <button onClick={() => { setEventToDeleteId(null); setEventToDeleteGroupId(null); setDeleteMode(null); }} style={{ padding: "12px", borderRadius: "14px", background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "white", cursor: "pointer", fontSize: "14px" }}>Mégsem</button>
+                  <button onClick={() => { setDeleteMode("single"); confirmDelete(); }} style={{ padding: "14px", borderRadius: "14px", background: "#ff6b6b", border: "none", color: "white", fontWeight: 600, cursor: "pointer", fontSize: "14px" }}>Igen, törlöm</button>
+                  <button onClick={() => { setEventToDeleteId(null); setDeleteMode(null); }} style={{ padding: "12px", borderRadius: "14px", background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "white", cursor: "pointer", fontSize: "14px" }}>Mégsem</button>
                 </div>
               </>
             ) : (
