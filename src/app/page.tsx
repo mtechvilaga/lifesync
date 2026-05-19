@@ -497,14 +497,16 @@ export default function Home() {
     e.preventDefault();
     if (!editVaultFolderName.trim() || !activeVaultFolder) return;
     
-    const { error } = await supabase.from('vault_folders').update({
+    const { data: updateData, error } = await supabase.from('vault_folders').update({
       name: editVaultFolderName,
       icon: editVaultFolderIcon,
       description: editVaultFolderDescription
-    }).eq('id', activeVaultFolder.id);
+    }).eq('id', activeVaultFolder.id).select();
 
     if (error) {
       alert("Hiba a projekt módosításakor: " + error.message);
+    } else if (!updateData || updateData.length === 0) {
+      alert("Hiba: Nincs jogosultságod a módosításhoz (RLS korlátozás)!");
     } else {
       setIsEditingVaultFolder(false);
       setActiveVaultFolder({ ...activeVaultFolder, name: editVaultFolderName, icon: editVaultFolderIcon, description: editVaultFolderDescription });
@@ -884,22 +886,24 @@ export default function Home() {
     `;
 
     if (editingEventId) {
-      const { error } = await supabase.from('events').update({
+      const { data: updateData, error } = await supabase.from('events').update({
         title: newEventTitle,
         event_date: newEventDate,
         category: newEventType,
         description: newEventDesc,
         image_url: finalImageUrl
-      }).eq('id', editingEventId);
+      }).eq('id', editingEventId).select();
 
       if (error) {
         showToast("Hiba módosítás közben: " + error.message, 'error');
+      } else if (!updateData || updateData.length === 0) {
+        showToast("Nincs jogosultságod a módosításhoz (RLS korlátozás)!", 'error');
       } else {
         showToast("Az esemény sikeresen frissítve!", 'success');
         resetForm();
         const { data } = await supabase.from('events').select('*').order('event_date', { ascending: false });
-if (data) setEvents(data);
-setActiveTab("Timeline");
+        if (data) setEvents(data);
+        setActiveTab("Timeline");
       }
     } else {
       const { error } = await supabase.from('events').insert([
