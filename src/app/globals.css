@@ -304,7 +304,7 @@ body {
   left: clamp(10px, 3vw, 22px);
   right: clamp(10px, 3vw, 22px);
   bottom: clamp(10px, 3vw, 24px);
-  height: clamp(64px, 14vw, 78px);
+  height: clamp(72px, 16vw, 88px);
   border-radius: clamp(18px, 5vw, 28px);
   background: var(--bottom-nav-bg);
   border: 1px solid var(--bottom-nav-border);
@@ -321,7 +321,7 @@ body {
 
 .nav-item {
   text-align: center;
-  font-size: clamp(9px, 2.2vw, 11px);
+  font-size: clamp(11px, 2.8vw, 13px);
   opacity: 0.75;
   color: var(--nav-text-color);
   transition: all 0.3s ease;
@@ -334,7 +334,7 @@ body {
 }
 
 .nav-item .nav-icon {
-  font-size: clamp(18px, 4.5vw, 22px);
+  font-size: clamp(20px, 5vw, 24px);
   margin-bottom: clamp(2px, 0.5vw, 4px);
 }
 
@@ -417,7 +417,7 @@ input::placeholder, textarea::placeholder {
     left: 10px;
     right: 10px;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    height: 68px;
+    height: 78px;
     border-radius: 22px;
   }
 }
