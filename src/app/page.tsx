@@ -2380,7 +2380,15 @@ export default function Home() {
           <button
             className="fab-btn"
             onClick={() => { resetForm(); setActiveTab("Add"); }}
-            style={{ transform: activeTab === "Add" ? "translateX(-50%) scale(1.1)" : "translateX(-50%) scale(1)" }}
+            style={{
+              transform: activeTab === "Add" ? "translateX(-50%) scale(1.1)" : "translateX(-50%) scale(1)",
+              background: activeTab === "Add"
+                ? "linear-gradient(135deg, #ff7043, #e64a19)"
+                : "linear-gradient(135deg, #ffb74d, #ff7043)",
+              boxShadow: activeTab === "Add"
+                ? "0 6px 24px rgba(230,74,25,0.7)"
+                : "0 6px 18px rgba(255,112,67,0.5)"
+            }}
           >
             <i className="fa-solid fa-plus"></i>
           </button>
