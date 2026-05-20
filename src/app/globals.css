@@ -686,8 +686,6 @@ input::placeholder, textarea::placeholder {
   height: 66px;
   border-radius: 50%;
   box-shadow: 0 37px 0 150px rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
 .panel-center::after {
