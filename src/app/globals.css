@@ -355,6 +355,9 @@ input::placeholder, textarea::placeholder {
     bottom: 0;
     overflow-x: hidden;
     overflow-y: hidden;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .subtitle {
