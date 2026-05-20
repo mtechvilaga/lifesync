@@ -678,6 +678,8 @@ input::placeholder, textarea::placeholder {
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .panel-center::before {
