@@ -144,6 +144,10 @@ export default function Home() {
   const [eventToDeleteGroupId, setEventToDeleteGroupId] = useState<string | null>(null);
   const [deleteMode, setDeleteMode] = useState<"single" | "all" | null>(null);
 
+  // Összecsukható szekciók
+  const [showMediaSection, setShowMediaSection] = useState(false);
+  const [showEmailSection, setShowEmailSection] = useState(false);
+
   // Image upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -1714,7 +1718,22 @@ export default function Home() {
                 </div>
               )}
 
-              {/* ÚJ KÉPEK SZAKASZ */}
+              {/* MÉDIA SZEKCIÓ - összecsukható */}
+              <div style={{ marginTop: "8px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
+                <button type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: "transparent", border: "none", color: "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+                  <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>📎</span> Mellékletek
+                    {(newEventImages.length + newEventDocs.length + newEventAudios.length) > 0 && (
+                      <span style={{ background: "#ff7043", color: "white", borderRadius: "20px", padding: "1px 8px", fontSize: "11px" }}>
+                        {newEventImages.length + newEventDocs.length + newEventAudios.length}
+                      </span>
+                    )}
+                  </span>
+                  <span style={{ fontSize: "12px", opacity: 0.6 }}>{showMediaSection ? "▲" : "▼"}</span>
+                </button>
+                {showMediaSection && (
+                  <div style={{ padding: "0 12px 12px" }}>
+                    {/* ÚJ KÉPEK SZAKASZ */}
               <div style={{ marginTop: "8px" }}>
                 <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Fényképek / Képek</label>
                 <input type="file" ref={eventImageInputRef} accept="image/*" hidden multiple onChange={(e) => {
@@ -1745,7 +1764,7 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* ÚJ DOKUMENTUMOK SZAKASZ */}
+                    {/* ÚJ DOKUMENTUMOK SZAKASZ */}
               <div style={{ marginTop: "8px" }}>
                 <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Dokumentumok (PDF, Word, Számlák)</label>
                 <input type="file" ref={eventDocInputRef} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" hidden multiple onChange={(e) => {
@@ -1775,7 +1794,7 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* ÚJ HANGOK / HANGJEGYZETEK SZAKASZ */}
+                    {/* ÚJ HANGOK SZAKASZ */}
               <div style={{ marginTop: "12px", marginBottom: "4px" }}>
                 <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Hangfelvételek / Hangjegyzetek</label>
                 <input type="file" ref={eventAudioInputRef} accept="audio/*" hidden multiple onChange={(e) => {
@@ -1824,11 +1843,21 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Email értesítés opciók */}
-              <div style={{ marginTop: "4px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", padding: "12px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <label style={{ fontSize: "13.5px", fontWeight: 600, marginBottom: "10px", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "18px" }}>📧</span> Email értesítés
-                </label>
+
+                  </div>
+                )}
+              </div>
+
+                            {/* EMAIL SZEKCIÓ - összecsukható */}
+              <div style={{ marginTop: "8px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
+                <button type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: "transparent", border: "none", color: "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+                  <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>📧</span> Email értesítés
+                  </span>
+                  <span style={{ fontSize: "12px", opacity: 0.6 }}>{showEmailSection ? "▲" : "▼"}</span>
+                </button>
+                {showEmailSection && (
+                <div style={{ padding: "0 12px 12px" }}>
                 <div style={{ marginBottom: "10px" }}>
                   <label style={{ fontSize: "11.5px", opacity: 0.8, marginBottom: "4px", display: "block" }}>Címzett email címe (ha üres, a te címedre küldjük)</label>
                   <input type="email" value={customEmail} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px", backdropFilter: "blur(10px)" }} />
@@ -1862,6 +1891,8 @@ export default function Home() {
                     </div>
                   )}
                 </div>
+                </div>
+                )}
               </div>
 
               <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
