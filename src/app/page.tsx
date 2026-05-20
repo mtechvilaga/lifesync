@@ -2342,31 +2342,52 @@ export default function Home() {
         </div>
       )}
 
-      <nav className="bottom-nav">
-        <div className={`nav-item ${activeTab === "Home" ? "active" : ""}`} onClick={() => setActiveTab("Home")}>
-          <div className="nav-icon">⌂</div>
-          Home
-        </div>
+      {/* Új Bottom Nav */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: "12px", zIndex: 50 }}>
+        <div style={{ position: "relative", width: "300px" }}>
+          {/* FAB gomb */}
+          <button
+            className="fab-btn"
+            onClick={() => { resetForm(); setActiveTab("Add"); }}
+            style={{ transform: activeTab === "Add" ? "translateX(-50%) scale(1.1)" : "translateX(-50%) scale(1)" }}
+          >
+            <i className="fa-solid fa-plus"></i>
+          </button>
 
-        <div className={`nav-item ${activeTab === "Timeline" ? "active" : ""}`} onClick={() => setActiveTab("Timeline")}>
-          <div className="nav-icon">◷</div>
-          Timeline
-        </div>
+          {/* Három panel */}
+          <div className="tab-bar-body-css">
+            <div className="panel-left">
+              <a className={`nav-item ${activeTab === "Home" ? "active" : ""}`} data-tab="home" onClick={() => setActiveTab("Home")}>
+                <i className="fa-solid fa-house"></i>
+                <span>Home</span>
+              </a>
+              <a className={`nav-item ${activeTab === "Timeline" ? "active" : ""}`} data-tab="timeline" onClick={() => setActiveTab("Timeline")}>
+                <i className="fa-regular fa-clock"></i>
+                <span>Timeline</span>
+              </a>
+            </div>
 
-        <div className="add" onClick={() => { resetForm(); setActiveTab("Add"); }} style={{ transform: activeTab === "Add" ? "scale(1.1)" : "scale(1)", transition: "transform 0.2s" }}>+</div>
+            <div className="panel-center">
+              <div className="fillet-corner fillet-left"></div>
+              <div className="fillet-corner fillet-right"></div>
+            </div>
 
-        <div className={`nav-item ${activeTab === "Vault" ? "active" : ""}`} onClick={() => setActiveTab("Vault")}>
-          <div className="nav-icon">▣</div>
-          Projekt
-        </div>
-
-        <div className={`nav-item ${activeTab === "Profile" ? "active" : ""}`} onClick={() => setActiveTab("Profile")}>
-          <div className="nav-icon" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "26px", marginBottom: "4px" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <div className="panel-right">
+              <a className={`nav-item ${activeTab === "Vault" ? "active" : ""}`} data-tab="projekt" onClick={() => setActiveTab("Vault")}>
+                <i className="fa-solid fa-layer-group"></i>
+                <span>Projekt</span>
+              </a>
+              <a className={`nav-item ${activeTab === "Profile" ? "active" : ""}`} data-tab="profil" onClick={() => setActiveTab("Profile")}>
+                <i className="fa-solid fa-user"></i>
+                <span>Profil</span>
+              </a>
+            </div>
           </div>
-          Profil
+
+          {/* iOS indicator */}
+          <div className="ios-indicator"></div>
         </div>
-      </nav>
+      </div>
 
       {/* Kereső Overlay */}
       {isSearchOpen && (
