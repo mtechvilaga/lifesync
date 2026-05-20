@@ -692,11 +692,12 @@ input::placeholder, textarea::placeholder {
   content: '';
   position: absolute;
   top: -37px;
-  left: 0px;
-  width: 66px;
+  left: -1px;
+  width: 68px;
   height: 66px;
   border-radius: 50%;
   border: 1.5px solid rgba(255, 255, 255, 0.14);
+  clip-path: inset(37px 0 0 0);
 }
 
 .fillet-corner {
