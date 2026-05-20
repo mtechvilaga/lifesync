@@ -1720,7 +1720,7 @@ export default function Home() {
 
               {/* MÉDIA SZEKCIÓ - összecsukható */}
               <div style={{ marginTop: "8px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
-                <button type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: "transparent", border: "none", color: "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+                <button type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: showMediaSection ? "rgba(255,112,67,0.15)" : "transparent", border: "none", color: showMediaSection ? "#ff7043" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📎</span> Mellékletek
                     {(newEventImages.length + newEventDocs.length + newEventAudios.length) > 0 && (
@@ -1850,7 +1850,7 @@ export default function Home() {
 
                             {/* EMAIL SZEKCIÓ - összecsukható */}
               <div style={{ marginTop: "8px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
-                <button type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: "transparent", border: "none", color: "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+                <button type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(255,112,67,0.15)" : "transparent", border: "none", color: showEmailSection ? "#ff7043" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📧</span> Email értesítés
                   </span>
