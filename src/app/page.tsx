@@ -4,11 +4,20 @@ import { useState, useEffect, useRef } from "react";
 import { mockUser, mockTodaysMemory, mockStats, mockRecentMemories, mockTimelineEvents, mockVaultFolders } from "@/lib/mockData";
 import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
-import DatePicker from "react-datepicker";
+import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { hu } from 'date-fns/locale/hu';
+import BottomNav from "./components/BottomNav";
+
+registerLocale('hu', hu);
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Home");
+  
+  // Swipe navigation state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  
   const [session, setSession] = useState<any>(null);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState("");
@@ -147,6 +156,9 @@ export default function Home() {
   // Összecsukható szekciók
   const [showMediaSection, setShowMediaSection] = useState(false);
   const [showEmailSection, setShowEmailSection] = useState(false);
+  
+  // Add tab nézet (form vagy calendar)
+  const [addViewMode, setAddViewMode] = useState<"form" | "calendar">("calendar");
 
   // Image upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -377,6 +389,53 @@ export default function Home() {
       
     } catch (e) {
       console.error("Failed to play logo sound", e);
+    }
+  };
+
+  // Swipe navigation handlers
+  const minSwipeDistance = 50;
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe || isRightSwipe) {
+      // Add tab-on belül: naptár ↔ form váltás
+      if (activeTab === "Add") {
+        if (isLeftSwipe && addViewMode === "calendar") {
+          // Balra swipe naptárból -> form
+          setAddViewMode("form");
+          return;
+        } else if (isRightSwipe && addViewMode === "form") {
+          // Jobbra swipe form-ból -> naptár
+          setAddViewMode("calendar");
+          return;
+        }
+      }
+      
+      // Normál tab váltás
+      const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
+      const currentIndex = tabs.indexOf(activeTab);
+      
+      if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        // Balra swipe -> következő tab
+        setActiveTab(tabs[currentIndex + 1]);
+      } else if (isRightSwipe && currentIndex > 0) {
+        // Jobbra swipe -> előző tab
+        setActiveTab(tabs[currentIndex - 1]);
+      }
     }
   };
 
@@ -1119,15 +1178,26 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div className="logo" style={{ width: showSplash ? "110px" : "92px", height: showSplash ? "110px" : "92px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
+          <div style={{ width: showSplash ? "110px" : "92px", height: showSplash ? "110px" : "92px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: showSplash ? "32px" : "26px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.8s" }} />
+            <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: showSplash ? "32px" : "26px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.8s" }} />
           </div>
-          <h1 style={{ fontSize: showSplash ? "40px" : "36px", fontWeight: 900, letterSpacing: "1px", margin: 0, transition: "all 0.8s" }}><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
+          <h1 style={{ 
+            fontSize: showSplash ? "40px" : "36px", 
+            fontWeight: 900, 
+            letterSpacing: "1px", 
+            margin: 0, 
+            transition: "all 0.8s",
+            fontFamily: "'SF Pro Display', 'Inter', 'Segoe UI', sans-serif",
+            background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent"
+          }}>LifeSync</h1>
           
           <div style={{ marginTop: "10px", display: showSplash ? "block" : "none", width: "100%", padding: "0 10px" }}>
              {showSplash && (
-               <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.75)", margin: 0, fontWeight: 500, lineHeight: "1.4" }}>
+               <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.85)", margin: 0, fontWeight: 500, lineHeight: "1.4" }}>
                   {"Memories that matter. Life in sync.".split(" ").map((word, idx) => (
                      <span key={idx} className="word-fade" style={{ animationDelay: `${1.2 + idx * 0.35}s`, display: "inline-block" }}>{word}&nbsp;</span>
                   ))}
@@ -1219,17 +1289,42 @@ export default function Home() {
   }
 
   return (
-    <main className="phone">
+    <main 
+      className="phone"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <section className="header">
         <div>
-          <div className="brand" onClick={playLogoSound} style={{ cursor: "pointer" }}>
+          <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
+            {/* Logo ikon */}
             <div className="logo">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "16px" }} />
+              <img src="/lifesync-icon.png" alt="LifeSync" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
-            <h1><span className="text-life">Life</span><span className="text-sync">Sync</span></h1>
+
+            {/* Logo szöveg */}
+            <h1 style={{
+              fontFamily: "'SF Pro Display', 'Inter', 'Segoe UI', sans-serif",
+              fontWeight: 600,
+              fontSize: "36px",
+              lineHeight: "44px",
+              letterSpacing: "-0.02em",
+              background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+              margin: 0
+            }}>
+              LifeSync
+            </h1>
           </div>
-          <div className="subtitle">Memories that matter. Life in sync.</div>
+          <div className="subtitle" style={{ 
+            fontSize: "14px", 
+            color: "rgba(244, 247, 251, 0.85)", 
+            marginTop: "8px",
+            fontWeight: 500
+          }}>Memories that matter. Life in sync.</div>
         </div>
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -1369,7 +1464,7 @@ export default function Home() {
           <section style={{ marginBottom: "32px", marginTop: "24px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px", padding: "0 4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span>Aktív Projektek</span>
-              <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "14px", fontWeight: 600, color: "#ffb74d", cursor: "pointer" }}>Összes →</span>
+              <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "14px", fontWeight: 600, color: "white", cursor: "pointer" }}>Összes →</span>
             </h2>
             <div style={{ display: "flex", gap: "14px", overflowX: "auto", padding: "4px", paddingBottom: "16px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }} className="hide-scrollbar">
               {vaultFolders.length === 0 ? (
@@ -1400,7 +1495,7 @@ export default function Home() {
               {events.length > 0 && (
                 <button
                   onClick={() => setShowDeleteAllConfirm(true)}
-                  style={{ fontSize: "12px", padding: "6px 12px", borderRadius: "20px", border: "1px solid rgba(255,80,80,0.3)", background: "rgba(255,80,80,0.1)", color: "#ff6b6b", cursor: "pointer", fontWeight: 600 }}
+                  style={{ fontSize: "12px", padding: "6px 12px", borderRadius: "20px", border: "1px solid rgba(255,1,1,0.5)", background: "rgba(255,1,1,0.2)", color: "#FF0101", cursor: "pointer", fontWeight: 600 }}
                 >
                   🗑️ Összes törlése
                 </button>
@@ -1440,7 +1535,7 @@ export default function Home() {
                          {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}
                        </span>
                        {event.recurring_type && (
-                         <span style={{ fontSize: "10px", background: "rgba(255,183,77,0.2)", border: "1px solid rgba(255,183,77,0.4)", borderRadius: "10px", padding: "1px 7px", color: "#ffb74d", fontWeight: 600 }}>
+                         <span style={{ fontSize: "10px", background: "rgba(0,212,255,0.2)", border: "1px solid rgba(0,212,255,0.5)", borderRadius: "10px", padding: "1px 7px", color: "#00D4FF", fontWeight: 600 }}>
                            🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}
                          </span>
                        )}
@@ -1468,11 +1563,8 @@ export default function Home() {
                      </div>
                    )}
                    
-                   <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: expandedEvents[event.id] ? "6px" : "0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                   <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: expandedEvents[event.id] ? "6px" : "0" }}>
                      <span>{event.title}</span>
-                     <span style={{ fontSize: "12px", opacity: 0.5, fontWeight: 400, marginLeft: "8px" }}>
-                       {expandedEvents[event.id] ? "🔼" : "🔽"}
-                     </span>
                    </h3>
 
                    {!expandedEvents[event.id] && (
@@ -1596,10 +1688,11 @@ export default function Home() {
       {activeTab === "Add" && (
         <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "300px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "16px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : "Új bejegyzés"}</h2>
-            <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? "Módosítsd a kiválasztott emléket." : "Rögzíts egy emléket vagy számlát."}</p>
+            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : addViewMode === "calendar" ? "Válassz dátumot" : "Új bejegyzés"}</h2>
+            <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? "Módosítsd a kiválasztott emléket." : addViewMode === "calendar" ? "Kattints egy napra az új bejegyzéshez" : "Rögzíts egy emléket vagy számlát."}</p>
           </div>
 
+          {addViewMode === "form" ? (
           <div className="glass-card" style={{ padding: "20px" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
@@ -1607,12 +1700,12 @@ export default function Home() {
                 <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder="Pl. Villanyóra állás, Szülinap..." style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
               </div>
 
-              <div style={{ display: "flex", gap: "12px" }}>
-                <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Dátum</label>
                   <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
                 </div>
-                <div style={{ flex: 1 }}>
+                <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Kategória</label>
                   <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", appearance: "none", fontSize: "15px" }}>
                     <option value="event" style={{color: "black"}}>Esemény 🎂</option>
@@ -1905,6 +1998,179 @@ export default function Home() {
               </div>
             </form>
           </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Naptár */}
+              <div className="glass-card" style={{ padding: "20px" }}>
+                <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "16px", textAlign: "center" }}>
+                  📅 Események naptárban
+                </h3>
+                <DatePicker
+                  inline
+                  locale="hu"
+                  selected={newEventDate ? new Date(newEventDate) : new Date()}
+                  onChange={(date) => {
+                    if (date) {
+                      setNewEventDate(date.toISOString().split("T")[0]);
+                      setAddViewMode("form"); // Vált form-ra
+                    }
+                  }}
+                  calendarClassName="custom-calendar"
+                  dayClassName={(date) => {
+                    const dateStr = date.toISOString().split("T")[0];
+                    const hasEvent = events.some(e => e.event_date === dateStr);
+                    const isSunday = date.getDay() === 0;
+                    const isToday = new Date().toISOString().split("T")[0] === dateStr;
+                    
+                    if (isSunday && hasEvent) return "has-event-day sunday-day";
+                    if (isSunday) return "sunday-day";
+                    if (isToday) return "today-day";
+                    if (hasEvent) return "has-event-day";
+                    return undefined;
+                  }}
+                />
+                <style>{`
+                  .custom-calendar {
+                    width: 100% !important;
+                    border: none !important;
+                    background: transparent !important;
+                    font-family: 'SF Pro Display', 'Inter', sans-serif !important;
+                  }
+                  .react-datepicker__month-container {
+                    width: 100% !important;
+                  }
+                  .react-datepicker__header {
+                    background: rgba(255,255,255,0.05) !important;
+                    border: none !important;
+                    padding: 12px !important;
+                    border-radius: 12px !important;
+                  }
+                  .react-datepicker__current-month {
+                    color: white !important;
+                    font-weight: 600 !important;
+                    font-size: 16px !important;
+                  }
+                  .react-datepicker__day-name {
+                    color: rgba(255,255,255,0.6) !important;
+                    font-weight: 500 !important;
+                    width: 2rem !important;
+                    line-height: 2rem !important;
+                    font-size: 11px !important;
+                  }
+                  .react-datepicker__day {
+                    color: white !important;
+                    width: 2rem !important;
+                    line-height: 2rem !important;
+                    border-radius: 8px !important;
+                    margin: 1px !important;
+                    font-size: 13px !important;
+                  }
+                  .react-datepicker__day:hover {
+                    background: rgba(255,255,255,0.15) !important;
+                  }
+                  .react-datepicker__day--selected {
+                    background: rgba(255,255,255,0.2) !important;
+                    font-weight: 600 !important;
+                    border: 1px solid rgba(255,255,255,0.3) !important;
+                  }
+                  .react-datepicker__day--keyboard-selected {
+                    background: rgba(255,255,255,0.15) !important;
+                  }
+                  .react-datepicker__day--outside-month {
+                    color: rgba(255,255,255,0.3) !important;
+                  }
+                  .has-event-day {
+                    position: relative !important;
+                  }
+                  .has-event-day::after {
+                    content: '' !important;
+                    position: absolute !important;
+                    bottom: 4px !important;
+                    left: 50% !important;
+                    transform: translateX(-50%) !important;
+                    width: 5px !important;
+                    height: 5px !important;
+                    background: #00BBFF !important;
+                    border-radius: 50% !important;
+                  }
+                  .sunday-day {
+                    color: #ff4444 !important;
+                    font-weight: 600 !important;
+                  }
+                  .sunday-day.has-event-day {
+                    color: #ff4444 !important;
+                  }
+                  .sunday-day.has-event-day::after {
+                    background: #ff4444 !important;
+                  }
+                  .today-day {
+                    background: rgba(0, 212, 255, 0.55) !important;
+                    font-weight: 700 !important;
+                    border-radius: 8px !important;
+                  }
+                  .react-datepicker__navigation {
+                    top: 12px !important;
+                  }
+                  .react-datepicker__navigation-icon::before {
+                    border-color: white !important;
+                  }
+                `}</style>
+              </div>
+
+              {/* Események az adott napon */}
+              {(() => {
+                const selectedDateEvents = events.filter(e => e.event_date === newEventDate);
+                if (selectedDateEvents.length === 0) return null;
+                
+                return (
+                  <div className="glass-card" style={{ padding: "20px" }}>
+                    <h4 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "12px" }}>
+                      Események ezen a napon ({newEventDate})
+                    </h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      {selectedDateEvents.map(event => (
+                        <div
+                          key={event.id}
+                          onClick={() => {
+                            setScrollToEventId(event.id);
+                            setActiveTab("Timeline");
+                          }}
+                          style={{
+                            padding: "12px",
+                            background: "rgba(255,255,255,0.08)",
+                            borderRadius: "12px",
+                            cursor: "pointer",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span style={{ fontSize: "20px" }}>
+                              {event.category === 'event' ? '🎂' : event.category === 'utility' ? '⚡' : '🏔'}
+                            </span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 600, fontSize: "14px" }}>{event.title}</div>
+                              {event.description && (
+                                <div style={{ fontSize: "12px", opacity: 0.7, marginTop: "2px" }}>
+                                  {event.description.substring(0, 50)}{event.description.length > 50 ? '...' : ''}
+                                </div>
+                              )}
+                            </div>
+                            <span style={{ fontSize: "12px", opacity: 0.5 }}>→</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Swipe hint */}
+              <div style={{ textAlign: "center", padding: "10px", opacity: 0.6, fontSize: "13px" }}>
+                💡 Jobbra húzva visszamehetsz a naptárhoz
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -2054,7 +2320,7 @@ export default function Home() {
                       setEmail("");
                       showToast("Bejelentkezési email törölve a memóriából!", 'info');
                     }} 
-                    style={{ padding: "8px 12px", background: "rgba(255, 82, 82, 0.15)", border: "1px solid rgba(255, 82, 82, 0.3)", borderRadius: "12px", color: "#ff5252", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}
+                    style={{ padding: "8px 12px", background: "rgba(255, 1, 1, 0.2)", border: "1px solid rgba(255, 1, 1, 0.5)", borderRadius: "12px", color: "#FF0101", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}
                   >
                     Törlés 🗑️
                   </button>
@@ -2092,7 +2358,7 @@ export default function Home() {
               <div onClick={() => supabase.auth.signOut()} style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{ fontSize: "20px" }}>🚪</span>
-                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#ff8a80" }}>Kijelentkezés</span>
+                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#FF0101" }}>Kijelentkezés</span>
                 </div>
               </div>
             </div>
@@ -2121,14 +2387,14 @@ export default function Home() {
                     <input autoFocus required type="text" value={editVaultFolderName} onChange={e => setEditVaultFolderName(e.target.value)} placeholder="Projekt neve" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                     <input type="text" value={editVaultFolderDescription} onChange={e => setEditVaultFolderDescription(e.target.value)} placeholder="Projekt leírása" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                     
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px" }}>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
                        {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
-                         <div key={icon} onClick={() => setEditVaultFolderIcon(icon)} style={{ padding: "8px", borderRadius: "10px", background: editVaultFolderIcon === icon ? "rgba(255,255,255,0.15)" : "transparent", cursor: "pointer", fontSize: "20px", transition: "all 0.2s" }}>{icon}</div>
+                         <div key={icon} onClick={() => setEditVaultFolderIcon(icon)} style={{ padding: "8px", borderRadius: "10px", background: editVaultFolderIcon === icon ? "rgba(255,255,255,0.15)" : "transparent", cursor: "pointer", fontSize: "20px", transition: "all 0.2s", flexShrink: 0 }}>{icon}</div>
                        ))}
                     </div>
 
                     <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
-                      <button type="button" onClick={handleDeleteVaultFolder} style={{ flex: 1, padding: "14px", background: "rgba(255,0,0,0.2)", border: "1px solid rgba(255,0,0,0.3)", borderRadius: "14px", color: "#ff8a80", fontWeight: 600, fontSize: "15px" }}>Projekt Törlése</button>
+                      <button type="button" onClick={handleDeleteVaultFolder} style={{ flex: 1, padding: "14px", background: "rgba(255,1,1,0.2)", border: "1px solid rgba(255,1,1,0.5)", borderRadius: "14px", color: "#FF0101", fontWeight: 600, fontSize: "15px" }}>Projekt Törlése</button>
                       <button type="submit" style={{ flex: 1, padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, fontSize: "15px", boxShadow: "0 4px 15px rgba(255, 112, 67, 0.3)" }}>Mentés</button>
                     </div>
                   </form>
@@ -2237,9 +2503,9 @@ export default function Home() {
                       <input autoFocus required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder="Projekt neve (pl. Autó, Házfelújítás)" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                       <input type="text" value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} placeholder="Rövid leírás (pl. Biztosítások, villanyszámlák)" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                       
-                      <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px" }}>
+                      <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
                          {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
-                           <div key={icon} onClick={() => setNewFolderIcon(icon)} style={{ padding: "8px", borderRadius: "10px", background: newFolderIcon === icon ? "rgba(255,255,255,0.15)" : "transparent", cursor: "pointer", fontSize: "20px", transition: "all 0.2s" }}>{icon}</div>
+                           <div key={icon} onClick={() => setNewFolderIcon(icon)} style={{ padding: "8px", borderRadius: "10px", background: newFolderIcon === icon ? "rgba(255,255,255,0.15)" : "transparent", cursor: "pointer", fontSize: "20px", transition: "all 0.2s", flexShrink: 0 }}>{icon}</div>
                          ))}
                       </div>
 
@@ -2373,60 +2639,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* Új Bottom Nav */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: "12px", zIndex: 50 }}>
-        <div style={{ position: "relative", width: "300px" }}>
-          {/* FAB gomb */}
-          <button
-            className="fab-btn"
-            onClick={() => { resetForm(); setActiveTab("Add"); }}
-            style={{
-              transform: activeTab === "Add" ? "translateX(-50%) scale(1.1)" : "translateX(-50%) scale(1)",
-              background: activeTab === "Add"
-                ? "linear-gradient(135deg, #ff7043, #e64a19)"
-                : "linear-gradient(135deg, #ffb74d, #ff7043)",
-              boxShadow: activeTab === "Add"
-                ? "0 6px 24px rgba(230,74,25,0.7)"
-                : "0 6px 18px rgba(255,112,67,0.5)"
-            }}
-          >
-            <i className="fa-solid fa-plus"></i>
-          </button>
-
-          {/* Három panel */}
-          <div className="tab-bar-body-css">
-            <div className="panel-left">
-              <a className={`nav-item ${activeTab === "Home" ? "active" : ""}`} data-tab="home" onClick={() => setActiveTab("Home")}>
-                <i className="fa-solid fa-house"></i>
-                <span>Home</span>
-              </a>
-              <a className={`nav-item ${activeTab === "Timeline" ? "active" : ""}`} data-tab="timeline" onClick={() => setActiveTab("Timeline")}>
-                <i className="fa-regular fa-clock"></i>
-                <span>Timeline</span>
-              </a>
-            </div>
-
-            <div className="panel-center">
-              <div className="fillet-corner fillet-left"></div>
-              <div className="fillet-corner fillet-right"></div>
-            </div>
-
-            <div className="panel-right">
-              <a className={`nav-item ${activeTab === "Vault" ? "active" : ""}`} data-tab="projekt" onClick={() => setActiveTab("Vault")}>
-                <i className="fa-solid fa-layer-group"></i>
-                <span>Projekt</span>
-              </a>
-              <a className={`nav-item ${activeTab === "Profile" ? "active" : ""}`} data-tab="profil" onClick={() => setActiveTab("Profile")}>
-                <i className="fa-solid fa-user"></i>
-                <span>Profil</span>
-              </a>
-            </div>
-          </div>
-
-          {/* iOS indicator */}
-          <div className="ios-indicator"></div>
-        </div>
-      </div>
+      {/* ÚJ BOTTOM NAV - TELJES SPEC */}
+      <BottomNav 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        resetForm={resetForm}
+      />
 
       {/* Kereső Overlay */}
       {isSearchOpen && (
