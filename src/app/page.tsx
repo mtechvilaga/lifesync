@@ -1249,6 +1249,7 @@ export default function Home() {
       {activeTab === "Home" && (
         <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none" }}>
 
+          <section className="glass-card greeting" style={{ position: "relative" }}>
           {/* 1. ÜDVÖZLŐ PANEL */}
           <div style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)", borderRadius: "28px", boxShadow: "0 12px 32px rgba(24,44,84,0.18)", padding: "24px", marginBottom: "12px", height: "112px", display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px", position: "relative" }}>
             <p style={{ fontSize: "14px", color: "rgba(244,247,251,0.72)", margin: 0 }}>
@@ -1504,9 +1505,25 @@ export default function Home() {
             </h2>
             <div style={{ display: "flex", gap: "14px", overflowX: "auto", padding: "4px", paddingBottom: "16px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }} className="hide-scrollbar">
               {vaultFolders.length === 0 ? (
-                <div style={{ padding: "10px", opacity: 0.6, fontSize: "14px" }}>
+                <div style={{ padding: "10px", opacity: "0.6", fontSize: "14px" }}>
                   Még nincsenek projektjeid. Kattints a Projekt menüre egy új létrehozásához!
                 </div>
+              ) : (
+                vaultFolders.slice(0, 5).map((folder) => (
+                  <div key={folder.id} onClick={() => { setActiveTab("Vault"); }} style={{ minWidth: "140px", cursor: "pointer" }}>
+                    <div style={{ width: "140px", height: "140px", borderRadius: "18px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px", fontSize: "48px" }}>
+                      📁
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: "#F4F7FB", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{folder.name}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+        </div>
+      )}
+
       {activeTab === "Timeline" && (
         <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div style={{ padding: "0 4px" }}>
