@@ -4,12 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { mockUser, mockTodaysMemory, mockStats, mockRecentMemories, mockTimelineEvents, mockVaultFolders } from "@/lib/mockData";
 import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
-import DatePicker, { registerLocale } from "react-datepicker";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { hu } from 'date-fns/locale';
 import BottomNav from "./components/BottomNav";
-
-registerLocale('hu', hu);
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -2007,7 +2004,6 @@ export default function Home() {
                 </h3>
                 <DatePicker
                   inline
-                  locale="hu"
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
                   onChange={(date) => {
                     if (date) {
