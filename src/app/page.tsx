@@ -2005,14 +2005,14 @@ export default function Home() {
                 <DatePicker
                   inline
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date) => {
+                  onChange={(date: Date | null) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
                       setAddViewMode("form"); // Vált form-ra
                     }
                   }}
                   calendarClassName="custom-calendar"
-                  dayClassName={(date) => {
+                  dayClassName={(date: Date) => {
                     const dateStr = date.toISOString().split("T")[0];
                     const hasEvent = events.some(e => e.event_date === dateStr);
                     const isSunday = date.getDay() === 0;
