@@ -2022,7 +2022,7 @@ export default function Home() {
                     if (isSunday) return "sunday-day";
                     if (isToday) return "today-day";
                     if (hasEvent) return "has-event-day";
-                    return undefined;
+                    return "";
                   }}
                 />
                 <style>{`
