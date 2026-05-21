@@ -1248,139 +1248,7 @@ export default function Home() {
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
         <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none" }}>
-
           <section className="glass-card greeting" style={{ position: "relative" }}>
-          {/* 1. ÜDVÖZLŐ PANEL */}
-          <div style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)", borderRadius: "28px", boxShadow: "0 12px 32px rgba(24,44,84,0.18)", padding: "24px", marginBottom: "12px", height: "112px", display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px", position: "relative" }}>
-            <p style={{ fontSize: "14px", color: "rgba(244,247,251,0.72)", margin: 0 }}>
-              {isEditingGreetingName ? (
-                <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  <input autoFocus type="text" value={greetingNameInput} onChange={e => setGreetingNameInput(e.target.value)} style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", padding: "4px 10px", color: "white", outline: "none", fontSize: "14px", flex: 1 }} />
-                  <button type="submit" style={{ background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "8px", color: "white", padding: "4px 10px", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>✓</button>
-                  <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", fontSize: "13px", cursor: "pointer" }}>✕</button>
-                </form>
-              ) : (
-                <span>Hello, <span style={{ color: "#F4F7FB", fontWeight: 500 }}>{formattedName}</span>
-                  <span onClick={startEditingGreetingName} style={{ marginLeft: "6px", cursor: "pointer", opacity: 0.5, fontSize: "13px" }}>✏️</span>
-                </span>
-              )}
-            </p>
-            <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#F4F7FB", margin: 0, lineHeight: "32px", display: "flex", alignItems: "center", gap: "10px" }}>
-              {weather ? `${weather.temp}°C · ${weather.city}` : "Good morning"}
-              <span style={{ fontSize: "20px" }}>{weather ? (weather.desc.includes("nap") || weather.desc.includes("clear") ? "☀️" : weather.desc.includes("felhő") || weather.desc.includes("cloud") ? "⛅" : "🌤️") : "☀️"}</span>
-            </h2>
-            <p style={{ fontSize: "14px", color: "rgba(244,247,251,0.72)", margin: 0 }}>
-              {weather ? weather.desc : "Your memories are waiting."}
-            </p>
-          </div>
-
-          {/* 2. MAI EMLÉK PANEL */}
-          {events.length > 0 && (() => {
-            const todayMemory = events[0];
-            let imgUrl = "";
-            try {
-              if (todayMemory.image_url?.startsWith("[")) {
-                const parsed = JSON.parse(todayMemory.image_url);
-                const img = parsed.find((p: any) => p.type?.startsWith("image/"));
-                if (img) imgUrl = img.url;
-              } else if (todayMemory.image_url) imgUrl = todayMemory.image_url;
-            } catch (e) {}
-            return (
-              <div onClick={() => { setScrollToEventId(todayMemory.id); setActiveTab("Timeline"); }} style={{ background: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)", borderRadius: "26px", boxShadow: "0 12px 32px rgba(24,44,84,0.18)", padding: "16px 20px", marginBottom: "12px", height: "136px", display: "flex", gap: "16px", cursor: "pointer" }}>
-                <div style={{ width: "72px", height: "72px", borderRadius: "16px", overflow: "hidden", flexShrink: 0, alignSelf: "center", background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px" }}>
-                  {imgUrl ? <img src={imgUrl} alt={todayMemory.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "📅"}
-                </div>
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "4px", overflow: "hidden" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "13px", color: "rgba(244,247,251,0.72)", fontWeight: 500 }}>Today's Memory</span>
-                    <span style={{ fontSize: "12px", color: "rgba(244,247,251,0.72)" }}>{todayMemory.event_date}</span>
-                  </div>
-                  <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#F4F7FB", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{todayMemory.title}</h3>
-                  <p style={{ fontSize: "12px", color: "rgba(244,247,251,0.72)", margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{todayMemory.description || "Tap to view memory"}</p>
-                  <span style={{ fontSize: "11px", color: "rgba(244,247,251,0.5)" }}>···</span>
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* 3. STATISZTIKA PANEL */}
-          <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(30px)", WebkitBackdropFilter: "blur(30px)", borderRadius: "28px", boxShadow: "0 12px 32px rgba(24,44,84,0.18)", padding: "16px 20px", marginBottom: "12px", height: "156px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "#F4F7FB" }}>Memory Timeline</span>
-              <span onClick={() => setActiveTab("Timeline")} style={{ fontSize: "13px", color: "#6AB7FF", cursor: "pointer", fontWeight: 500 }}>See all</span>
-            </div>
-            <div style={{ display: "flex", gap: "16px", overflowX: "auto", scrollbarWidth: "none" }}>
-              {[
-                { icon: "📅", value: stats.today, label: "This day", sub: `${stats.today} memory` },
-                { icon: "🖼️", value: stats.month, label: "This month", sub: `${stats.month} memories` },
-                { icon: "⭐", value: stats.year, label: "This year", sub: `${stats.year} memories` },
-                { icon: "📊", value: stats.allTime, label: "All time", sub: `${stats.allTime} memories` },
-              ].map((item, i) => (
-                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", minWidth: "60px" }}>
-                  <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: i === 0 ? "rgba(106,183,255,0.25)" : i === 1 ? "rgba(102,187,106,0.25)" : i === 2 ? "rgba(255,183,77,0.25)" : "rgba(171,71,188,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>
-                    {item.icon}
-                  </div>
-                  <span style={{ fontSize: "24px", fontWeight: 700, color: "#F4F7FB", lineHeight: 1 }}>{item.value}</span>
-                  <span style={{ fontSize: "12px", color: "rgba(244,247,251,0.72)", textAlign: "center" }}>{item.label}</span>
-                  <span style={{ fontSize: "11px", color: "rgba(244,247,251,0.5)", textAlign: "center" }}>{item.sub}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 4. LEGUTÓBBI EMLÉKEK PANEL */}
-          <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(30px)", WebkitBackdropFilter: "blur(30px)", borderRadius: "28px", boxShadow: "0 12px 32px rgba(24,44,84,0.18)", padding: "16px 20px", marginBottom: "12px", height: "156px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "#F4F7FB" }}>Recent Memories</span>
-              <span onClick={() => setActiveTab("Timeline")} style={{ fontSize: "13px", color: "#6AB7FF", cursor: "pointer", fontWeight: 500 }}>See all</span>
-            </div>
-            <div style={{ display: "flex", gap: "12px", overflowX: "auto", scrollbarWidth: "none" }}>
-              {recentMemories.length === 0 ? (
-                <p style={{ opacity: 0.5, fontSize: "13px" }}>Még nincs eseményed.</p>
-              ) : recentMemories.map((mem) => {
-                let parsedUrl = "";
-                try {
-                  if (mem.image_url?.startsWith("[")) {
-                    const parsed = JSON.parse(mem.image_url);
-                    const firstImg = parsed.find((p: any) => p.type?.startsWith("image/"));
-                    if (firstImg) parsedUrl = firstImg.url;
-                  } else if (mem.image_url) parsedUrl = mem.image_url;
-                } catch (e) {}
-                return (
-                  <div key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab("Timeline"); }} style={{ flexShrink: 0, width: "72px", cursor: "pointer" }}>
-                    <div style={{ width: "72px", height: "72px", borderRadius: "16px", overflow: "hidden", background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", marginBottom: "6px" }}>
-                      {parsedUrl ? <img src={parsedUrl} alt={mem.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "📅"}
-                    </div>
-                    <p style={{ fontSize: "13px", color: "rgba(244,247,251,0.72)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mem.event_date?.slice(5)}</p>
-                    <p style={{ fontSize: "11px", color: "rgba(244,247,251,0.5)", margin: 0 }}>{new Date(mem.event_date).getFullYear()}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 5. AKTÍV PROJEKTEK */}
-          <div style={{ marginBottom: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", padding: "0 4px" }}>
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "#F4F7FB" }}>Aktív Projektek</span>
-              <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "13px", color: "#6AB7FF", cursor: "pointer", fontWeight: 500 }}>Összes →</span>
-            </div>
-            <div style={{ display: "flex", gap: "12px", overflowX: "auto", scrollbarWidth: "none" }}>
-              {vaultFolders.length === 0 ? (
-                <div style={{ padding: "10px", opacity: 0.5, fontSize: "13px" }}>Még nincsenek projektjeid.</div>
-              ) : vaultFolders.map((folder) => (
-                <div key={folder.id} onClick={() => { setActiveTab("Vault"); handleOpenFolder(folder); }} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)", borderRadius: "20px", padding: "16px", flexShrink: 0, width: "110px", display: "flex", flexDirection: "column", gap: "10px", cursor: "pointer" }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: `linear-gradient(135deg, ${folder.color_hex || "#ffb74d"}cc, ${folder.color_hex || "#ff7043"}cc)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-                    {folder.icon || "📁"}
-                  </div>
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: "#F4F7FB", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{folder.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      )}
             {isEditingGreetingName ? (
               <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
                 <input 
@@ -1505,22 +1373,22 @@ export default function Home() {
             </h2>
             <div style={{ display: "flex", gap: "14px", overflowX: "auto", padding: "4px", paddingBottom: "16px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }} className="hide-scrollbar">
               {vaultFolders.length === 0 ? (
-                <div style={{ padding: "10px", opacity: "0.6", fontSize: "14px" }}>
+                <div style={{ padding: "10px", opacity: 0.6, fontSize: "14px" }}>
                   Még nincsenek projektjeid. Kattints a Projekt menüre egy új létrehozásához!
                 </div>
-              ) : (
-                vaultFolders.slice(0, 5).map((folder) => (
-                  <div key={folder.id} onClick={() => { setActiveTab("Vault"); }} style={{ minWidth: "140px", cursor: "pointer" }}>
-                    <div style={{ width: "140px", height: "140px", borderRadius: "18px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px", fontSize: "48px" }}>
-                      📁
-                    </div>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: "#F4F7FB", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{folder.name}</span>
+              ) : vaultFolders.map((folder) => (
+                <div key={folder.id} onClick={() => { setActiveTab("Vault"); handleOpenFolder(folder); }} className="glass-card" style={{ flex: "0 0 110px", padding: "16px", borderRadius: "20px", display: "flex", flexDirection: "column", gap: "12px", position: "relative", cursor: "pointer" }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: `linear-gradient(135deg, ${folder.color_hex || '#ffb74d'}cc, ${folder.color_hex || '#ff7043'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", boxShadow: `0 4px 12px ${folder.color_hex || '#ff7043'}50` }}>
+                    {folder.icon || '📁'}
                   </div>
-                ))
-              )}
+                  <div>
+                    <h3 style={{ fontSize: "14px", fontWeight: 600, lineHeight: 1.2 }}>{folder.name}</h3>
+                    <p style={{ fontSize: "11px", opacity: 0.7, marginTop: "2px" }}>Megnyitás</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
-
         </div>
       )}
 
