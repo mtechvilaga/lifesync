@@ -2053,17 +2053,24 @@ export default function Home() {
                   .react-datepicker__day-name {
                     color: rgba(255,255,255,0.6) !important;
                     font-weight: 500 !important;
-                    width: 2rem !important;
+                    width: calc((100% - 14px) / 7) !important;
+                    max-width: 2.2rem !important;
                     line-height: 2rem !important;
                     font-size: 11px !important;
+                    margin: 1px !important;
                   }
                   .react-datepicker__day {
                     color: white !important;
-                    width: 2rem !important;
+                    width: calc((100% - 14px) / 7) !important;
+                    max-width: 2.2rem !important;
                     line-height: 2rem !important;
                     border-radius: 8px !important;
                     margin: 1px !important;
                     font-size: 13px !important;
+                  }
+                  .react-datepicker__week {
+                    display: flex !important;
+                    justify-content: space-between !important;
                   }
                   .react-datepicker__day:hover {
                     background: rgba(255,255,255,0.15) !important;
@@ -2358,7 +2365,7 @@ export default function Home() {
               <div onClick={() => supabase.auth.signOut()} style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{ fontSize: "20px" }}>🚪</span>
-                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#FF0101" }}>Kijelentkezés</span>
+                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#BA00FF" }}>Kijelentkezés</span>
                 </div>
               </div>
             </div>
