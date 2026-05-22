@@ -104,9 +104,9 @@ body {
 }
 
 .logo {
-  width: clamp(32px, 8vw, 50px);
-  height: clamp(32px, 8vw, 50px);
-  border-radius: clamp(8px, 2vw, 16px);
+  width: clamp(42px, 10vw, 58px);
+  height: clamp(42px, 10vw, 58px);
+  border-radius: clamp(10px, 2.5vw, 18px);
   background: transparent;
   display: grid;
   place-items: center;
