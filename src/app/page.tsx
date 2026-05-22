@@ -1518,7 +1518,7 @@ export default function Home() {
                 display: "flex", alignItems: "center", gap: "6px",
                 marginBottom: "70px",
               }}>
-                {weather ? `${weather.temp}°C · ${weather.city} ${weather.desc}` : t("weatherFallback")}
+                {weather ? `${weather.temp}°C · ${weather.city} ${weather.desc}` : ""}
               </p>
             </div>
           </section>
