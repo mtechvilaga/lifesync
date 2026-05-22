@@ -6,10 +6,6 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { registerLocale } from "react-datepicker";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const huLocale = require("date-fns/locale/hu");
-registerLocale("hu", huLocale.hu || huLocale.default || huLocale);
 import BottomNav from "./components/BottomNav";
 
 export default function Home() {
@@ -431,75 +427,100 @@ export default function Home() {
   const minSwipeDistance = 50;
 
   useEffect(() => {
-    let startX = 0;
-    let startY = 0;
-    let startXRelative = 0;
-    let isHorizontal: boolean | null = null;
-
-    const handleTouchStart = (e: TouchEvent) => {
+    // Rövid delay hogy a ref biztosan be legyen töltve
+    const timer = setTimeout(() => {
       const el = mainRef.current;
       if (!el) return;
-      const touch = e.targetTouches[0];
-      const rect = el.getBoundingClientRect();
-      if (touch.clientX < rect.left || touch.clientX > rect.right ||
-          touch.clientY < rect.top  || touch.clientY > rect.bottom) {
-        startX = -9999;
-        return;
-      }
-      startX = touch.clientX;
-      startY = touch.clientY;
-      startXRelative = touch.clientX - rect.left;
-      isHorizontal = null;
-    };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (startX === -9999) return;
-      const dx = Math.abs(e.targetTouches[0].clientX - startX);
-      const dy = Math.abs(e.targetTouches[0].clientY - startY);
-      if (isHorizontal === null && (dx > 8 || dy > 8)) {
-        isHorizontal = dx > dy;
-      }
-      if (isHorizontal) e.preventDefault();
-    };
+      let startX = 0;
+      let startY = 0;
+      let startXRelative = 0; // .phone elemen belüli pozíció
+      let isHorizontal: boolean | null = null;
 
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (startX === -9999 || isHorizontal !== true) return;
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = e.changedTouches[0].clientY - startY;
-      if (Math.abs(dx) < minSwipeDistance) return;
-      if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
+      const handleTouchStart = (e: TouchEvent) => {
+        const touch = e.targetTouches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        // Relatív pozíció a .phone elemen belül
+        const rect = el.getBoundingClientRect();
+        startXRelative = touch.clientX - rect.left;
+        // Ha a touch a .phone elemen kívül indult, ne csináljunk semmit
+        if (touch.clientX < rect.left || touch.clientX > rect.right ||
+            touch.clientY < rect.top  || touch.clientY > rect.bottom) {
+          startX = -9999;
+          return;
+        }
+        isHorizontal = null;
+      };
 
-      const isLeftSwipe = dx < 0;
-      const isRightSwipe = dx > 0;
+      const handleTouchMove = (e: TouchEvent) => {
+        const dx = Math.abs(e.targetTouches[0].clientX - startX);
+        const dy = Math.abs(e.targetTouches[0].clientY - startY);
 
-      if (isRightSwipe && startXRelative < 60 && !isDrawerOpenRef.current) {
-        setIsDrawerOpen(true); return;
-      }
-      if (isLeftSwipe && isDrawerOpenRef.current) {
-        setIsDrawerOpen(false); return;
-      }
-      if (isDrawerOpenRef.current) return;
+        if (isHorizontal === null && (dx > 8 || dy > 8)) {
+          isHorizontal = dx > dy;
+        }
 
-      if (activeTabRef.current === "Add") {
-        if (isLeftSwipe && addViewModeRef.current === "calendar") { setAddViewMode("form"); return; }
-        if (isRightSwipe && addViewModeRef.current === "form") { setAddViewMode("calendar"); return; }
-      }
+        if (isHorizontal) {
+          e.preventDefault();
+        }
+      };
 
-      const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
-      const idx = tabs.indexOf(activeTabRef.current);
-      if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
-      else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
-    };
+      const handleTouchEnd = (e: TouchEvent) => {
+        if (isHorizontal !== true) return;
 
-    document.addEventListener("touchstart", handleTouchStart, { passive: true });
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleTouchEnd, { passive: true });
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
 
-    return () => {
-      document.removeEventListener("touchstart", handleTouchStart);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
-    };
+        if (Math.abs(dx) < minSwipeDistance) return;
+        if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
+
+        const isLeftSwipe = dx < 0;
+        const isRightSwipe = dx > 0;
+
+        // Drawer kinyitás: bal szélről (60px) jobbra húzva
+        if (isRightSwipe && startXRelative < 60 && !isDrawerOpenRef.current) {
+          setIsDrawerOpen(true);
+          return;
+        }
+
+        // Drawer becsukás: balra húzva ha nyitva
+        if (isLeftSwipe && isDrawerOpenRef.current) {
+          setIsDrawerOpen(false);
+          return;
+        }
+
+        // Ha drawer nyitva van, ne váltson tab
+        if (isDrawerOpenRef.current) return;
+
+        // Add tab: naptár ↔ form váltás, ha van mit váltani
+        // Ha nincs (pl. form nézetből balra), eső át a tab váltásra
+        if (activeTabRef.current === "Add") {
+          if (isLeftSwipe && addViewModeRef.current === "calendar") { setAddViewMode("form"); return; }
+          if (isRightSwipe && addViewModeRef.current === "form") { setAddViewMode("calendar"); return; }
+          // nincs mit váltani → tab váltás következik
+        }
+
+        // Tab váltás
+        const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
+        const idx = tabs.indexOf(activeTabRef.current);
+        if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
+        else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
+      };
+
+      // document-ra tesszük hogy a child elemek ne nyeljék el
+      document.addEventListener("touchstart", handleTouchStart, { passive: true });
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+      return () => {
+        document.removeEventListener("touchstart", handleTouchStart);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      };
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -580,13 +601,8 @@ export default function Home() {
   }, [activeTab, scrollToEventId]);
 
   const fetchEvents = async () => {
-    if (!session) return;
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('event_date', { ascending: false });
-    if (!error && data) setEvents(data);
+    const { data, error } = await supabase.from('events').select('*').order('event_date', { ascending: false });
+    if (data) setEvents(data);
   };
 
   const fetchVaultFolders = async () => {
@@ -1110,7 +1126,7 @@ export default function Home() {
         resetForm();
         const { data } = await supabase.from('events').select('*').order('event_date', { ascending: false });
         if (data) setEvents(data);
-        setActiveTab("Timeline");
+        setActiveTab(t("timelineTitle"));
       }
     } else {
       if (isRecurring) {
@@ -1132,7 +1148,7 @@ export default function Home() {
           showToast(t("toastRecurring"), 'success');
           resetForm();
           fetchEvents();
-          setActiveTab("Timeline");
+          setActiveTab(t("timelineTitle"));
         }
       } else {
       const { error } = await supabase.from('events').insert([
@@ -1211,7 +1227,7 @@ export default function Home() {
           showToast(t("toastSaved"), 'success');
           resetForm();
           fetchEvents();
-          setActiveTab("Timeline");
+          setActiveTab(t("timelineTitle"));
       }
       } // end non-recurring else
     }
@@ -1509,7 +1525,7 @@ export default function Home() {
           <section className="glass-card recent">
             <div className="section-head">
               <span>{t("recentEvents")}</span>
-              <span onClick={() => setActiveTab("Timeline")} style={{ cursor: "pointer" }}>{t("allEvents")}</span>
+              <span onClick={() => setActiveTab(t("timelineTitle"))} style={{ cursor: "pointer" }}>{t("allEvents")}</span>
             </div>
 
             {recentMemories.length === 0 ? (
@@ -1517,7 +1533,7 @@ export default function Home() {
             ) : (
               <div className="photos" style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "10px", scrollbarWidth: "none" }}>
                 {recentMemories.map((mem) => (
-                  <div className="photo" key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab("Timeline"); }} style={{ minWidth: "120px", width: "120px", cursor: "pointer" }}>
+                  <div className="photo" key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab(t("timelineTitle")); }} style={{ minWidth: "120px", width: "120px", cursor: "pointer" }}>
                     {(() => {
                       let parsedUrl = "";
                       try {
@@ -2068,7 +2084,6 @@ export default function Home() {
                         placeholderText={t("dateTimePlaceholder")}
                         className="custom-datepicker"
                         fixedHeight
-                        locale={lang === "hu" ? "hu" : "en"}
                       />
                     </div>
                   )}
@@ -2079,7 +2094,7 @@ export default function Home() {
 
               <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
                 {editingEventId && (
-                  <button type="button" onClick={() => { resetForm(); setActiveTab("Timeline"); }} style={{ flex: 1, padding: "18px", background: "var(--input-bg)", border: "1px solid var(--input-border)", borderRadius: "18px", color: "var(--text-color)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
+                  <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "var(--input-bg)", border: "1px solid var(--input-border)", borderRadius: "18px", color: "var(--text-color)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
                 )}
                 <button type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "18px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
                   {isUploading ? t("uploading") : (editingEventId ? t("saveChanges") : t("save"))}
@@ -2096,7 +2111,6 @@ export default function Home() {
                 </h3>
                 <DatePicker
                   inline
-                  locale={lang === "hu" ? "hu" : "en"}
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
                   onChange={(date: Date | null) => {
                     if (date) {
@@ -2239,7 +2253,7 @@ export default function Home() {
                           key={event.id}
                           onClick={() => {
                             setScrollToEventId(event.id);
-                            setActiveTab("Timeline");
+                            setActiveTab(t("timelineTitle"));
                           }}
                           style={{
                             padding: "12px",
@@ -2271,10 +2285,7 @@ export default function Home() {
                 );
               })()}
 
-              {/* Swipe hint */}
-              <div style={{ textAlign: "center", padding: "10px", opacity: 0.6, fontSize: "13px" }}>
-                💡 Jobbra húzva visszamehetsz a naptárhoz
-              </div>
+
             </div>
           )}
         </div>
@@ -2781,7 +2792,7 @@ export default function Home() {
                       <h4 style={{ fontSize: "13px", fontWeight: 700, opacity: 0.5, marginBottom: "12px", letterSpacing: "1px" }}>ESEMÉNYEK ({filteredEvents.length})</h4>
                       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                         {filteredEvents.map(event => (
-                          <div key={event.id} onClick={() => { setIsSearchOpen(false); setScrollToEventId(event.id); setActiveTab("Timeline"); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
+                          <div key={event.id} onClick={() => { setIsSearchOpen(false); setScrollToEventId(event.id); setActiveTab(t("timelineTitle")); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                               <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
                                 {event.category === 'photo' ? '💭' : event.category === 'utility' ? '⚡' : '📅'}

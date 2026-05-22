@@ -420,16 +420,27 @@ input::placeholder, textarea::placeholder {
 .react-datepicker { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background: rgba(30, 40, 60, 0.85) !important; backdrop-filter: blur(20px) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 16px !important; color: white !important; overflow: hidden; }
 .react-datepicker__header { background: rgba(255, 255, 255, 0.05) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; border-top-left-radius: 16px !important; border-top-right-radius: 16px !important; }
 .react-datepicker__current-month, .react-datepicker-time__header { color: white !important; font-weight: 700 !important; font-size: 15px !important; text-transform: capitalize !important; }
-.react-datepicker__day-name { color: rgba(255,255,255,0.95) !important; font-size: 13px !important; font-weight: 600 !important; }
-.react-datepicker__day { color: white !important; font-size: 13px !important; }
-.react-datepicker__day:hover { background-color: rgba(255, 255, 255, 0.15) !important; border-radius: 50% !important; }
-.react-datepicker__day--selected { background-color: transparent !important; color: white !important; border-radius: 50% !important; font-weight: normal !important; }
-.react-datepicker__day--today { background-color: #3b82f6 !important; color: white !important; border-radius: 50% !important; font-weight: 700 !important; }
+.react-datepicker__day-name { color: #ffffff !important; font-size: 14px !important; font-weight: 700 !important; }
+.react-datepicker__day { color: #ffffff !important; font-size: 14px !important; font-weight: 500 !important; }
+.react-datepicker__day:hover { background-color: rgba(255,255,255,0.15) !important; border-radius: 50% !important; }
+
+/* Kiválasztott nap - semmi kiemelés */
+.react-datepicker__day--selected,
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--keyboard-selected:hover { background-color: transparent !important; color: #ffffff !important; font-weight: 500 !important; outline: none !important; box-shadow: none !important; }
+
+/* Mai nap - kék kör */
+.react-datepicker__day--today { background-color: #3b82f6 !important; color: #ffffff !important; border-radius: 50% !important; font-weight: 700 !important; }
 .react-datepicker__day--today:hover { background-color: #2563eb !important; }
-.react-datepicker__day--today.react-datepicker__day--selected { background-color: #3b82f6 !important; }
-.react-datepicker__time-container { border-left: 1px solid rgba(255, 255, 255, 0.1) !important; }
+
+/* Ha mai nap egyben kiválasztott - maradjon kék */
+.react-datepicker__day--today.react-datepicker__day--selected,
+.react-datepicker__day--today.react-datepicker__day--keyboard-selected { background-color: #3b82f6 !important; color: #ffffff !important; }
+
+.react-datepicker__time-container { border-left: 1px solid rgba(255,255,255,0.1) !important; }
 .react-datepicker__time-container .react-datepicker__time { background: transparent !important; }
-.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover { background-color: rgba(255, 255, 255, 0.15) !important; }
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover { background-color: rgba(255,255,255,0.15) !important; }
 .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected { background-color: #3b82f6 !important; color: white !important; }
 .custom-datepicker { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); padding: 10px 14px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
 .custom-datepicker::placeholder { color: rgba(255,255,255,0.5); }
