@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { mockUser, mockTodaysMemory, mockStats, mockRecentMemories, mockTimelineEvents, mockVaultFolders } from "@/lib/mockData";
+import { translations } from "@/lib/translations";
 import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker from "react-datepicker";
@@ -12,8 +12,9 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("Home");
   
   // Swipe navigation state
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const touchStartRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
   
   const [session, setSession] = useState<any>(null);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -65,6 +66,14 @@ export default function Home() {
   // Password Visibility Toggle State
   const [showPassword, setShowPassword] = useState(false);
 
+  // Drawer (oldalsáv) state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+
+  // Nyelv state
+  const [lang, setLang] = useState<"hu" | "en">("hu");
+  const t = (key: keyof typeof translations.hu): string => translations[lang][key] ?? translations.hu[key];
+
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -100,6 +109,8 @@ export default function Home() {
       setIsDarkMode(true);
       document.body.classList.remove("light-mode");
     }
+    const savedLang = localStorage.getItem("lang");
+    if (savedLang === "en") setLang("en");
   }, []);
 
   useEffect(() => {
@@ -389,52 +400,69 @@ export default function Home() {
     }
   };
 
-  // Swipe navigation handlers
+  // Swipe navigation – natív listener, passive:false hogy preventDefault működjön
   const minSwipeDistance = 50;
-  
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-  
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-  
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe || isRightSwipe) {
-      // Add tab-on belül: naptár ↔ form váltás
-      if (activeTab === "Add") {
-        if (isLeftSwipe && addViewMode === "calendar") {
-          // Balra swipe naptárból -> form
-          setAddViewMode("form");
-          return;
-        } else if (isRightSwipe && addViewMode === "form") {
-          // Jobbra swipe form-ból -> naptár
-          setAddViewMode("calendar");
-          return;
-        }
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartRef.current = e.targetTouches[0].clientX;
+      touchStartYRef.current = e.targetTouches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (touchStartRef.current === null || touchStartYRef.current === null) return;
+      const dx = e.targetTouches[0].clientX - touchStartRef.current;
+      const dy = e.targetTouches[0].clientY - touchStartYRef.current;
+      // Ha vízszintes swipe (dx domináns), megakadályozzuk az alapértelmezett viselkedést
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+        e.preventDefault();
       }
-      
-      // Normál tab váltás
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (touchStartRef.current === null) return;
+      const dx = (e.changedTouches[0].clientX - touchStartRef.current);
+      const isLeftSwipe = dx < -minSwipeDistance;
+      const isRightSwipe = dx > minSwipeDistance;
+      touchStartRef.current = null;
+      touchStartYRef.current = null;
+
+      if (!isLeftSwipe && !isRightSwipe) return;
+
+      // Add tabon csak naptár↔form váltás, semmi más
+      if (activeTabRef.current === "Add") {
+        if (isLeftSwipe && addViewModeRef.current === "calendar") setAddViewMode("form");
+        else if (isRightSwipe && addViewModeRef.current === "form") setAddViewMode("calendar");
+        return;
+      }
+
       const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
-      const currentIndex = tabs.indexOf(activeTab);
-      
-      if (isLeftSwipe && currentIndex < tabs.length - 1) {
-        // Balra swipe -> következő tab
-        setActiveTab(tabs[currentIndex + 1]);
-      } else if (isRightSwipe && currentIndex > 0) {
-        // Jobbra swipe -> előző tab
-        setActiveTab(tabs[currentIndex - 1]);
-      }
-    }
-  };
+      const currentIndex = tabs.indexOf(activeTabRef.current);
+      if (isLeftSwipe && currentIndex < tabs.length - 1) setActiveTab(tabs[currentIndex + 1]);
+      else if (isRightSwipe && currentIndex > 0) setActiveTab(tabs[currentIndex - 1]);
+    };
+
+    el.addEventListener("touchstart", handleTouchStart, { passive: true });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Ref-ek az aktuális tab/viewmode értékekhez (closure miatt kell)
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+  const addViewModeRef = useRef(addViewMode);
+  useEffect(() => { addViewModeRef.current = addViewMode; }, [addViewMode]);
+
+
 
   const resetForm = () => {
     setNewEventTitle("");
@@ -842,7 +870,7 @@ export default function Home() {
       if (error) showToast("Hiba a regisztrációnál: " + error.message, 'error');
       else {
         localStorage.setItem('remembered_login_email', email);
-        showToast("Sikeres regisztráció! Kérlek, jelentkezz be.", 'success');
+        showToast(t("registeredOk"), 'success');
         setIsLoginMode(true);
         setPassword("");
       }
@@ -866,7 +894,7 @@ export default function Home() {
       showToast("Hiba törlés közben: " + error.message, 'error');
     } else {
       setEvents(events.filter(e => e.id !== eventToDeleteId));
-      showToast("Esemény törölve!", 'success');
+      showToast(t("toastDeleted"), 'success');
     }
     setEventToDeleteId(null);
     setDeleteMode(null);
@@ -916,7 +944,7 @@ export default function Home() {
   };
 
   const recurringTypeLabel: Record<string, string> = {
-    daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
+    daily: t("daily"), weekly: t("weekly"), biweekly: t("biweekly"), monthly: t("monthly"), yearly: t("yearly")
   };
 
   const handleDeleteAll = async () => {
@@ -926,7 +954,7 @@ export default function Home() {
       showToast("Hiba törlés közben: " + error.message, 'error');
     } else {
       setEvents([]);
-      showToast("Összes esemény törölve!", 'success');
+      showToast(t("toastAllDeleted"), 'success');
     }
     setShowDeleteAllConfirm(false);
   };
@@ -1032,11 +1060,11 @@ export default function Home() {
       } else if (!updateData || updateData.length === 0) {
         showToast("Nincs jogosultságod a módosításhoz (RLS korlátozás)!", 'error');
       } else {
-        showToast("Az esemény sikeresen frissítve!", 'success');
+        showToast(t("toastUpdated"), 'success');
         resetForm();
         const { data } = await supabase.from('events').select('*').order('event_date', { ascending: false });
         if (data) setEvents(data);
-        setActiveTab("Timeline");
+        setActiveTab(t("timelineTitle"));
       }
     } else {
       if (isRecurring) {
@@ -1055,10 +1083,10 @@ export default function Home() {
         if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
         } else {
-          showToast("✅ Ismétlődő esemény létrehozva!", 'success');
+          showToast(t("toastRecurring"), 'success');
           resetForm();
           fetchEvents();
-          setActiveTab("Timeline");
+          setActiveTab(t("timelineTitle"));
         }
       } else {
       const { error } = await supabase.from('events').insert([
@@ -1134,10 +1162,10 @@ export default function Home() {
             }
           }
 
-          showToast("Az esemény sikeresen rögzítve!", 'success');
+          showToast(t("toastSaved"), 'success');
           resetForm();
           fetchEvents();
-          setActiveTab("Timeline");
+          setActiveTab(t("timelineTitle"));
       }
       } // end non-recurring else
     }
@@ -1151,7 +1179,7 @@ export default function Home() {
 
   if (!session || showSplash) {
     return (
-      <main className="phone" style={{ position: "relative", padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: showSplash ? "center" : "flex-start", alignItems: "center", minHeight: "100%", gap: "20px" }}>
+      <main className="phone" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", padding: "24px", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: showSplash ? "center" : "flex-start", alignItems: "center", gap: "20px" }}>
         {!showSplash && (
           <div className="theme-toggle" onClick={toggleTheme} style={{ position: "absolute", top: "25px", right: "25px", cursor: "pointer", zIndex: 100 }}>
             {isDarkMode ? "☀️" : "🌙"}
@@ -1195,7 +1223,7 @@ export default function Home() {
           <div style={{ marginTop: "10px", display: showSplash ? "block" : "none", width: "100%", padding: "0 10px" }}>
              {showSplash && (
                <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.85)", margin: 0, fontWeight: 500, lineHeight: "1.4" }}>
-                  {"Memories that matter. Life in sync.".split(" ").map((word, idx) => (
+                  {t("slogan").split(" ").map((word, idx) => (
                      <span key={idx} className="word-fade" style={{ animationDelay: `${1.2 + idx * 0.35}s`, display: "inline-block" }}>{word}&nbsp;</span>
                   ))}
                </p>
@@ -1210,6 +1238,9 @@ export default function Home() {
             style={{ 
               width: "100%",
               maxWidth: "360px",
+              maxHeight: "calc(100vh - 280px)",
+              overflowY: "auto",
+              overscrollBehavior: "contain",
               padding: "26px 20px", 
               borderRadius: "28px", 
               zIndex: 5,
@@ -1219,17 +1250,17 @@ export default function Home() {
             }}
           >
             <h2 style={{ fontSize: "22px", fontWeight: 600, marginBottom: "20px", textAlign: "center" }}>
-              {isLoginMode ? "Bejelentkezés" : "Regisztráció"}
+              {isLoginMode ? t("signIn") : t("register")}
             </h2>
 
             <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Email cím</label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@lifesync.hu" style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
+                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("emailLabel")}</label>
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("emailPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
               </div>
               
                             <div>
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Jelszó</label>
+                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("passwordLabel")}</label>
                 <div style={{ position: "relative", width: "100%" }}>
                   <input 
                     type={showPassword ? "text" : "password"} 
@@ -1269,14 +1300,14 @@ export default function Home() {
               </div>
 
               <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "15px", cursor: "pointer" }}>
-                {isLoginMode ? "Belépés" : "Fiók létrehozása"}
+                {isLoginMode ? t("login") : t("createAccount")}
               </button>
             </form>
 
             <div style={{ textAlign: "center", marginTop: "18px", fontSize: "13.5px" }}>
-              <span style={{ opacity: 0.7 }}>{isLoginMode ? "Nincs még fiókod?" : "Már van fiókod?"}</span>{" "}
+              <span style={{ opacity: 0.7 }}>{isLoginMode ? t("noAccount") : t("alreadyHaveAccount")}</span>{" "}
               <span onClick={() => setIsLoginMode(!isLoginMode)} style={{ color: "#ffcc80", fontWeight: 600, cursor: "pointer" }}>
-                {isLoginMode ? "Regisztráció" : "Bejelentkezés"}
+                {isLoginMode ? t("register") : t("signIn")}
               </span>
             </div>
           </div>
@@ -1288,12 +1319,29 @@ export default function Home() {
   return (
     <main 
       className="phone"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
+      ref={mainRef}
+
     >
+      {/* ═══ FŐ TARTALOM ═══ */}
+
       <section className="header">
-        <div>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+          {/* Hamburger gomb */}
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            style={{
+              width: "42px", height: "42px", borderRadius: "14px",
+              background: "var(--card-bg)", border: "1px solid var(--card-border)",
+              display: "flex", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", gap: "5px", cursor: "pointer",
+              flexShrink: 0, marginTop: "4px"
+            }}
+          >
+            <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
+            <span style={{ display: "block", width: "14px", height: "2px", background: "var(--text-color)", borderRadius: "2px", alignSelf: "flex-start", marginLeft: "4px" }} />
+            <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
+          </button>
+          <div>
           <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
             {/* Logo ikon */}
             <div className="logo">
@@ -1321,8 +1369,9 @@ export default function Home() {
             color: "rgba(244, 247, 251, 0.85)", 
             marginTop: "8px",
             fontWeight: 500
-          }}>Memories that matter. Life in sync.</div>
-        </div>
+          }}>{t("slogan")}</div>
+          </div>{/* end brand+subtitle wrapper */}
+        </div>{/* end hamburger+content wrapper */}
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <div className="theme-toggle" onClick={toggleTheme} style={{ cursor: "pointer" }}>
@@ -1339,7 +1388,7 @@ export default function Home() {
 
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
-        <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none" }}>
+        <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           <section className="glass-card greeting" style={{ position: "relative" }}>
             {isEditingGreetingName ? (
               <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
@@ -1351,25 +1400,25 @@ export default function Home() {
                   style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", padding: "6px 12px", color: "white", outline: "none", fontSize: "15px", flex: 1 }}
                 />
                 <button type="submit" style={{ background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Mentés</button>
-                <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "1px solid var(--card-border)", borderRadius: "10px", color: "var(--text-color)", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>Mégse</button>
+                <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "1px solid var(--card-border)", borderRadius: "10px", color: "var(--text-color)", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>{t("cancel")}</button>
               </form>
             ) : (
               <p style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                Szia, <strong style={{ fontWeight: 700 }}>{formattedName}</strong>!
+                {t("greeting")} <strong style={{ fontWeight: 700 }}>{formattedName}</strong>!
                 <span onClick={startEditingGreetingName} style={{ cursor: "pointer", fontSize: "14px", opacity: 0.6, transition: "opacity 0.2s" }}>✏️</span>
               </p>
             )}
             <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "6px" }}>
-              {weather ? `${weather.temp}°C · ${weather.city}` : "Kellemes idő ☼"}
+              {weather ? `${weather.temp}°C · ${weather.city}` : t("weatherFallback")}
             </h2>
             <p style={{ opacity: 0.9, fontSize: "15px", fontWeight: 500 }}>
-              {weather ? `${weather.desc} · Legyen szép napod!` : "Legyen szép napod!"}
+              {weather ? `${weather.desc} · ${t("niceDay")}` : t("niceDay")}
             </p>
           </section>
 
           <section className="glass-card timeline">
             <div className="section-head">
-              <span>Esemény Statisztikák</span>
+              <span>{t("eventStats")}</span>
             </div>
 
             <div className="stats" onScroll={handleStatsScroll}>
@@ -1377,7 +1426,7 @@ export default function Home() {
                 <div className="icon">📅</div>
                 <div>
                   <strong>{stats.today} bejegyzés</strong>
-                  <small>Események a mai napon</small>
+                  <small>{t("todayLabel")}</small>
                 </div>
               </div>
 
@@ -1385,7 +1434,7 @@ export default function Home() {
                 <div className="icon">⚡</div>
                 <div>
                   <strong>{stats.week} bejegyzés</strong>
-                  <small>Ezen a héten összesen</small>
+                  <small>{t("weekLabel")}</small>
                 </div>
               </div>
 
@@ -1393,7 +1442,7 @@ export default function Home() {
                 <div className="icon">🗓</div>
                 <div>
                   <strong>{stats.month} bejegyzés</strong>
-                  <small>Ebben a hónapban</small>
+                  <small>{t("monthLabel")}</small>
                 </div>
               </div>
 
@@ -1401,7 +1450,7 @@ export default function Home() {
                 <div className="icon">⭐</div>
                 <div>
                   <strong>{stats.year} bejegyzés</strong>
-                  <small>Ebben az évben eddig</small>
+                  <small>{t("yearLabel")}</small>
                 </div>
               </div>
 
@@ -1409,7 +1458,7 @@ export default function Home() {
                 <div className="icon">🗂</div>
                 <div>
                   <strong>{stats.allTime} bejegyzés</strong>
-                  <small>Összes rögzített emlék</small>
+                  <small>{t("allTimeLabel")}</small>
                 </div>
               </div>
             </div>
@@ -1417,16 +1466,16 @@ export default function Home() {
 
           <section className="glass-card recent">
             <div className="section-head">
-              <span>Legutóbbi Események</span>
-              <span onClick={() => setActiveTab("Timeline")} style={{ cursor: "pointer" }}>Összes →</span>
+              <span>{t("recentEvents")}</span>
+              <span onClick={() => setActiveTab(t("timelineTitle"))} style={{ cursor: "pointer" }}>{t("allEvents")}</span>
             </div>
 
             {recentMemories.length === 0 ? (
-              <p style={{ opacity: 0.6, fontSize: "14px", padding: "10px" }}>Még nincs eseményed.</p>
+              <p style={{ opacity: 0.6, fontSize: "14px", padding: "10px" }}>{t("noEvents")}</p>
             ) : (
               <div className="photos" style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "10px", scrollbarWidth: "none" }}>
                 {recentMemories.map((mem) => (
-                  <div className="photo" key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab("Timeline"); }} style={{ minWidth: "120px", width: "120px", cursor: "pointer" }}>
+                  <div className="photo" key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab(t("timelineTitle")); }} style={{ minWidth: "120px", width: "120px", cursor: "pointer" }}>
                     {(() => {
                       let parsedUrl = "";
                       try {
@@ -1446,11 +1495,11 @@ export default function Home() {
                         <img src={parsedUrl} alt={mem.title} style={{ height: "120px", objectFit: "cover", borderRadius: "12px", width: "100%" }} />
                       ) : (
                         <div style={{ height: "120px", borderRadius: "12px", width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "36px" }}>
-                          {mem.event_type === 'memory' ? '💭' : mem.event_type === 'utility' ? '⚡' : '📅'}
+                          {mem.category === 'photo' ? '💭' : mem.category === 'utility' ? '⚡' : '📅'}
                         </div>
                       );
                     })()}
-                    <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block", marginTop: "6px" }}>{mem.event_title || mem.title}</strong>
+                    <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block", marginTop: "6px" }}>{mem.title}</strong>
                     <small>{mem.event_date}</small>
                   </div>
                 ))}
@@ -1460,8 +1509,8 @@ export default function Home() {
 
           <section style={{ marginBottom: "32px", marginTop: "24px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px", padding: "0 4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>Aktív Projektek</span>
-              <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "14px", fontWeight: 600, color: "white", cursor: "pointer" }}>Összes →</span>
+              <span>{t("activeProjects")}</span>
+              <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "14px", fontWeight: 600, color: "white", cursor: "pointer" }}>{t("allEvents")}</span>
             </h2>
             <div style={{ display: "flex", gap: "14px", overflowX: "auto", padding: "4px", paddingBottom: "16px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }} className="hide-scrollbar">
               {vaultFolders.length === 0 ? (
@@ -1475,7 +1524,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 style={{ fontSize: "14px", fontWeight: 600, lineHeight: 1.2 }}>{folder.name}</h3>
-                    <p style={{ fontSize: "11px", opacity: 0.7, marginTop: "2px" }}>Megnyitás</p>
+                    <p style={{ fontSize: "11px", opacity: 0.7, marginTop: "2px" }}>{t("open")}</p>
                   </div>
                 </div>
               ))}
@@ -1485,10 +1534,10 @@ export default function Home() {
       )}
 
       {activeTab === "Timeline" && (
-        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px", overscrollBehavior: "contain" }}>
           <div style={{ padding: "0 4px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Timeline</h2>
+              <h2 style={{ fontSize: "28px", fontWeight: 650 }}>{t("timelineTitle")}</h2>
               {events.length > 0 && (
                 <button
                   onClick={() => setShowDeleteAllConfirm(true)}
@@ -1498,7 +1547,7 @@ export default function Home() {
                 </button>
               )}
             </div>
-            <p style={{ opacity: 0.75, fontSize: "15px" }}>Az összes esemény és dokumentum egy helyen.</p>
+            <p style={{ opacity: 0.75, fontSize: "15px" }}>{t("timelineSubtitle")}</p>
           </div>
 
           <div style={{ position: "relative", paddingLeft: "8px", marginTop: "10px" }}>
@@ -1506,7 +1555,7 @@ export default function Home() {
              <div style={{ position: "absolute", left: "20px", top: 0, bottom: "100px", width: "2px", background: "rgba(255, 255, 255, 0.15)", borderRadius: "2px" }}></div>
              
              {events.length === 0 && (
-                <p style={{ opacity: 0.6, fontSize: "14px", marginLeft: "40px", marginTop: "20px" }}>Még nincs esemény. Adj hozzá egyet a + gombbal!</p>
+                <p style={{ opacity: 0.6, fontSize: "14px", marginLeft: "40px", marginTop: "20px" }}>{t("noTimeline")}</p>
              )}
 
              {events.map((event) => (
@@ -1664,8 +1713,8 @@ export default function Home() {
                                   {docs.map((doc, idx) => (
                                     <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", color: "white", textDecoration: "none", fontSize: "13px", fontWeight: 500, transition: "background 0.2s" }} className="doc-pill">
                                       <span style={{ fontSize: "16px" }}>📄</span>
-                                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{doc.name || "Dokumentum"}</span>
-                                      <span style={{ fontSize: "12px", opacity: 0.5 }}>Megnyitás ↗</span>
+                                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{doc.name || (lang === "hu" ? "Dokumentum" : "Document")}</span>
+                                      <span style={{ fontSize: "12px", opacity: 0.5 }}>{t("openDoc")}</span>
                                     </a>
                                   ))}
                                 </div>
@@ -1683,31 +1732,31 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "300px", scrollbarWidth: "none" }}>
+        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "300px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           <div style={{ padding: "0 4px", marginBottom: "16px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : addViewMode === "calendar" ? "Válassz dátumot" : "Új bejegyzés"}</h2>
-            <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? "Módosítsd a kiválasztott emléket." : addViewMode === "calendar" ? "Kattints egy napra az új bejegyzéshez" : "Rögzíts egy emléket vagy számlát."}</p>
+            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
+            <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
           </div>
 
           {addViewMode === "form" ? (
           <div className="glass-card" style={{ padding: "20px" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Cím / Esemény neve</label>
-                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder="Pl. Villanyóra állás, Szülinap..." style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
+                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("titleLabel")}</label>
+                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <div>
-                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Dátum</label>
+                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("dateLabel")}</label>
                   <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Kategória</label>
+                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("categoryLabel")}</label>
                   <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", appearance: "none", fontSize: "15px" }}>
-                    <option value="event" style={{color: "black"}}>Esemény 🎂</option>
-                    <option value="utility" style={{color: "black"}}>Számla ⚡</option>
-                    <option value="photo" style={{color: "black"}}>Emlék 🏔</option>
+                    <option value="event" style={{color: "black"}}>{t("categoryEvent")}</option>
+                    <option value="utility" style={{color: "black"}}>{t("categoryUtility")}</option>
+                    <option value="photo" style={{color: "black"}}>{t("categoryPhoto")}</option>
                   </select>
                 </div>
               </div>
@@ -1725,9 +1774,9 @@ export default function Home() {
                     {isRecurring && (
                       <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: "16px", padding: "14px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", gap: "12px" }}>
                         <div>
-                          <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>Milyen gyakran?</label>
+                          <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>{t("howOften")}</label>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                            {[{ value: "daily", label: "Naponta" }, { value: "weekly", label: "Hetente" }, { value: "biweekly", label: "Kéthetente" }, { value: "monthly", label: "Havonta" }, { value: "yearly", label: "Évente" }].map(opt => (
+                            {[{ value: "daily", label: t("daily") }, { value: "weekly", label: t("weekly") }, { value: "biweekly", label: t("biweekly") }, { value: "monthly", label: t("monthly") }, { value: "yearly", label: t("yearly") }].map(opt => (
                               <button key={opt.value} type="button" onClick={() => setRecurringType(opt.value as any)} style={{ padding: "6px 12px", borderRadius: "20px", border: "none", fontSize: "12px", fontWeight: 600, cursor: "pointer", background: recurringType === opt.value ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                 {opt.label}
                               </button>
@@ -1736,9 +1785,9 @@ export default function Home() {
                         </div>
                         {recurringType === "weekly" && (
                           <div>
-                            <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>Melyik napokon? (opcionális)</label>
+                            <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>{t("whichDays")}</label>
                             <div style={{ display: "flex", gap: "6px" }}>
-                              {["H", "K", "Sz", "Cs", "P", "Szo", "V"].map((day, idx) => (
+                              {lang === "hu" ? ["H", "K", "Sz", "Cs", "P", "Szo", "V"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day, idx) => (
                                 <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                   {day}
                                 </button>
@@ -1747,21 +1796,21 @@ export default function Home() {
                           </div>
                         )}
                         <div style={{ fontSize: "12px", opacity: 0.6, fontStyle: "italic" }}>
-                          📅 2 évre előre generálja ({recurringType === "daily" ? "~730" : recurringType === "weekly" ? recurringDays.length > 0 ? `~${recurringDays.length * 104}` : "~104" : recurringType === "biweekly" ? "~52" : recurringType === "monthly" ? "~24" : "~2"} alkalom)
+                          📅 A Timeline folyamatosan kiszámolja a következő időpontot – csak 1 sor kerül mentésre.
                         </div>
                       </div>
                     )}
                   </div>
                 )}
 
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Részletek, megjegyzés</label>
-                <textarea rows={3} value={newEventDesc} onChange={e => setNewEventDesc(e.target.value)} placeholder="Mérőállás: 12345, vagy egyéb infó..." style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", resize: "none", fontSize: "15px" }}></textarea>
+                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("notesLabel")}</label>
+                <textarea rows={3} value={newEventDesc} onChange={e => setNewEventDesc(e.target.value)} placeholder={t("notesPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", resize: "none", fontSize: "15px" }}></textarea>
               </div>
 
               {/* MEGLÉVŐ CSATOLMÁNYOK (ha szerkesztés van) */}
               {existingAttachments.length > 0 && (
                 <div style={{ marginTop: "6px", background: "rgba(0,0,0,0.15)", padding: "12px", borderRadius: "16px", border: "1px dashed rgba(255,255,255,0.15)" }}>
-                  <label style={{ fontSize: "12.5px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "8px" }}>Aktuális csatolmányok</label>
+                  <label style={{ fontSize: "12.5px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "8px" }}>{t("currentAttachments")}</label>
                   
                   {/* Meglévő képek */}
                   {existingAttachments.some(att => att.type?.startsWith("image/")) && (
@@ -1825,7 +1874,7 @@ export default function Home() {
                   <div style={{ padding: "0 12px 12px" }}>
                     {/* ÚJ KÉPEK SZAKASZ */}
               <div style={{ marginTop: "8px" }}>
-                <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Fényképek / Képek</label>
+                <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("imagesLabel")}</label>
                 <input type="file" ref={eventImageInputRef} accept="image/*" hidden multiple onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
                     const selected = Array.from(e.target.files);
@@ -1850,13 +1899,13 @@ export default function Home() {
                 )}
                 
                 <button type="button" onClick={() => eventImageInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                  <span>📸</span> {newEventImages.length > 0 ? "További kép hozzáadása" : "Kép csatolása"}
+                  <span>📸</span> {newEventImages.length > 0 ? t("addMoreImages") : t("attachImage")}
                 </button>
               </div>
 
                     {/* ÚJ DOKUMENTUMOK SZAKASZ */}
               <div style={{ marginTop: "8px" }}>
-                <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Dokumentumok (PDF, Word, Számlák)</label>
+                <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("docsLabel")}</label>
                 <input type="file" ref={eventDocInputRef} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" hidden multiple onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
                     const selected = Array.from(e.target.files);
@@ -1880,13 +1929,13 @@ export default function Home() {
                 )}
                 
                 <button type="button" onClick={() => eventDocInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                  <span>📄</span> {newEventDocs.length > 0 ? "További dokumentum hozzáadása" : "Dokumentum csatolása"}
+                  <span>📄</span> {newEventDocs.length > 0 ? t("addMoreDocs") : t("attachDoc")}
                 </button>
               </div>
 
                     {/* ÚJ HANGOK SZAKASZ */}
               <div style={{ marginTop: "12px", marginBottom: "4px" }}>
-                <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Hangfelvételek / Hangjegyzetek</label>
+                <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("audioLabel")}</label>
                 <input type="file" ref={eventAudioInputRef} accept="audio/*" hidden multiple onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
                     const selected = Array.from(e.target.files);
@@ -1917,7 +1966,7 @@ export default function Home() {
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "12px", background: "rgba(255, 82, 82, 0.15)", borderRadius: "14px", border: "1px solid rgba(255, 82, 82, 0.3)", marginBottom: "8px" }}>
                     <span style={{ color: "#ff5252", fontSize: "18px" }}>🔴</span>
                     <span style={{ fontSize: "14px", fontWeight: 600 }}>Hang rögzítése... {formatTime(recordingSeconds)}</span>
-                    <button type="button" onClick={stopRecording} style={{ padding: "6px 12px", background: "#ff5252", border: "none", borderRadius: "8px", color: "white", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>Leállítás ⏹️</button>
+                    <button type="button" onClick={stopRecording} style={{ padding: "6px 12px", background: "#ff5252", border: "none", borderRadius: "8px", color: "white", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>{t("stopRecording")}</button>
                   </div>
                 )}
 
@@ -1949,7 +1998,7 @@ export default function Home() {
                 {showEmailSection && (
                 <div style={{ padding: "0 12px 12px" }}>
                 <div style={{ marginBottom: "10px" }}>
-                  <label style={{ fontSize: "11.5px", opacity: 0.8, marginBottom: "4px", display: "block" }}>Címzett email címe (ha üres, a te címedre küldjük)</label>
+                  <label style={{ fontSize: "11.5px", opacity: 0.8, marginBottom: "4px", display: "block" }}>{t("recipientEmail")}</label>
                   <input type="email" value={customEmail} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px", backdropFilter: "blur(10px)" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -1974,7 +2023,7 @@ export default function Home() {
                         timeFormat="HH:mm"
                         timeIntervals={15}
                         dateFormat="yyyy. MM. dd. HH:mm"
-                        placeholderText="Dátum és idő kiválasztása..."
+                        placeholderText={t("dateTimePlaceholder")}
                         className="custom-datepicker"
                         fixedHeight
                       />
@@ -1987,10 +2036,10 @@ export default function Home() {
 
               <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
                 {editingEventId && (
-                  <button type="button" onClick={() => { resetForm(); setActiveTab("Timeline"); }} style={{ flex: 1, padding: "18px", background: "var(--input-bg)", border: "1px solid var(--input-border)", borderRadius: "18px", color: "var(--text-color)", fontWeight: 600, fontSize: "17px" }}>Mégse</button>
+                  <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "var(--input-bg)", border: "1px solid var(--input-border)", borderRadius: "18px", color: "var(--text-color)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
                 )}
                 <button type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "18px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
-                  {isUploading ? "Feltöltés..." : (editingEventId ? "Módosítás mentése" : "Mentés")}
+                  {isUploading ? t("uploading") : (editingEventId ? t("saveChanges") : t("save"))}
                 </button>
               </div>
             </form>
@@ -1998,7 +2047,7 @@ export default function Home() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {/* Naptár */}
-              <div className="glass-card" style={{ padding: "20px" }}>
+              <div className="glass-card" style={{ padding: "20px", overflow: "hidden", width: "100%" }}>
                 <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "16px", textAlign: "center" }}>
                   📅 Események naptárban
                 </h3>
@@ -2028,11 +2077,21 @@ export default function Home() {
                 <style>{`
                   .custom-calendar {
                     width: 100% !important;
+                    max-width: 100% !important;
                     border: none !important;
                     background: transparent !important;
                     font-family: 'SF Pro Display', 'Inter', sans-serif !important;
+                    overflow: hidden !important;
                   }
                   .react-datepicker__month-container {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    float: none !important;
+                  }
+                  .react-datepicker__day-names,
+                  .react-datepicker__week {
+                    display: flex !important;
+                    justify-content: space-between !important;
                     width: 100% !important;
                   }
                   .react-datepicker__header {
@@ -2136,7 +2195,7 @@ export default function Home() {
                           key={event.id}
                           onClick={() => {
                             setScrollToEventId(event.id);
-                            setActiveTab("Timeline");
+                            setActiveTab(t("timelineTitle"));
                           }}
                           style={{
                             padding: "12px",
@@ -2178,10 +2237,10 @@ export default function Home() {
       )}
 
       {activeTab === "Profile" && (
-        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none" }}>
+        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           <div style={{ padding: "0 4px", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>Profil</h2>
-            <p style={{ opacity: 0.75, fontSize: "15px" }}>Személyes beállítások és fiók.</p>
+            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{t("profileTitle")}</h2>
+            <p style={{ opacity: 0.75, fontSize: "15px" }}>{t("profileSubtitle")}</p>
           </div>
 
           <div className="glass-card" style={{ padding: "24px", borderRadius: "24px", display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "24px" }}>
@@ -2200,15 +2259,15 @@ export default function Home() {
                     <img src={editProfilePreview} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : "📷"}
                 </div>
-                <small style={{ opacity: 0.6 }}>Kattints a kép cseréjéhez</small>
+                <small style={{ opacity: 0.6 }}>{t("clickToChange")}</small>
 
-                <input type="text" value={editProfileName} onChange={e => setEditProfileName(e.target.value)} placeholder="Teljes név" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", marginTop: "10px" }} />
+                <input type="text" value={editProfileName} onChange={e => setEditProfileName(e.target.value)} placeholder={t("fullName")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", marginTop: "10px" }} />
                 
-                <input type="password" value={editProfilePassword} onChange={e => setEditProfilePassword(e.target.value)} placeholder="Új jelszó (opcionális)" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none" }} />
+                <input type="password" value={editProfilePassword} onChange={e => setEditProfilePassword(e.target.value)} placeholder={t("newPassword")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none" }} />
 
                 <div style={{ display: "flex", gap: "10px", width: "100%", marginTop: "10px" }}>
-                  <button type="button" onClick={() => setIsEditingProfile(false)} style={{ flex: 1, padding: "12px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600 }}>Mégse</button>
-                  <button type="submit" disabled={isUpdatingProfile} style={{ flex: 1, padding: "12px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, opacity: isUpdatingProfile ? 0.7 : 1 }}>{isUpdatingProfile ? "Mentés..." : "Mentés"}</button>
+                  <button type="button" onClick={() => setIsEditingProfile(false)} style={{ flex: 1, padding: "12px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600 }}>{t("cancel")}</button>
+                  <button type="submit" disabled={isUpdatingProfile} style={{ flex: 1, padding: "12px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, opacity: isUpdatingProfile ? 0.7 : 1 }}>{isUpdatingProfile ? "Mentés..." : t("save")}</button>
                 </div>
               </form>
             ) : (
@@ -2230,7 +2289,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <h4 style={{ fontSize: "13px", fontWeight: 700, opacity: 0.5, marginLeft: "12px", marginTop: "8px", letterSpacing: "1px" }}>BEÁLLÍTÁSOK</h4>
+            <h4 style={{ fontSize: "13px", fontWeight: 700, opacity: 0.5, marginLeft: "12px", marginTop: "8px", letterSpacing: "1px" }}>{lang === "hu" ? "BEÁLLÍTÁSOK" : "SETTINGS"}</h4>
             
             <div className="glass-card" style={{ borderRadius: "24px", overflow: "hidden" }}>
               <div 
@@ -2256,7 +2315,7 @@ export default function Home() {
                   <span style={{ fontSize: "20px" }}>🔔</span>
                   <div style={{ textAlign: "left" }}>
                     <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>Rendszer Értesítések</span>
-                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>Kattints az engedélyezéshez</span>
+                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>{lang === "hu" ? "Kattints az engedélyezéshez" : "Click to enable"}</span>
                   </div>
                 </div>
                 <div style={{ width: "40px", height: "24px", borderRadius: "12px", background: typeof window !== "undefined" && (window as any).Notification?.permission === "granted" ? "#66bb6a" : "#ff9800", position: "relative" }}>
@@ -2270,8 +2329,8 @@ export default function Home() {
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
                   <span style={{ fontSize: "20px" }}>🔊</span>
                   <div style={{ flex: 1, textAlign: "left" }}>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>Értesítési Hang</span>
-                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>Hangjelzés sikeres mentéseknél</span>
+                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>{t("soundNotify")}</span>
+                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>{lang === "hu" ? "Hangjelzés sikeres mentéseknél" : "Sound on successful saves"}</span>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -2295,12 +2354,13 @@ export default function Home() {
               <div onClick={toggleTheme} style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{ fontSize: "20px" }}>🌙</span>
-                  <span style={{ fontSize: "15px", fontWeight: 500 }}>Sötét mód</span>
+                  <span style={{ fontSize: "15px", fontWeight: 500 }}>{t("darkMode")}</span>
                 </div>
                 <div style={{ width: "40px", height: "24px", borderRadius: "12px", background: isDarkMode ? "#ff9800" : "rgba(120,120,120,0.3)", position: "relative", transition: "all 0.3s" }}>
                   <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", left: isDarkMode ? "auto" : "2px", right: isDarkMode ? "2px" : "auto", top: "2px", transition: "all 0.3s" }}></div>
                 </div>
               </div>
+
               
               <div 
                 style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
@@ -2308,11 +2368,11 @@ export default function Home() {
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "left" }}>
                   <span style={{ fontSize: "20px" }}>📧</span>
                   <div>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>Megjegyzett bejelentkezés</span>
+                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>{t("savedLogin")}</span>
                     <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>
                       {typeof window !== "undefined" && localStorage.getItem("remembered_login_email") 
                         ? localStorage.getItem("remembered_login_email") 
-                        : "Nincs mentve"}
+                        : t("notSaved")}
                     </span>
                   </div>
                 </div>
@@ -2336,11 +2396,11 @@ export default function Home() {
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "left" }}>
                   <span style={{ fontSize: "20px" }}>✉️</span>
                   <div>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>Megjegyzett címzett (Esemény)</span>
+                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>{t("savedRecipient")}</span>
                     <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>
                       {typeof window !== "undefined" && localStorage.getItem("remembered_custom_email") 
                         ? localStorage.getItem("remembered_custom_email") 
-                        : "Nincs mentve"}
+                        : t("notSaved")}
                     </span>
                   </div>
                 </div>
@@ -2361,7 +2421,7 @@ export default function Home() {
               <div onClick={() => supabase.auth.signOut()} style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{ fontSize: "20px" }}>🚪</span>
-                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#BA00FF" }}>Kijelentkezés</span>
+                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#BA00FF" }}>{t("signOutLabel")}</span>
                 </div>
               </div>
             </div>
@@ -2370,7 +2430,7 @@ export default function Home() {
       )}
 
       {activeTab === "Vault" && (
-        <div key="Vault" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none" }}>
+        <div key="Vault" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           {activeVaultFolder ? (
             // FOLDER DETAIL VIEW
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -2379,16 +2439,16 @@ export default function Home() {
                   <span>←</span> Vissza
                 </button>
                 <button onClick={() => setIsEditingVaultFolder(!isEditingVaultFolder)} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", padding: "10px 16px", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600 }}>
-                  {isEditingVaultFolder ? "Mégse" : "Beállítások"}
+                  {isEditingVaultFolder ? t("cancel") : "Beállítások"}
                 </button>
               </div>
 
               {isEditingVaultFolder ? (
                 <div className="glass-card" style={{ padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
-                  <h3 style={{ fontSize: "16px", fontWeight: 600 }}>Projekt beállításai</h3>
+                  <h3 style={{ fontSize: "16px", fontWeight: 600 }}>{t("projectSettings")}</h3>
                   <form onSubmit={handleUpdateVaultFolder} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    <input autoFocus required type="text" value={editVaultFolderName} onChange={e => setEditVaultFolderName(e.target.value)} placeholder="Projekt neve" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
-                    <input type="text" value={editVaultFolderDescription} onChange={e => setEditVaultFolderDescription(e.target.value)} placeholder="Projekt leírása" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
+                    <input autoFocus required type="text" value={editVaultFolderName} onChange={e => setEditVaultFolderName(e.target.value)} placeholder={t("projectName")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
+                    <input type="text" value={editVaultFolderDescription} onChange={e => setEditVaultFolderDescription(e.target.value)} placeholder={t("projectDesc")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                     
                     <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
                        {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
@@ -2397,7 +2457,7 @@ export default function Home() {
                     </div>
 
                     <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
-                      <button type="button" onClick={handleDeleteVaultFolder} style={{ flex: 1, padding: "14px", background: "rgba(255,1,1,0.2)", border: "1px solid rgba(255,1,1,0.5)", borderRadius: "14px", color: "#FF0101", fontWeight: 600, fontSize: "15px" }}>Projekt Törlése</button>
+                      <button type="button" onClick={handleDeleteVaultFolder} style={{ flex: 1, padding: "14px", background: "rgba(255,1,1,0.2)", border: "1px solid rgba(255,1,1,0.5)", borderRadius: "14px", color: "#FF0101", fontWeight: 600, fontSize: "15px" }}>{t("deleteProject")}</button>
                       <button type="submit" style={{ flex: 1, padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, fontSize: "15px", boxShadow: "0 4px 15px rgba(255, 112, 67, 0.3)" }}>Mentés</button>
                     </div>
                   </form>
@@ -2424,7 +2484,7 @@ export default function Home() {
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", padding: "14px 16px", background: "rgba(255, 82, 82, 0.15)", borderRadius: "18px", border: "1px solid rgba(255, 82, 82, 0.3)" }}>
                     <span style={{ color: "#ff5252", fontSize: "18px" }}>🔴</span>
                     <span style={{ fontSize: "15px", fontWeight: 600, flex: 1 }}>Rögzítés... {formatTime(recordingSeconds)}</span>
-                    <button onClick={stopRecording} style={{ padding: "8px 16px", background: "#ff5252", border: "none", borderRadius: "12px", color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Leállítás ⏹️</button>
+                    <button onClick={stopRecording} style={{ padding: "8px 16px", background: "#ff5252", border: "none", borderRadius: "12px", color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>{t("stopRecording")}</button>
                   </div>
                 ) : (
                   <div style={{ display: "flex", gap: "8px" }}>
@@ -2473,8 +2533,8 @@ export default function Home() {
             <>
               <div style={{ padding: "0 4px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 650, marginBottom: "4px" }}>Projektek</h2>
-                  <p style={{ opacity: 0.75, fontSize: "14px" }}>Projektek, bizalmas dokumentumok és számlák.</p>
+                  <h2 style={{ fontSize: "26px", fontWeight: 650, marginBottom: "4px" }}>{t("vaultTitle")}</h2>
+                  <p style={{ opacity: 0.75, fontSize: "14px" }}>{t("vaultSubtitle")}</p>
                 </div>
                 <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", boxShadow: "0 8px 20px rgba(0,0,0,0.1)" }}>🗂️</div>
               </div>
@@ -2482,7 +2542,7 @@ export default function Home() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                  {vaultFolders.length === 0 && (
                     <div style={{ gridColumn: "1 / span 2", padding: "10px" }}>
-                      <p style={{ opacity: 0.6, fontSize: "14px" }}>Még nincs projekted. Hozz létre egyet!</p>
+                      <p style={{ opacity: 0.6, fontSize: "14px" }}>{t("noFolders")}</p>
                     </div>
                  )}
                 
@@ -2493,7 +2553,7 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 style={{ fontSize: "15px", fontWeight: 600, lineHeight: 1.3, marginBottom: "4px" }}>{folder.name}</h3>
-                      <p style={{ fontSize: "13px", opacity: 0.7 }}>Megnyitás</p>
+                      <p style={{ fontSize: "13px", opacity: 0.7 }}>{t("open")}</p>
                     </div>
                   </div>
                 ))}
@@ -2501,10 +2561,10 @@ export default function Home() {
                 {/* Új projekt hozzáadása gomb */}
                 {isCreatingFolder ? (
                   <div className="glass-card" style={{ gridColumn: "1 / span 2", padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
-                    <h3 style={{ fontSize: "16px", fontWeight: 600 }}>Új projekt létrehozása</h3>
+                    <h3 style={{ fontSize: "16px", fontWeight: 600 }}>{t("newProject")}</h3>
                     <form onSubmit={handleCreateFolder} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      <input autoFocus required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder="Projekt neve (pl. Autó, Házfelújítás)" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
-                      <input type="text" value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} placeholder="Rövid leírás (pl. Biztosítások, villanyszámlák)" style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
+                      <input autoFocus required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder={t("projectNamePlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
+                      <input type="text" value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} placeholder={t("projectDescPlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                       
                       <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
                          {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
@@ -2514,7 +2574,7 @@ export default function Home() {
 
                       {/* KÉPEK SZAKASZ */}
                       <div style={{ marginTop: "4px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Fényképek / Képek</label>
+                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("imagesLabel")}</label>
                         <input type="file" ref={folderImageInputRef} accept="image/*" hidden multiple onChange={(e) => {
                           if (e.target.files && e.target.files.length > 0) {
                             const selected = Array.from(e.target.files);
@@ -2539,13 +2599,13 @@ export default function Home() {
                         )}
                         
                         <button type="button" onClick={() => folderImageInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                          <span>📸</span> {newFolderImages.length > 0 ? "További kép hozzáadása" : "Kép csatolása"}
+                          <span>📸</span> {newFolderImages.length > 0 ? t("addMoreImages") : t("attachImage")}
                         </button>
                       </div>
 
                       {/* DOKUMENTUMOK SZAKASZ */}
                       <div style={{ marginTop: "8px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Dokumentumok (PDF, Word, Számlák)</label>
+                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("docsLabel")}</label>
                         <input type="file" ref={folderDocInputRef} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" hidden multiple onChange={(e) => {
                           if (e.target.files && e.target.files.length > 0) {
                             const selected = Array.from(e.target.files);
@@ -2569,13 +2629,13 @@ export default function Home() {
                         )}
                         
                         <button type="button" onClick={() => folderDocInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                          <span>📄</span> {newFolderDocs.length > 0 ? "További dokumentum hozzáadása" : "Dokumentum csatolása"}
+                          <span>📄</span> {newFolderDocs.length > 0 ? t("addMoreDocs") : t("attachDoc")}
                         </button>
                       </div>
 
                       {/* HANGOK SZAKASZ */}
                       <div style={{ marginTop: "12px", marginBottom: "4px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>Hangfelvételek / Hangjegyzetek</label>
+                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("audioLabel")}</label>
                         <input type="file" ref={folderAudioInputRef} accept="audio/*" hidden multiple onChange={(e) => {
                           if (e.target.files && e.target.files.length > 0) {
                             const selected = Array.from(e.target.files);
@@ -2606,7 +2666,7 @@ export default function Home() {
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "12px", background: "rgba(255, 82, 82, 0.15)", borderRadius: "14px", border: "1px solid rgba(255, 82, 82, 0.3)", marginBottom: "8px" }}>
                             <span style={{ color: "#ff5252", fontSize: "18px" }}>🔴</span>
                             <span style={{ fontSize: "14px", fontWeight: 600 }}>Hang rögzítése... {formatTime(recordingSeconds)}</span>
-                            <button type="button" onClick={stopRecording} style={{ padding: "6px 12px", background: "#ff5252", border: "none", borderRadius: "8px", color: "white", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>Leállítás ⏹️</button>
+                            <button type="button" onClick={stopRecording} style={{ padding: "6px 12px", background: "#ff5252", border: "none", borderRadius: "8px", color: "white", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>{t("stopRecording")}</button>
                           </div>
                         )}
 
@@ -2623,7 +2683,7 @@ export default function Home() {
                       </div>
 
                       <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-                        <button type="button" onClick={() => { setIsCreatingFolder(false); setNewFolderImages([]); setNewFolderDocs([]); setNewFolderAudios([]); }} style={{ flex: 1, padding: "14px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600, fontSize: "15px" }}>Mégse</button>
+                        <button type="button" onClick={() => { setIsCreatingFolder(false); setNewFolderImages([]); setNewFolderDocs([]); setNewFolderAudios([]); }} style={{ flex: 1, padding: "14px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600, fontSize: "15px" }}>{t("cancel")}</button>
                         <button type="submit" style={{ flex: 1, padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, fontSize: "15px", boxShadow: "0 4px 15px rgba(255, 112, 67, 0.3)" }}>Mentés és Megnyitás</button>
                       </div>
                     </form>
@@ -2642,7 +2702,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* ÚJ BOTTOM NAV - TELJES SPEC */}
+      {/* ÚJ BOTTOM NAV */}
       <BottomNav 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -2653,7 +2713,7 @@ export default function Home() {
       {isSearchOpen && (
         <div className="page-transition" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, background: "rgba(23, 36, 54, 0.95)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", display: "flex", flexDirection: "column", padding: "40px 22px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Keresés</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 650 }}>{t("searchTitle")}</h2>
             <button onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", width: "42px", height: "42px", borderRadius: "14px", color: "var(--text-color)", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
           
@@ -2662,11 +2722,11 @@ export default function Home() {
             type="text" 
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)} 
-            placeholder="Keresés..." 
+            placeholder={t("searchPlaceholder")}
             style={{ width: "100%", padding: "16px", borderRadius: "16px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: "16px", outline: "none", marginBottom: "24px" }} 
           />
           
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "20px", scrollbarWidth: "none" }}>
+          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
             {searchQuery.length >= 2 ? (
               <>
                 {/* Timeline Eredmények */}
@@ -2677,10 +2737,10 @@ export default function Home() {
                       <h4 style={{ fontSize: "13px", fontWeight: 700, opacity: 0.5, marginBottom: "12px", letterSpacing: "1px" }}>ESEMÉNYEK ({filteredEvents.length})</h4>
                       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                         {filteredEvents.map(event => (
-                          <div key={event.id} onClick={() => { setIsSearchOpen(false); setScrollToEventId(event.id); setActiveTab("Timeline"); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
+                          <div key={event.id} onClick={() => { setIsSearchOpen(false); setScrollToEventId(event.id); setActiveTab(t("timelineTitle")); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                               <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
-                                {event.event_type === 'memory' ? '💭' : '📅'}
+                                {event.category === 'photo' ? '💭' : event.category === 'utility' ? '⚡' : '📅'}
                               </div>
                               <div>
                                 <h5 style={{ fontSize: "15px", fontWeight: 600 }}>{event.title}</h5>
@@ -2757,7 +2817,7 @@ export default function Home() {
             ) : (
               <div style={{ textAlign: "center", marginTop: "40px", opacity: 0.5 }}>
                 <div style={{ fontSize: "40px", marginBottom: "10px" }}>⌨️</div>
-                <p>Írj be legalább 2 karaktert a kereséshez.</p>
+                <p>{t("searchMin")}</p>
               </div>
             )}
           </div>
@@ -2772,17 +2832,17 @@ export default function Home() {
               <>
                 <div style={{ fontSize: "40px", marginBottom: "16px" }}>🔁</div>
                 <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>Ismétlődő esemény</h3>
-                <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>Ez egy ismétlődő esemény. Törölni szeretnéd?</p>
+                <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>{t("recurringDeleteText")}</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <button onClick={() => { setDeleteMode("single"); confirmDelete(); }} style={{ padding: "14px", borderRadius: "14px", background: "#ff6b6b", border: "none", color: "white", fontWeight: 600, cursor: "pointer", fontSize: "14px" }}>Igen, törlöm</button>
+                  <button onClick={() => { setDeleteMode("single"); confirmDelete(); }} style={{ padding: "14px", borderRadius: "14px", background: "#ff6b6b", border: "none", color: "white", fontWeight: 600, cursor: "pointer", fontSize: "14px" }}>{t("yesDelete")}</button>
                   <button onClick={() => { setEventToDeleteId(null); setDeleteMode(null); }} style={{ padding: "12px", borderRadius: "14px", background: "transparent", border: "1px solid rgba(255,255,255,0.1)", color: "white", cursor: "pointer", fontSize: "14px" }}>Mégsem</button>
                 </div>
               </>
             ) : (
               <>
                 <div style={{ fontSize: "40px", marginBottom: "16px" }}>⚠️</div>
-                <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>Törlés megerősítése</h3>
-                <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>Biztosan törölni szeretnéd ezt az emléket? Ez a művelet nem vonható vissza.</p>
+                <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>{t("deleteConfirm")}</h3>
+                <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>{t("deleteConfirmText")}</p>
                 <div style={{ display: "flex", gap: "12px" }}>
                   <button onClick={() => { setEventToDeleteId(null); setDeleteMode(null); }} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.1)", border: "none", color: "white", fontWeight: 600, cursor: "pointer" }}>Mégsem</button>
                   <button onClick={confirmDelete} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "#ff6b6b", border: "none", color: "white", fontWeight: 600, cursor: "pointer" }}>Törlés</button>
@@ -2798,8 +2858,8 @@ export default function Home() {
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
           <div className="glass-card" style={{ padding: "24px", borderRadius: "20px", textAlign: "center", maxWidth: "320px", width: "100%" }}>
             <div style={{ fontSize: "40px", marginBottom: "16px" }}>🗑️</div>
-            <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>Összes esemény törlése</h3>
-            <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>Biztosan törölni szeretnéd az összes eseményedet? Ez a művelet nem vonható vissza!</p>
+            <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>{t("deleteAllConfirm")}</h3>
+            <p style={{ opacity: 0.8, marginBottom: "24px", fontSize: "14px", lineHeight: 1.4 }}>{t("deleteAllText")}</p>
             <div style={{ display: "flex", gap: "12px" }}>
               <button onClick={() => setShowDeleteAllConfirm(false)} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.1)", border: "none", color: "white", fontWeight: 600, cursor: "pointer" }}>Mégsem</button>
               <button onClick={handleDeleteAll} style={{ flex: 1, padding: "14px", borderRadius: "14px", background: "#ff6b6b", border: "none", color: "white", fontWeight: 600, cursor: "pointer" }}>Törlés</button>
@@ -2837,6 +2897,361 @@ export default function Home() {
           <span>{toast.message}</span>
         </div>
       )}
+
+      {/* ═══ DRAWER OLDALSÁV ═══ */}
+
+      {/* Backdrop */}
+      {isDrawerOpen && (
+        <div
+          onClick={() => setIsDrawerOpen(false)}
+          style={{
+            position: "absolute", inset: 0, zIndex: 200,
+            background: "rgba(10,16,32,0.45)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            animation: "fadeInBackdrop 0.25s ease forwards"
+          }}
+        />
+      )}
+
+      {/* Drawer panel – 280px, 100vh, border-radius 0 24px 24px 0 */}
+      <div style={{
+        position: "absolute",
+        top: 0, left: 0, bottom: 0,
+        width: "280px",
+        zIndex: 201,
+        background: "rgba(72,84,110,0.52)",
+        backdropFilter: "blur(28px)",
+        WebkitBackdropFilter: "blur(28px)",
+        borderRadius: "0 24px 24px 0",
+        border: "1px solid rgba(255,255,255,0.13)",
+        boxShadow: isDrawerOpen ? "18px 0 45px rgba(0,0,0,0.3), inset -1px 0 1px rgba(255,255,255,0.08)" : "none",
+        display: "flex", flexDirection: "column",
+        transform: isDrawerOpen ? "translateX(0)" : "translateX(-100%)",
+        transition: "transform 0.35s ease",
+        overflow: "hidden",
+      }}>
+
+        {/* ── FEJLÉC 72px ── */}
+        <div style={{
+          height: "72px", flexShrink: 0,
+          padding: "0 20px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <img src="/lifesync-icon.png" alt="Logo"
+              style={{ width: "42px", height: "42px", borderRadius: "12px", objectFit: "cover" }} />
+            <div>
+              <div style={{
+                fontSize: "24px", fontWeight: 700, lineHeight: 1.1,
+                background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
+                WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent"
+              }}>LifeSync</div>
+              <div style={{ fontSize: "11px", color: "rgba(244,247,251,0.55)", marginTop: "2px" }}>
+                Memories that matter.
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setIsDrawerOpen(false)} style={{
+            width: "32px", height: "32px", borderRadius: "10px",
+            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)",
+            color: "#F4F7FB", fontSize: "15px", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+          }}>✕</button>
+        </div>
+
+        {/* ── MENÜ LISTA ── */}
+        <nav style={{ padding: "4px 12px 0", display: "flex", flexDirection: "column", gap: "2px" }}>
+          {([
+            { tab: "Home",     label: t("home"),           active: activeTab === "Home",
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8L12 3l9 7.8V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9.2z"/><path d="M9 21V12h6v9"/></svg> },
+            { tab: "Timeline", label: t("timelineTitle"), active: activeTab === "Timeline",
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> },
+            { tab: "Add",      label: t("memories"),      active: activeTab === "Add",
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
+            { tab: "",         label: t("favorites"),     active: false, disabled: true,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+            { tab: "Vault",    label: t("vault"),         active: activeTab === "Vault",
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> },
+            { tab: "",         label: t("shared"),        active: false, disabled: true,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+            { tab: "Profile",  label: t("profile"),       active: activeTab === "Profile",
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+          ] as Array<{tab:string,label:string,active:boolean,disabled?:boolean,icon:React.ReactNode}>).map((item, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                if (!item.disabled && item.tab) {
+                  setActiveTab(item.tab);
+                  setIsDrawerOpen(false);
+                }
+              }}
+              style={{
+                height: "52px", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "14px",
+                padding: "0 18px",
+                borderRadius: "16px",
+                border: item.active ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
+                background: item.active
+                  ? "linear-gradient(90deg, rgba(142,139,255,0.42) 0%, rgba(106,120,255,0.24) 100%)"
+                  : "transparent",
+                color: item.active ? "#FFFFFF" : item.disabled ? "rgba(244,247,251,0.35)" : "rgba(244,247,251,0.72)",
+                cursor: item.disabled ? "default" : "pointer",
+                width: "100%", textAlign: "left",
+                transition: "all 0.18s ease",
+              }}
+            >
+              <span style={{
+                width: "22px", height: "22px", flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: item.active ? "#FFFFFF" : item.disabled ? "rgba(244,247,251,0.3)" : "rgba(244,247,251,0.72)"
+              }}>{item.icon}</span>
+              <span style={{ fontSize: "16px", fontWeight: item.active ? 600 : 500 }}>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* ── ÚJ MEMÓRIA GOMB 52px ── */}
+        <div style={{ padding: "14px 12px 0" }}>
+          <button
+            onClick={() => { setActiveTab("Add"); setIsDrawerOpen(false); }}
+            style={{
+              height: "52px", width: "100%",
+              borderRadius: "18px", border: "none",
+              background: "linear-gradient(90deg, #9B87FF 0%, #6B78FF 100%)",
+              boxShadow: "0 10px 28px rgba(106,120,255,0.34), inset 0 1px 1px rgba(255,255,255,0.28)",
+              color: "#FFFFFF", fontSize: "16px", fontWeight: 600,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>{t("newMemory")}</span>
+          </button>
+        </div>
+
+        {/* ── ELVÁLASZTÓ ── */}
+        <div style={{ margin: "12px 20px", height: "1px", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+
+        {/* ── BEÁLLÍTÁSOK 52px ── */}
+        <div style={{ padding: "0 12px", flexShrink: 0 }}>
+          <button
+            onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
+            style={{
+              height: "52px", width: "100%",
+              display: "flex", alignItems: "center", gap: "14px",
+              padding: "0 18px", borderRadius: "16px",
+              border: "1px solid transparent", background: "transparent",
+              color: "rgba(244,247,251,0.72)",
+              cursor: "pointer", textAlign: "left",
+              fontSize: "16px", fontWeight: 500,
+              transition: "background 0.18s"
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>{t("settings")}</span>
+          </button>
+        </div>
+
+        {/* ── NYELV VÁLTÓ ── */}
+        <div style={{ padding: "0 12px", flexShrink: 0 }}>
+          <button
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            style={{
+              height: "52px", width: "100%",
+              display: "flex", alignItems: "center", gap: "14px",
+              padding: "0 18px", borderRadius: "16px",
+              border: isLangOpen ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
+              background: isLangOpen ? "rgba(126,123,255,0.12)" : "transparent",
+              color: "rgba(244,247,251,0.72)",
+              cursor: "pointer", textAlign: "left",
+              fontSize: "16px", fontWeight: 500,
+              transition: "all 0.18s"
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span style={{ flex: 1 }}>{t("language")}</span>
+            <span style={{
+              fontSize: "12px", opacity: 0.6,
+              transform: isLangOpen ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.2s"
+            }}>▼</span>
+          </button>
+
+          {/* Dropdown */}
+          {isLangOpen && (
+            <div style={{
+              margin: "4px 8px 0",
+              borderRadius: "12px",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              overflow: "hidden",
+            }}>
+              {/* Magyar */}
+              <button
+                onClick={() => { setLang("hu"); localStorage.setItem("lang", "hu"); setIsLangOpen(false); }}
+                style={{
+                  width: "100%", height: "48px",
+                  display: "flex", alignItems: "center", gap: "12px",
+                  padding: "0 16px",
+                  background: lang === "hu" ? "rgba(126,123,255,0.18)" : "transparent",
+                  border: "none",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  color: lang === "hu" ? "#a9a6ff" : "rgba(244,247,251,0.65)",
+                  fontSize: "15px", fontWeight: lang === "hu" ? 600 : 400,
+                  cursor: "pointer", textAlign: "left", transition: "background 0.15s"
+                }}
+              >
+                <span style={{ flex: 1 }}>{lang === "hu" ? "Magyar" : "Hungarian"}</span>
+                {/* Magyar zászló SVG */}
+                <svg width="28" height="20" viewBox="0 0 28 20" style={{ borderRadius: "4px", flexShrink: 0 }}>
+                  <rect width="28" height="7" y="0" fill="#CE2939"/>
+                  <rect width="28" height="6" y="7" fill="#FFFFFF"/>
+                  <rect width="28" height="7" y="13" fill="#477050"/>
+                </svg>
+                {lang === "hu" && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: "4px" }}><polyline points="20 6 9 17 4 12"/></svg>}
+              </button>
+
+              {/* Angol */}
+              <button
+                onClick={() => { setLang("en"); localStorage.setItem("lang", "en"); setIsLangOpen(false); }}
+                style={{
+                  width: "100%", height: "48px",
+                  display: "flex", alignItems: "center", gap: "12px",
+                  padding: "0 16px",
+                  background: lang === "en" ? "rgba(126,123,255,0.18)" : "transparent",
+                  border: "none", borderBottom: "none",
+                  color: lang === "en" ? "#a9a6ff" : "rgba(244,247,251,0.65)",
+                  fontSize: "15px", fontWeight: lang === "en" ? 600 : 400,
+                  cursor: "pointer", textAlign: "left", transition: "background 0.15s"
+                }}
+              >
+                <span style={{ flex: 1 }}>{lang === "hu" ? "Angol" : "English"}</span>
+                {/* USA zászló SVG */}
+                <svg width="28" height="20" viewBox="0 0 28 20" style={{ borderRadius: "4px", flexShrink: 0 }}>
+                  <rect width="28" height="20" fill="#B22234"/>
+                  <rect width="28" height="1.54" y="1.54" fill="#FFFFFF"/>
+                  <rect width="28" height="1.54" y="4.62" fill="#FFFFFF"/>
+                  <rect width="28" height="1.54" y="7.69" fill="#FFFFFF"/>
+                  <rect width="28" height="1.54" y="10.77" fill="#FFFFFF"/>
+                  <rect width="28" height="1.54" y="13.85" fill="#FFFFFF"/>
+                  <rect width="28" height="1.54" y="16.92" fill="#FFFFFF"/>
+                  <rect width="12" height="10" fill="#3C3B6E"/>
+                  <g fill="#FFFFFF">
+                    <circle cx="2" cy="1.5" r="0.7"/>
+                    <circle cx="4" cy="1.5" r="0.7"/>
+                    <circle cx="6" cy="1.5" r="0.7"/>
+                    <circle cx="8" cy="1.5" r="0.7"/>
+                    <circle cx="10" cy="1.5" r="0.7"/>
+                    <circle cx="3" cy="3" r="0.7"/>
+                    <circle cx="5" cy="3" r="0.7"/>
+                    <circle cx="7" cy="3" r="0.7"/>
+                    <circle cx="9" cy="3" r="0.7"/>
+                    <circle cx="2" cy="4.5" r="0.7"/>
+                    <circle cx="4" cy="4.5" r="0.7"/>
+                    <circle cx="6" cy="4.5" r="0.7"/>
+                    <circle cx="8" cy="4.5" r="0.7"/>
+                    <circle cx="10" cy="4.5" r="0.7"/>
+                    <circle cx="3" cy="6" r="0.7"/>
+                    <circle cx="5" cy="6" r="0.7"/>
+                    <circle cx="7" cy="6" r="0.7"/>
+                    <circle cx="9" cy="6" r="0.7"/>
+                    <circle cx="2" cy="7.5" r="0.7"/>
+                    <circle cx="4" cy="7.5" r="0.7"/>
+                    <circle cx="6" cy="7.5" r="0.7"/>
+                    <circle cx="8" cy="7.5" r="0.7"/>
+                    <circle cx="10" cy="7.5" r="0.7"/>
+                  </g>
+                </svg>
+                {lang === "en" && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: "4px" }}><polyline points="20 6 9 17 4 12"/></svg>}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── ELVÁLASZTÓ ── */}
+        <div style={{ margin: "8px 20px", height: "1px", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+
+        {/* ── KIJELENTKEZÉS ── */}
+        <div style={{ padding: "0 12px", flexShrink: 0 }}>
+          <button
+            onClick={() => { supabase.auth.signOut(); setIsDrawerOpen(false); }}
+            style={{
+              height: "52px", width: "100%",
+              display: "flex", alignItems: "center", gap: "14px",
+              padding: "0 18px", borderRadius: "16px",
+              border: "1px solid transparent", background: "transparent",
+              color: "rgba(244,247,251,0.65)",
+              cursor: "pointer", textAlign: "left",
+              fontSize: "16px", fontWeight: 500,
+              transition: "background 0.18s"
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span>{t("signOutLabel")}</span>
+          </button>
+        </div>
+
+        {/* ── SPACER ── */}
+        <div style={{ flex: 1 }} />
+
+        {/* ── PROFIL KÁRTYA 72px alul ── */}
+        <div style={{ padding: "0 12px 24px", flexShrink: 0 }}>
+          <div
+            onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
+            style={{
+              height: "72px", padding: "0 14px",
+              borderRadius: "18px",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.16)",
+              boxShadow: "inset 0 1px 1px rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", gap: "12px",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{
+              width: "42px", height: "42px", borderRadius: "50%",
+              background: "linear-gradient(135deg, #7E7BFF, #9B7BFF)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "17px", fontWeight: 700, color: "white",
+              flexShrink: 0, overflow: "hidden"
+            }}>
+              {avatarUrl
+                ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : formattedName.charAt(0).toUpperCase()
+              }
+            </div>
+            <div style={{ flex: 1, overflow: "hidden" }}>
+              <div style={{ fontSize: "15px", fontWeight: 600, color: "#F4F7FB", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {formattedName}
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(244,247,251,0.55)", marginTop: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {session?.user?.email}
+              </div>
+            </div>
+            <span style={{
+              width: "28px", height: "28px", borderRadius: "8px",
+              background: "rgba(255,255,255,0.10)",
+              border: "1px solid rgba(255,255,255,0.16)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "rgba(244,247,251,0.72)", fontSize: "14px", flexShrink: 0
+            }}>›</span>
+          </div>
+        </div>
+
+      </div>
+      {/* ═══ DRAWER VÉGE ═══ */}
     </main>
   );
 }
