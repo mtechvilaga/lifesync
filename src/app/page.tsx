@@ -1528,7 +1528,7 @@ export default function Home() {
 
               {/* 1. Mai nap */}
               <div style={{
-                flex: "0 0 220px",
+                flex: "0 0 calc(100vw - 80px)",
                 padding: "20px",
                 borderRadius: "16px",
                 background: "#0d0f22",
@@ -1560,7 +1560,7 @@ export default function Home() {
                 { icon: "🗂", value: stats.allTime, label: t("allTimeLabel"), color: "rgba(34,197,94,0.12)",   border: "rgba(34,197,94,0.25)"   },
               ].map((item, i) => (
                 <div key={i} style={{
-                  flex: "0 0 180px",
+                  flex: "0 0 calc(100vw - 80px)",
                   padding: "20px",
                   borderRadius: "14px",
                   background: item.color,
