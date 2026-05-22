@@ -2239,9 +2239,26 @@ export default function Home() {
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {/* Naptár */}
               <div className="glass-card" style={{ padding: "20px", overflow: "hidden", width: "100%" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "16px", textAlign: "center" }}>
-                  📅 Események naptárban
-                </h3>
+                {/* Naptár fejléc */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>📅</div>
+                    <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-color)" }}>{lang === "hu" ? "Naptár" : "Calendar"}</h3>
+                  </div>
+                  <button
+                    onClick={() => setNewEventDate(new Date().toISOString().split("T")[0])}
+                    style={{
+                      padding: "8px 16px", borderRadius: "20px",
+                      background: "rgba(99,102,241,0.15)",
+                      border: "1px solid rgba(99,102,241,0.4)",
+                      color: "#a5b4fc", fontSize: "13px", fontWeight: 600,
+                      cursor: "pointer", display: "flex", alignItems: "center", gap: "6px"
+                    }}
+                  >
+                    <span>📅</span> {lang === "hu" ? "Mai nap" : "Today"}
+                  </button>
+                </div>
+
                 <DatePicker
                   inline
                   locale={lang === "hu" ? "hu" : "en"}
@@ -2249,7 +2266,6 @@ export default function Home() {
                   onChange={(date: Date | null) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
-                      setAddViewMode("form"); // Vált form-ra
                     }
                   }}
                   calendarClassName="custom-calendar"
@@ -2366,53 +2382,74 @@ export default function Home() {
                 `}</style>
               </div>
 
-              {/* Események az adott napon */}
-              {(() => {
-                const selectedDateEvents = events.filter(e => e.event_date === newEventDate);
-                if (selectedDateEvents.length === 0) return null;
-                
-                return (
-                  <div className="glass-card" style={{ padding: "20px" }}>
-                    <h4 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "12px" }}>
-                      Események ezen a napon ({newEventDate})
-                    </h4>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {/* Esemény hozzáadása gomb + nap eseményei */}
+              <div style={{ marginTop: "16px" }}>
+                {/* Kiválasztott nap jelzése */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", opacity: 0.7, fontSize: "13px" }}>
+                  <span>📅</span>
+                  <span>{lang === "hu" ? "Események" : "Events"}: {newEventDate ? new Date(newEventDate + "T00:00:00").toLocaleDateString(lang === "hu" ? "hu-HU" : "en-US", { year: "numeric", month: "long", day: "numeric", weekday: "long" }) : ""}</span>
+                </div>
+
+                {/* Új esemény gomb */}
+                <button
+                  onClick={() => setAddViewMode("form")}
+                  style={{
+                    width: "100%", padding: "14px",
+                    borderRadius: "14px", border: "none",
+                    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                    color: "#ffffff", fontSize: "16px", fontWeight: 600,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                    cursor: "pointer", marginBottom: "14px",
+                    boxShadow: "0 4px 20px rgba(99,102,241,0.4)",
+                  }}
+                >
+                  <span style={{ fontSize: "18px" }}>+</span>
+                  {lang === "hu" ? "Esemény hozzáadása" : "Add event"}
+                </button>
+
+                {/* Nap eseményei */}
+                {(() => {
+                  const selectedDateEvents = events.filter(e => e.event_date === newEventDate);
+                  if (selectedDateEvents.length === 0) return (
+                    <p style={{ textAlign: "center", opacity: 0.45, fontSize: "13px", padding: "8px 0" }}>
+                      {lang === "hu" ? "Nincs esemény ezen a napon" : "No events on this day"}
+                    </p>
+                  );
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <p style={{ fontSize: "13px", opacity: 0.6, marginBottom: "4px" }}>
+                        {selectedDateEvents.length} {lang === "hu" ? "esemény erre a napra" : "events on this day"}
+                      </p>
                       {selectedDateEvents.map(event => (
                         <div
                           key={event.id}
-                          onClick={() => {
-                            setScrollToEventId(event.id);
-                            setActiveTab(t("timelineTitle"));
-                          }}
+                          onClick={() => { setScrollToEventId(event.id); setActiveTab("Timeline"); }}
                           style={{
-                            padding: "12px",
-                            background: "rgba(255,255,255,0.08)",
+                            padding: "12px 14px",
+                            background: "rgba(99,102,241,0.08)",
                             borderRadius: "12px",
                             cursor: "pointer",
-                            border: "1px solid rgba(255,255,255,0.1)",
+                            border: "1px solid rgba(99,102,241,0.2)",
+                            display: "flex", alignItems: "center", gap: "10px",
                             transition: "all 0.2s"
                           }}
                         >
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span style={{ fontSize: "20px" }}>
-                              {event.category === 'event' ? '🎂' : event.category === 'utility' ? '⚡' : '🏔'}
-                            </span>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontWeight: 600, fontSize: "14px" }}>{event.title}</div>
-                              {event.description && (
-                                <div style={{ fontSize: "12px", opacity: 0.7, marginTop: "2px" }}>
-                                  {event.description.substring(0, 50)}{event.description.length > 50 ? '...' : ''}
-                                </div>
-                              )}
-                            </div>
-                            <span style={{ fontSize: "12px", opacity: 0.5 }}>→</span>
+                          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: event.category === 'event' ? '#6366f1' : event.category === 'utility' ? '#f59e0b' : '#10b981', flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: "14px" }}>{event.title}</div>
+                            {event.description && (
+                              <div style={{ fontSize: "12px", opacity: 0.6, marginTop: "2px" }}>
+                                {event.description.substring(0, 50)}{event.description.length > 50 ? "..." : ""}
+                              </div>
+                            )}
                           </div>
+                          <span style={{ fontSize: "12px", opacity: 0.4 }}>›</span>
                         </div>
                       ))}
                     </div>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
+              </div>
 
 
             </div>
