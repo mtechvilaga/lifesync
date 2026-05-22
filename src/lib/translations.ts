@@ -12,11 +12,6 @@ export const translations = {
     signOut: "Kijelentkezés",
     newMemory: "Új emlék",
     language: "Nyelv",
-    memories: "Emlékeim",
-    favorites: "Kedvencek",
-    vault: "Projektek",
-    shared: "Megosztott",
-    profile: "Profil",
 
     // Bejelentkezés
     signIn: "Bejelentkezés",
@@ -169,6 +164,13 @@ export const translations = {
     // Üdvözlő
     welcomeBack: "Örülünk, hogy itt vagy.",
     greeting2: "Szia,",
+
+    // Extra feliratok
+    imagesLabel: "Fotók / Képek",
+    docsLabel: "Dokumentumok (PDF, Word, Számlák)",
+    audioLabel: "Felvételek / Hangjegyzetek",
+    dateTimePlaceholder: "Válassz dátumot és időt...",
+    recordingLabel: "Rögzítés...",
   },
   en: {
     // Navigation
@@ -183,11 +185,6 @@ export const translations = {
     signOut: "Sign out",
     newMemory: "New Memory",
     language: "Language",
-    memories: "Memories",
-    favorites: "Favorites",
-    vault: "Vault",
-    shared: "Shared",
-    profile: "Profile",
 
     // Auth
     signIn: "Sign in",
@@ -345,7 +342,6 @@ export const translations = {
     docsLabel: "Documents (PDF, Word, Bills)",
     audioLabel: "Recordings / Voice notes",
     dateTimePlaceholder: "Select date and time...",
-    editProfile: "Edit profile",
     recordingLabel: "Recording...",
   }
 };
