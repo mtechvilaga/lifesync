@@ -2128,11 +2128,8 @@ export default function Home() {
                     const dateStr = date.toISOString().split("T")[0];
                     const hasEvent = events.some(e => e.event_date === dateStr);
                     const isSunday = date.getDay() === 0;
-                    const isToday = new Date().toISOString().split("T")[0] === dateStr;
-                    
                     if (isSunday && hasEvent) return "has-event-day sunday-day";
                     if (isSunday) return "sunday-day";
-                    if (isToday) return "today-day";
                     if (hasEvent) return "has-event-day";
                     return "";
                   }}
@@ -2230,12 +2227,7 @@ export default function Home() {
                   .sunday-day.has-event-day::after {
                     background: #ff4444 !important;
                   }
-                  .today-day {
-                    background: #3b82f6 !important;
-                    color: #ffffff !important;
-                    font-weight: 700 !important;
-                    border-radius: 50% !important;
-                  }
+
                   .react-datepicker__navigation {
                     top: 12px !important;
                   }
