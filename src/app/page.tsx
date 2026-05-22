@@ -1523,35 +1523,36 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* Scrollozható sor: 5 egyforma széles kártya */}
-            <div data-swipe-ignore style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "0 12px 12px", overflowY: "auto", maxHeight: "340px", scrollbarWidth: "none" }}>
+            {/* Scrollozható sor: 5 egyforma széles és magas kártya */}
+            <div data-swipe-ignore style={{ display: "flex", flexDirection: "row", gap: "10px", padding: "0 12px 12px", overflowX: "auto", scrollbarWidth: "none" }}>
 
               {/* 1. Mai nap */}
               <div style={{
+                flex: "0 0 200px",
                 padding: "16px",
                 borderRadius: "16px",
                 background: "#0d0f22",
                 border: "1px solid rgba(139,92,246,0.2)",
                 position: "relative",
                 overflow: "hidden",
-                height: "80px",
+                height: "120px",
                 display: "flex", alignItems: "center",
               }}>
-                <div style={{ position: "absolute", right: "-10px", top: "-10px", width: "120px", height: "120px", backgroundImage: "url('/projects_bg.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "50%", opacity: 0.5, filter: "blur(1px)" }} />
+                <div style={{ position: "absolute", right: "-10px", top: "-10px", width: "130px", height: "130px", backgroundImage: "url('/projects_bg.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "50%", opacity: 0.5, filter: "blur(1px)" }} />
                 <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "50%", background: "linear-gradient(to right, #0d0f22 20%, transparent 100%)", zIndex: 1 }} />
-                <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: "14px", width: "100%" }}>
+                <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: "12px" }}>
                   <div style={{ width: "48px", height: "48px", borderRadius: "12px", flexShrink: 0, background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", boxShadow: "0 4px 16px rgba(124,58,237,0.5)" }}>📅</div>
                   <div>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
                       <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", lineHeight: 1 }}>{stats.today}</span>
-                      <span style={{ fontSize: "16px", fontWeight: 600, color: "#ffffff" }}>{lang === "hu" ? "bejegyzés" : "entries"}</span>
                     </div>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", marginTop: "2px" }}>{t("todayLabel")}</div>
+                    <div style={{ fontSize: "15px", fontWeight: 600, color: "#ffffff", marginTop: "1px" }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
+                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "2px" }}>{t("todayLabel")}</div>
                   </div>
                 </div>
               </div>
 
-              {/* 2-5. Többi stat kártya - ugyanolyan széles */}
+              {/* 2-5. Többi stat kártya - ugyanolyan méret */}
               {[
                 { icon: "⚡", value: stats.week,    label: t("weekLabel"),    color: "rgba(139,92,246,0.12)", border: "rgba(139,92,246,0.25)" },
                 { icon: "🗓", value: stats.month,   label: t("monthLabel"),   color: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)"  },
@@ -1559,19 +1560,18 @@ export default function Home() {
                 { icon: "🗂", value: stats.allTime, label: t("allTimeLabel"), color: "rgba(34,197,94,0.12)",   border: "rgba(34,197,94,0.25)"   },
               ].map((item, i) => (
                 <div key={i} style={{
+                  flex: "0 0 160px",
                   padding: "16px",
                   borderRadius: "14px",
                   background: item.color,
                   border: `1px solid ${item.border}`,
-                  display: "flex", alignItems: "center", gap: "14px",
-                  height: "64px",
+                  display: "flex", alignItems: "center", gap: "12px",
+                  height: "120px",
                 }}>
-                  <span style={{ fontSize: "26px", flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ fontSize: "28px", flexShrink: 0 }}>{item.icon}</span>
                   <div>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
-                      <span style={{ fontSize: "24px", fontWeight: 700, color: "#ffffff", lineHeight: 1 }}>{item.value}</span>
-                    </div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "2px" }}>{item.label}</div>
+                    <div style={{ fontSize: "28px", fontWeight: 700, color: "#ffffff", lineHeight: 1 }}>{item.value}</div>
+                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "4px", lineHeight: 1.3 }}>{item.label}</div>
                   </div>
                 </div>
               ))}
