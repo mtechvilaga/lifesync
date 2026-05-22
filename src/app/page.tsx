@@ -1451,27 +1451,76 @@ export default function Home() {
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
         <div key="Home" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain", paddingTop: "10px" }}>
-          <section className="glass-card greeting" style={{ position: "relative" }}>
-            {isEditingGreetingName ? (
-              <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
-                <input 
-                  autoFocus
-                  type="text" 
-                  value={greetingNameInput} 
-                  onChange={e => setGreetingNameInput(e.target.value)}
-                  style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", padding: "6px 12px", color: "white", outline: "none", fontSize: "15px", flex: 1 }}
-                />
-                <button type="submit" style={{ background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Mentés</button>
-                <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "1px solid var(--card-border)", borderRadius: "10px", color: "var(--text-color)", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>{t("cancel")}</button>
-              </form>
-            ) : (
-              <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>
-                {lang === "hu" ? `Legyen szép napod, ${formattedName}!` : `Have a great day, ${formattedName}!`}
-              </h2>
-            )}
-            <p style={{ opacity: 0.85, fontSize: "15px", fontWeight: 500 }}>
-              {weather ? `${weather.temp}°C · ${weather.city} ${weather.desc}` : t("weatherFallback")}
-            </p>
+          {/* ── GREETING KÁRTYA ── */}
+          <section style={{
+            position: "relative",
+            borderRadius: "clamp(14px, 4vw, 26px)",
+            overflow: "hidden",
+            marginBottom: "clamp(10px, 2.5vw, 18px)",
+            minHeight: "160px",
+            boxShadow: "0 14px 35px rgba(0,0,0,0.3)",
+          }}>
+            {/* Háttérkép */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: "url('/greeting_bg.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center top",
+              zIndex: 0,
+            }} />
+
+            {/* Sötétítő réteg */}
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(to bottom, rgba(10,8,30,0.45) 0%, rgba(10,8,30,0.25) 50%, rgba(10,8,30,0.7) 100%)",
+              zIndex: 1,
+            }} />
+
+            {/* SVG hegycsúcsok alul */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 2, pointerEvents: "none", lineHeight: 0 }}>
+              <svg viewBox="0 0 400 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", display: "block" }}>
+                <path d="M0 60 L40 30 L80 45 L130 10 L180 40 L220 20 L270 45 L310 15 L360 38 L400 25 L400 60 Z" fill="rgba(20,14,50,0.6)" />
+                <path d="M0 60 L60 40 L110 50 L160 28 L210 48 L260 32 L320 50 L370 35 L400 42 L400 60 Z" fill="rgba(15,10,40,0.5)" />
+              </svg>
+            </div>
+
+            {/* Tartalom */}
+            <div style={{ position: "relative", zIndex: 3, padding: "clamp(14px, 4vw, 24px)" }}>
+              {isEditingGreetingName ? (
+                <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
+                  <input
+                    autoFocus
+                    type="text"
+                    value={greetingNameInput}
+                    onChange={e => setGreetingNameInput(e.target.value)}
+                    style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "6px 12px", color: "white", outline: "none", fontSize: "15px", flex: 1 }}
+                  />
+                  <button type="submit" style={{ background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Mentés</button>
+                  <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>{t("cancel")}</button>
+                </form>
+              ) : (
+                <h2 style={{
+                  fontSize: "clamp(22px, 6vw, 30px)",
+                  fontWeight: 800,
+                  color: "#ffffff",
+                  textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+                  marginBottom: "8px",
+                  lineHeight: 1.2,
+                }}>
+                  {lang === "hu" ? `Legyen szép napod, ${formattedName}!` : `Have a great day, ${formattedName}!`}
+                </h2>
+              )}
+              <p style={{
+                fontSize: "14px",
+                fontWeight: 500,
+                color: "rgba(255,255,255,0.85)",
+                textShadow: "0 1px 6px rgba(0,0,0,0.4)",
+                display: "flex", alignItems: "center", gap: "6px",
+                marginBottom: "70px",
+              }}>
+                {weather ? `${weather.temp}°C · ${weather.city} ${weather.desc}` : t("weatherFallback")}
+              </p>
+            </div>
           </section>
 
           <section className="glass-card timeline">
