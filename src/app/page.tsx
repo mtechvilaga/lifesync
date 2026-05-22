@@ -426,85 +426,100 @@ export default function Home() {
   const minSwipeDistance = 50;
 
   useEffect(() => {
-    const el = mainRef.current;
-    if (!el) return;
+    // Rövid delay hogy a ref biztosan be legyen töltve
+    const timer = setTimeout(() => {
+      const el = mainRef.current;
+      if (!el) return;
 
-    let startX = 0;
-    let startY = 0;
-    let isHorizontal: boolean | null = null; // null = még nem döntöttük el
+      let startX = 0;
+      let startY = 0;
+      let startXRelative = 0; // .phone elemen belüli pozíció
+      let isHorizontal: boolean | null = null;
 
-    const handleTouchStart = (e: TouchEvent) => {
-      startX = e.targetTouches[0].clientX;
-      startY = e.targetTouches[0].clientY;
-      isHorizontal = null;
-    };
+      const handleTouchStart = (e: TouchEvent) => {
+        const touch = e.targetTouches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        // Relatív pozíció a .phone elemen belül
+        const rect = el.getBoundingClientRect();
+        startXRelative = touch.clientX - rect.left;
+        // Ha a touch a .phone elemen kívül indult, ne csináljunk semmit
+        if (touch.clientX < rect.left || touch.clientX > rect.right ||
+            touch.clientY < rect.top  || touch.clientY > rect.bottom) {
+          startX = -9999;
+          return;
+        }
+        isHorizontal = null;
+      };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      const dx = Math.abs(e.targetTouches[0].clientX - startX);
-      const dy = Math.abs(e.targetTouches[0].clientY - startY);
+      const handleTouchMove = (e: TouchEvent) => {
+        const dx = Math.abs(e.targetTouches[0].clientX - startX);
+        const dy = Math.abs(e.targetTouches[0].clientY - startY);
 
-      // Irány meghatározása az első 8px után
-      if (isHorizontal === null && (dx > 8 || dy > 8)) {
-        isHorizontal = dx > dy;
-      }
+        if (isHorizontal === null && (dx > 8 || dy > 8)) {
+          isHorizontal = dx > dy;
+        }
 
-      // Csak akkor blokkolunk ha:
-      // - egyértelműen vízszintes swipe
-      // - ÉS drawer nyitva van VAGY a bal szélen kezdődött (drawer kihúzás)
-      if (isHorizontal && (isDrawerOpenRef.current || startX < 40)) {
-        e.preventDefault();
-      }
-    };
+        if (isHorizontal) {
+          e.preventDefault();
+        }
+      };
 
-    const handleTouchEnd = (e: TouchEvent) => {
-      // Ha függőleges volt vagy nem dőlt el, scroll volt – kihagyjuk
-      if (isHorizontal !== true) return;
+      const handleTouchEnd = (e: TouchEvent) => {
+        if (isHorizontal !== true) return;
 
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = e.changedTouches[0].clientY - startY;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
 
-      if (Math.abs(dx) < minSwipeDistance) return;
-      if (Math.abs(dy) > Math.abs(dx) * 0.6) return;
+        if (Math.abs(dx) < minSwipeDistance) return;
+        if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
 
-      const isLeftSwipe = dx < 0;
-      const isRightSwipe = dx > 0;
+        const isLeftSwipe = dx < 0;
+        const isRightSwipe = dx > 0;
 
-      // Drawer kinyitás: bal szélről jobbra
-      if (isRightSwipe && startX < 40 && !isDrawerOpenRef.current) {
-        setIsDrawerOpen(true);
-        return;
-      }
-      // Drawer becsukás: balra húzva
-      if (isLeftSwipe && isDrawerOpenRef.current) {
-        setIsDrawerOpen(false);
-        return;
-      }
-      // Ha drawer nyitva, ne váltson tab
-      if (isDrawerOpenRef.current) return;
+        // Drawer kinyitás: bal szélről (60px) jobbra húzva
+        if (isRightSwipe && startXRelative < 60 && !isDrawerOpenRef.current) {
+          setIsDrawerOpen(true);
+          return;
+        }
 
-      // Add tab: naptár ↔ form
-      if (activeTabRef.current === "Add") {
-        if (isLeftSwipe && addViewModeRef.current === "calendar") setAddViewMode("form");
-        else if (isRightSwipe && addViewModeRef.current === "form") setAddViewMode("calendar");
-        return;
-      }
+        // Drawer becsukás: balra húzva ha nyitva
+        if (isLeftSwipe && isDrawerOpenRef.current) {
+          setIsDrawerOpen(false);
+          return;
+        }
 
-      // Tab váltás
-      const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
-      const idx = tabs.indexOf(activeTabRef.current);
-      if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
-      else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
-    };
+        // Ha drawer nyitva van, ne váltson tab
+        if (isDrawerOpenRef.current) return;
 
-    el.addEventListener("touchstart", handleTouchStart, { passive: true });
-    el.addEventListener("touchmove", handleTouchMove, { passive: false });
-    el.addEventListener("touchend", handleTouchEnd, { passive: true });
+        // Add tab: naptár ↔ form váltás, ha van mit váltani
+        // Ha nincs (pl. form nézetből balra), eső át a tab váltásra
+        if (activeTabRef.current === "Add") {
+          if (isLeftSwipe && addViewModeRef.current === "calendar") { setAddViewMode("form"); return; }
+          if (isRightSwipe && addViewModeRef.current === "form") { setAddViewMode("calendar"); return; }
+          // nincs mit váltani → tab váltás következik
+        }
 
-    return () => {
-      el.removeEventListener("touchstart", handleTouchStart);
-      el.removeEventListener("touchmove", handleTouchMove);
-      el.removeEventListener("touchend", handleTouchEnd);
-    };
+        // Tab váltás
+        const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
+        const idx = tabs.indexOf(activeTabRef.current);
+        if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
+        else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
+      };
+
+      // document-ra tesszük hogy a child elemek ne nyeljék el
+      document.addEventListener("touchstart", handleTouchStart, { passive: true });
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+      return () => {
+        document.removeEventListener("touchstart", handleTouchStart);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      };
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -1383,13 +1398,13 @@ export default function Home() {
             }}
           >
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
-            <span style={{ display: "block", width: "14px", height: "2px", background: "var(--text-color)", borderRadius: "2px", alignSelf: "flex-start", marginLeft: "4px" }} />
+            <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
           </button>
           <div>
           <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
             {/* Logo ikon */}
-            <div className="logo">
+            <div className="logo" style={{ width: "48px", height: "48px", borderRadius: "14px" }}>
               <img src="/lifesync-icon.png" alt="LifeSync" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
 
@@ -1419,9 +1434,6 @@ export default function Home() {
         </div>{/* end hamburger+content wrapper */}
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div className="theme-toggle" onClick={toggleTheme} style={{ cursor: "pointer" }}>
-            {isDarkMode ? "☀️" : "🌙"}
-          </div>
           <div className="search" onClick={() => setIsSearchOpen(true)} style={{ cursor: "pointer" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
@@ -1433,7 +1445,7 @@ export default function Home() {
 
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
-        <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none", overscrollBehavior: "contain", paddingTop: "10px" }}>
           <section className="glass-card greeting" style={{ position: "relative" }}>
             {isEditingGreetingName ? (
               <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
@@ -1450,7 +1462,6 @@ export default function Home() {
             ) : (
               <p style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                 {t("greeting")} <strong style={{ fontWeight: 700 }}>{formattedName}</strong>!
-                <span onClick={startEditingGreetingName} style={{ cursor: "pointer", fontSize: "14px", opacity: 0.6, transition: "opacity 0.2s" }}>✏️</span>
               </p>
             )}
             <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "6px" }}>
