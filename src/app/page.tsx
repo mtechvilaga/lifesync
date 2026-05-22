@@ -1325,7 +1325,7 @@ export default function Home() {
       {/* ═══ FŐ TARTALOM ═══ */}
 
       <section className="header">
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1, minWidth: 0 }}>
           {/* Hamburger gomb */}
           <button
             onClick={() => setIsDrawerOpen(true)}
@@ -1338,10 +1338,10 @@ export default function Home() {
             }}
           >
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
-            <span style={{ display: "block", width: "14px", height: "2px", background: "var(--text-color)", borderRadius: "2px", alignSelf: "flex-start", marginLeft: "4px" }} />
+            <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
           </button>
-          <div>
+          <div style={{ minWidth: 0, flex: 1 }}>
           <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
             {/* Logo ikon */}
             <div className="logo">
@@ -1373,7 +1373,7 @@ export default function Home() {
           </div>{/* end brand+subtitle wrapper */}
         </div>{/* end hamburger+content wrapper */}
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexShrink: 0 }}>
           <div className="theme-toggle" onClick={toggleTheme} style={{ cursor: "pointer" }}>
             {isDarkMode ? "☀️" : "🌙"}
           </div>
@@ -2930,6 +2930,8 @@ export default function Home() {
         transform: isDrawerOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 0.35s ease",
         overflow: "hidden",
+        overflowY: "auto",
+        scrollbarWidth: "none",
       }}>
 
         {/* ── FEJLÉC 72px ── */}
