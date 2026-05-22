@@ -6,6 +6,10 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from "react-datepicker";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const huLocale = require("date-fns/locale/hu");
+registerLocale("hu", huLocale.hu || huLocale.default || huLocale);
 import BottomNav from "./components/BottomNav";
 
 export default function Home() {
@@ -2084,6 +2088,7 @@ export default function Home() {
                         placeholderText={t("dateTimePlaceholder")}
                         className="custom-datepicker"
                         fixedHeight
+                        locale={lang === "hu" ? "hu" : "en"}
                       />
                     </div>
                   )}
@@ -2111,6 +2116,7 @@ export default function Home() {
                 </h3>
                 <DatePicker
                   inline
+                  locale={lang === "hu" ? "hu" : "en"}
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
                   onChange={(date: Date | null) => {
                     if (date) {
