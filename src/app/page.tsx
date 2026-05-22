@@ -1267,7 +1267,7 @@ export default function Home() {
         >
           <div style={{ width: showSplash ? "110px" : "92px", height: showSplash ? "110px" : "92px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: showSplash ? "32px" : "26px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.8s" }} />
+            <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "0", boxShadow: "none", transition: "all 0.8s" }} />
           </div>
           <h1 style={{ 
             fontSize: showSplash ? "40px" : "36px", 
@@ -1406,8 +1406,8 @@ export default function Home() {
           <div>
           <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
             {/* Logo ikon */}
-            <div className="logo" style={{ width: "48px", height: "48px", borderRadius: "14px" }}>
-              <img src="/icon.png" alt="LifeSync" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            <div className="logo" style={{ width: "48px", height: "48px", borderRadius: "14px", background: "transparent" }}>
+              <img src="/lifesync-icon.png" alt="LifeSync" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
 
             {/* Logo szöveg */}
@@ -2999,8 +2999,8 @@ export default function Home() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <img src="/icon.png" alt="Logo"
-              style={{ width: "42px", height: "42px", borderRadius: "12px", objectFit: "cover" }} />
+            <img src="/lifesync-icon.png" alt="Logo"
+              style={{ width: "42px", height: "42px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
             <div>
               <div style={{
                 fontSize: "24px", fontWeight: 700, lineHeight: 1.1,
