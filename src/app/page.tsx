@@ -1523,51 +1523,50 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="glass-card timeline">
-            <div className="section-head">
-              <span>{t("eventStats")}</span>
+          {/* ── ESEMÉNY STATISZTIKÁK ── */}
+          <section className="glass-card" style={{ padding: "clamp(14px, 4vw, 20px)", marginBottom: "clamp(10px, 2.5vw, 18px)" }}>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-color)" }}>{t("eventStats")}</h3>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                <polyline points="16 7 22 7 22 13"/>
+              </svg>
             </div>
 
-            <div className="stats" onScroll={handleStatsScroll}>
-              <div className="stat">
-                <div className="icon">📅</div>
-                <div>
-                  <strong>{stats.today} bejegyzés</strong>
-                  <small>{t("todayLabel")}</small>
+            {/* Stat itemek - scrollozható */}
+            <div style={{ display: "flex", gap: "10px", overflowX: "auto", scrollbarWidth: "none", paddingBottom: "4px" }}>
+              {[
+                { icon: "📅", value: stats.today,   label: t("todayLabel"),   color: "rgba(255,152,0,0.2)",   border: "rgba(255,152,0,0.35)"   },
+                { icon: "⚡", value: stats.week,    label: t("weekLabel"),    color: "rgba(33,211,239,0.15)", border: "rgba(33,211,239,0.3)"   },
+                { icon: "🗓", value: stats.month,   label: t("monthLabel"),   color: "rgba(126,123,255,0.15)",border: "rgba(126,123,255,0.3)"  },
+                { icon: "⭐", value: stats.year,    label: t("yearLabel"),    color: "rgba(255,193,7,0.15)",  border: "rgba(255,193,7,0.3)"    },
+                { icon: "🗂", value: stats.allTime, label: t("allTimeLabel"), color: "rgba(76,175,80,0.15)",  border: "rgba(76,175,80,0.3)"    },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: "12px",
+                  flex: "0 0 auto",
+                  padding: "12px 16px",
+                  borderRadius: "16px",
+                  background: item.color,
+                  border: `1px solid ${item.border}`,
+                  minWidth: "160px",
+                }}>
+                  <div style={{
+                    width: "44px", height: "44px", borderRadius: "14px",
+                    background: "rgba(255,152,0,0.2)",
+                    border: "1px solid rgba(255,152,0,0.3)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "22px", flexShrink: 0,
+                  }}>{item.icon}</div>
+                  <div>
+                    <div style={{ fontSize: "22px", fontWeight: 700, color: "var(--text-color)", lineHeight: 1.1 }}>
+                      {item.value} <span style={{ fontSize: "13px", fontWeight: 500, opacity: 0.7 }}>{lang === "hu" ? "bejegyzés" : "entries"}</span>
+                    </div>
+                    <div style={{ fontSize: "12px", opacity: 0.6, marginTop: "2px" }}>{item.label}</div>
+                  </div>
                 </div>
-              </div>
-
-              <div className="stat">
-                <div className="icon">⚡</div>
-                <div>
-                  <strong>{stats.week} bejegyzés</strong>
-                  <small>{t("weekLabel")}</small>
-                </div>
-              </div>
-
-              <div className="stat">
-                <div className="icon">🗓</div>
-                <div>
-                  <strong>{stats.month} bejegyzés</strong>
-                  <small>{t("monthLabel")}</small>
-                </div>
-              </div>
-
-              <div className="stat">
-                <div className="icon">⭐</div>
-                <div>
-                  <strong>{stats.year} bejegyzés</strong>
-                  <small>{t("yearLabel")}</small>
-                </div>
-              </div>
-
-              <div className="stat">
-                <div className="icon">🗂</div>
-                <div>
-                  <strong>{stats.allTime} bejegyzés</strong>
-                  <small>{t("allTimeLabel")}</small>
-                </div>
-              </div>
+              ))}
             </div>
           </section>
 
