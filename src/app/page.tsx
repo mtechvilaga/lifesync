@@ -6,6 +6,10 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from "react-datepicker";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const huLocale = require("date-fns/locale/hu");
+registerLocale("hu", huLocale.hu || huLocale.default || huLocale);
 import BottomNav from "./components/BottomNav";
 
 export default function Home() {
@@ -2111,6 +2115,7 @@ export default function Home() {
                 </h3>
                 <DatePicker
                   inline
+                  locale={lang === "hu" ? "hu" : "en"}
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
                   onChange={(date: Date | null) => {
                     if (date) {
@@ -2288,10 +2293,7 @@ export default function Home() {
                 );
               })()}
 
-              {/* Swipe hint */}
-              <div style={{ textAlign: "center", padding: "10px", opacity: 0.6, fontSize: "13px" }}>
-                💡 Jobbra húzva visszamehetsz a naptárhoz
-              </div>
+
             </div>
           )}
         </div>
