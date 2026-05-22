@@ -414,7 +414,7 @@ export default function Home() {
     }
   };
 
-  // Ref-ek az aktuális értékekhez (closure miatt kell, ELŐBB kell deklarálni mint a useEffect)
+  // Ref-ek az aktuális értékekhez (closure miatt kell)
   const activeTabRef = useRef(activeTab);
   useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
   const addViewModeRef = useRef(addViewMode);
@@ -422,68 +422,67 @@ export default function Home() {
   const isDrawerOpenRef = useRef(isDrawerOpen);
   useEffect(() => { isDrawerOpenRef.current = isDrawerOpen; }, [isDrawerOpen]);
 
-  // Swipe navigation – minden passive:true, nem blokkoljuk a natív scrollt
+  // Swipe navigation
   const minSwipeDistance = 50;
-  // touchmove irány követés (passive listener-ből nem lehet preventDefault)
-  const swipeLockedRef = useRef<"horizontal" | "vertical" | null>(null);
 
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
 
+    let startX = 0;
+    let startY = 0;
+    let isHorizontal: boolean | null = null; // null = még nem döntöttük el
+
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartRef.current = e.targetTouches[0].clientX;
-      touchStartYRef.current = e.targetTouches[0].clientY;
-      swipeLockedRef.current = null;
+      startX = e.targetTouches[0].clientX;
+      startY = e.targetTouches[0].clientY;
+      isHorizontal = null;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (touchStartRef.current === null || touchStartYRef.current === null) return;
-      if (swipeLockedRef.current !== null) return;
-      const dx = Math.abs(e.targetTouches[0].clientX - touchStartRef.current);
-      const dy = Math.abs(e.targetTouches[0].clientY - touchStartYRef.current);
-      // Első 10px után eldöntjük melyik irányba megy
-      if (dx > 10 || dy > 10) {
-        swipeLockedRef.current = dx > dy ? "horizontal" : "vertical";
+      const dx = Math.abs(e.targetTouches[0].clientX - startX);
+      const dy = Math.abs(e.targetTouches[0].clientY - startY);
+
+      // Irány meghatározása az első 8px után
+      if (isHorizontal === null && (dx > 8 || dy > 8)) {
+        isHorizontal = dx > dy;
+      }
+
+      // Csak akkor blokkolunk ha:
+      // - egyértelműen vízszintes swipe
+      // - ÉS drawer nyitva van VAGY a bal szélen kezdődött (drawer kihúzás)
+      if (isHorizontal && (isDrawerOpenRef.current || startX < 40)) {
+        e.preventDefault();
       }
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      if (touchStartRef.current === null) return;
-      const startX = touchStartRef.current;
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = touchStartYRef.current !== null
-        ? e.changedTouches[0].clientY - touchStartYRef.current
-        : 0;
-      const locked = swipeLockedRef.current;
-      touchStartRef.current = null;
-      touchStartYRef.current = null;
-      swipeLockedRef.current = null;
+      // Ha függőleges volt vagy nem dőlt el, scroll volt – kihagyjuk
+      if (isHorizontal !== true) return;
 
-      // Ha függőleges mozgás volt (scroll), ne csináljunk semmit
-      if (locked === "vertical") return;
-      // Ha nem elég nagy a vízszintes mozdulat, kihagyjuk
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+
       if (Math.abs(dx) < minSwipeDistance) return;
-      // Ha inkább függőleges volt (nem zároltuk még), ellenőrzés
-      if (Math.abs(dy) > Math.abs(dx) * 0.75) return;
+      if (Math.abs(dy) > Math.abs(dx) * 0.6) return;
 
       const isLeftSwipe = dx < 0;
       const isRightSwipe = dx > 0;
 
-      // Drawer: bal szélről (40px) jobbra húzva kinyit
+      // Drawer kinyitás: bal szélről jobbra
       if (isRightSwipe && startX < 40 && !isDrawerOpenRef.current) {
         setIsDrawerOpen(true);
         return;
       }
-      // Drawer nyitva: balra húzva becsuk
+      // Drawer becsukás: balra húzva
       if (isLeftSwipe && isDrawerOpenRef.current) {
         setIsDrawerOpen(false);
         return;
       }
-      // Ha drawer nyitva van, tab váltás ne történjen
+      // Ha drawer nyitva, ne váltson tab
       if (isDrawerOpenRef.current) return;
 
-      // Add tabon csak naptár↔form váltás
+      // Add tab: naptár ↔ form
       if (activeTabRef.current === "Add") {
         if (isLeftSwipe && addViewModeRef.current === "calendar") setAddViewMode("form");
         else if (isRightSwipe && addViewModeRef.current === "form") setAddViewMode("calendar");
@@ -492,14 +491,13 @@ export default function Home() {
 
       // Tab váltás
       const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
-      const currentIndex = tabs.indexOf(activeTabRef.current);
-      if (isLeftSwipe && currentIndex < tabs.length - 1) setActiveTab(tabs[currentIndex + 1]);
-      else if (isRightSwipe && currentIndex > 0) setActiveTab(tabs[currentIndex - 1]);
+      const idx = tabs.indexOf(activeTabRef.current);
+      if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
+      else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
     };
 
-    // Minden listener passive:true → natív scroll soha nem blokkolódik
     el.addEventListener("touchstart", handleTouchStart, { passive: true });
-    el.addEventListener("touchmove", handleTouchMove, { passive: true });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
     el.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
