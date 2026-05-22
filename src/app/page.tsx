@@ -97,6 +97,20 @@ export default function Home() {
     };
   }, []);
 
+  // Service Worker regisztráció
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          console.log("SW registered:", reg.scope);
+        })
+        .catch((err) => {
+          console.error("SW registration failed:", err);
+        });
+    }
+  }, []);
+
   // Theme state
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
