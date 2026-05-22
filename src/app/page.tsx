@@ -15,6 +15,7 @@ export default function Home() {
   const touchStartRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
   const mainRef = useRef<HTMLElement | null>(null);
+  const vaultScrollRef = useRef<HTMLDivElement | null>(null);
   
   const [session, setSession] = useState<any>(null);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -777,6 +778,7 @@ export default function Home() {
 
         playNotificationSound();
         setIsCreatingFolder(false);
+        setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50);
         setNewFolderName("");
         setNewFolderIcon("📁");
         setNewFolderDescription("");
@@ -2486,7 +2488,7 @@ export default function Home() {
       )}
 
       {activeTab === "Vault" && (
-        <div key="Vault" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           {activeVaultFolder ? (
             // FOLDER DETAIL VIEW
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -2619,7 +2621,7 @@ export default function Home() {
                   <div className="glass-card" style={{ gridColumn: "1 / span 2", padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
                     <h3 style={{ fontSize: "16px", fontWeight: 600 }}>{t("newProject")}</h3>
                     <form onSubmit={handleCreateFolder} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      <input autoFocus required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder={t("projectNamePlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
+                      <input required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder={t("projectNamePlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                       <input type="text" value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} placeholder={t("projectDescPlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
                       
                       <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
@@ -2739,13 +2741,13 @@ export default function Home() {
                       </div>
 
                       <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-                        <button type="button" onClick={() => { setIsCreatingFolder(false); setNewFolderImages([]); setNewFolderDocs([]); setNewFolderAudios([]); }} style={{ flex: 1, padding: "14px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600, fontSize: "15px" }}>{t("cancel")}</button>
+                        <button type="button" onClick={() => { setIsCreatingFolder(false); setNewFolderImages([]); setNewFolderDocs([]); setNewFolderAudios([]); setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50); }} style={{ flex: 1, padding: "14px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600, fontSize: "15px" }}>{t("cancel")}</button>
                         <button type="submit" style={{ flex: 1, padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, fontSize: "15px", boxShadow: "0 4px 15px rgba(255, 112, 67, 0.3)" }}>Mentés és Megnyitás</button>
                       </div>
                     </form>
                   </div>
                 ) : (
-                  <div className="glass-card" onClick={() => setIsCreatingFolder(true)} style={{ padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", gap: "10px", border: "1px dashed rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.05)", cursor: "pointer", transition: "all 0.2s" }}>
+                  <div className="glass-card" onClick={() => { setIsCreatingFolder(true); setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50); }} style={{ padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", gap: "10px", border: "1px dashed rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.05)", cursor: "pointer", transition: "all 0.2s" }}>
                       <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
                         +
                       </div>
