@@ -72,7 +72,7 @@ export default function Home() {
 
   // Nyelv state
   const [lang, setLang] = useState<"hu" | "en">("hu");
-  const t = (key: keyof typeof translations.hu): string => translations[lang][key] ?? translations.hu[key];
+  const t = (key: string): string => (translations[lang] as Record<string, string>)[key] ?? (translations.hu as Record<string, string>)[key] ?? key;
 
   useEffect(() => {
     const updateClock = () => {
