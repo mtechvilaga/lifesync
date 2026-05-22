@@ -1506,49 +1506,104 @@ export default function Home() {
           </section>
 
           {/* ── ESEMÉNY STATISZTIKÁK ── */}
-          <section className="glass-card" style={{ padding: "clamp(14px, 4vw, 20px)", marginBottom: "clamp(10px, 2.5vw, 18px)" }}>
+          <section style={{
+            borderRadius: "clamp(14px, 4vw, 26px)",
+            overflow: "hidden",
+            marginBottom: "clamp(10px, 2.5vw, 18px)",
+            background: "#070914",
+            border: "1px solid rgba(139,92,246,0.25)",
+            boxShadow: "0 0 32px rgba(124,58,237,0.12)",
+          }}>
             {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-color)" }}>{t("eventStats")}</h3>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 10px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#ffffff" }}>{t("eventStats")}</h3>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
                 <polyline points="16 7 22 7 22 13"/>
               </svg>
             </div>
 
-            {/* Stat itemek - scrollozható */}
-            <div data-swipe-ignore style={{ display: "flex", gap: "10px", overflowX: "auto", scrollbarWidth: "none", paddingBottom: "4px" }}>
-              {[
-                { icon: "📅", value: stats.today,   label: t("todayLabel"),   color: "rgba(255,152,0,0.2)",   border: "rgba(255,152,0,0.35)"   },
-                { icon: "⚡", value: stats.week,    label: t("weekLabel"),    color: "rgba(33,211,239,0.15)", border: "rgba(33,211,239,0.3)"   },
-                { icon: "🗓", value: stats.month,   label: t("monthLabel"),   color: "rgba(126,123,255,0.15)",border: "rgba(126,123,255,0.3)"  },
-                { icon: "⭐", value: stats.year,    label: t("yearLabel"),    color: "rgba(255,193,7,0.15)",  border: "rgba(255,193,7,0.3)"    },
-                { icon: "🗂", value: stats.allTime, label: t("allTimeLabel"), color: "rgba(76,175,80,0.15)",  border: "rgba(76,175,80,0.3)"    },
-              ].map((item, i) => (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: "12px",
-                  flex: "0 0 auto",
-                  padding: "12px 16px",
-                  borderRadius: "16px",
-                  background: item.color,
-                  border: `1px solid ${item.border}`,
-                  minWidth: "160px",
-                }}>
-                  <div style={{
-                    width: "44px", height: "44px", borderRadius: "14px",
-                    background: "rgba(255,152,0,0.2)",
-                    border: "1px solid rgba(255,152,0,0.3)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "22px", flexShrink: 0,
-                  }}>{item.icon}</div>
-                  <div>
-                    <div style={{ fontSize: "22px", fontWeight: 700, color: "var(--text-color)", lineHeight: 1.1 }}>
-                      {item.value} <span style={{ fontSize: "13px", fontWeight: 500, opacity: 0.7 }}>{lang === "hu" ? "bejegyzés" : "entries"}</span>
-                    </div>
-                    <div style={{ fontSize: "12px", opacity: 0.6, marginTop: "2px" }}>{item.label}</div>
-                  </div>
+            {/* Felső kártya - mai nap + bolygó */}
+            <div style={{
+              margin: "0 12px 10px",
+              padding: "16px 16px 16px 16px",
+              borderRadius: "16px",
+              background: "#0d0f22",
+              border: "1px solid rgba(139,92,246,0.2)",
+              position: "relative",
+              overflow: "hidden",
+              minHeight: "110px",
+            }}>
+              {/* Bolygó háttér jobb oldalt */}
+              <div style={{
+                position: "absolute", right: "-20px", top: "-20px",
+                width: "160px", height: "160px",
+                backgroundImage: "url('/projects_bg.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: "50%",
+                opacity: 0.7,
+                filter: "blur(1px)",
+              }} />
+              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "55%", background: "linear-gradient(to right, #0d0f22 20%, transparent 100%)", zIndex: 1 }} />
+
+              {/* Tartalom */}
+              <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "flex-start", gap: "14px" }}>
+                <div style={{
+                  width: "56px", height: "56px", borderRadius: "16px", flexShrink: 0,
+                  background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "26px",
+                  boxShadow: "0 4px 20px rgba(124,58,237,0.5)",
+                }}>📅</div>
+                <div>
+                  <div style={{ fontSize: "44px", fontWeight: 800, color: "#ffffff", lineHeight: 1 }}>{stats.today}</div>
+                  <div style={{ fontSize: "17px", fontWeight: 600, color: "#ffffff", marginTop: "1px" }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
+                  <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", marginTop: "4px" }}>{t("todayLabel")}</div>
                 </div>
-              ))}
+              </div>
+            </div>
+
+            {/* Alsó 3 cella - fix szélesség, elválasztóval */}
+            <div style={{ display: "flex", padding: "0 12px 14px" }}>
+              {/* Heti */}
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px", padding: "8px 4px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <div>
+                  <div style={{ fontSize: "20px", fontWeight: 700, color: "#ffffff" }}>{stats.week}</div>
+                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)" }}>{lang === "hu" ? "heti esemény" : "weekly"}</div>
+                </div>
+              </div>
+
+              {/* Elválasztó */}
+              <div style={{ width: "1px", background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+
+              {/* Havi */}
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px", padding: "8px 10px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+                </svg>
+                <div>
+                  <div style={{ fontSize: "20px", fontWeight: 700, color: "#ffffff" }}>{stats.month}</div>
+                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)" }}>{lang === "hu" ? "havi esemény" : "monthly"}</div>
+                </div>
+              </div>
+
+              {/* Elválasztó */}
+              <div style={{ width: "1px", background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+
+              {/* Éves */}
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px", padding: "8px 10px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <div>
+                  <div style={{ fontSize: "20px", fontWeight: 700, color: "#ffffff" }}>{stats.year}</div>
+                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)" }}>{lang === "hu" ? "éves esemény" : "yearly"}</div>
+                </div>
+              </div>
             </div>
           </section>
 
