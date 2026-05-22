@@ -430,107 +430,82 @@ export default function Home() {
   const minSwipeDistance = 50;
 
   useEffect(() => {
-    // Rövid delay hogy a ref biztosan be legyen töltve
-    const timer = setTimeout(() => {
+    let startX = 0;
+    let startY = 0;
+    let startXRelative = 0;
+    let isHorizontal: boolean | null = null;
+
+    const handleTouchStart = (e: TouchEvent) => {
       const el = mainRef.current;
       if (!el) return;
+      const touch = e.targetTouches[0];
+      const rect = el.getBoundingClientRect();
+      // Ha a touch a .phone elemen kívül indult, kihagyjuk
+      if (touch.clientX < rect.left || touch.clientX > rect.right ||
+          touch.clientY < rect.top  || touch.clientY > rect.bottom) {
+        startX = -9999;
+        return;
+      }
+      // Ha data-swipe-ignore elemen belül indult, kihagyjuk
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-swipe-ignore]')) {
+        startX = -9999;
+        return;
+      }
+      startX = touch.clientX;
+      startY = touch.clientY;
+      startXRelative = touch.clientX - rect.left;
+      isHorizontal = null;
+    };
 
-      let startX = 0;
-      let startY = 0;
-      let startXRelative = 0; // .phone elemen belüli pozíció
-      let isHorizontal: boolean | null = null;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (startX === -9999) return;
+      const dx = Math.abs(e.targetTouches[0].clientX - startX);
+      const dy = Math.abs(e.targetTouches[0].clientY - startY);
+      if (isHorizontal === null && (dx > 8 || dy > 8)) {
+        isHorizontal = dx > dy;
+      }
+      if (isHorizontal) e.preventDefault();
+    };
 
-      const handleTouchStart = (e: TouchEvent) => {
-        const touch = e.targetTouches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        // Relatív pozíció a .phone elemen belül
-        const rect = el.getBoundingClientRect();
-        startXRelative = touch.clientX - rect.left;
-        // Ha a touch a .phone elemen kívül indult, ne csináljunk semmit
-        if (touch.clientX < rect.left || touch.clientX > rect.right ||
-            touch.clientY < rect.top  || touch.clientY > rect.bottom) {
-          startX = -9999;
-          return;
-        }
-        // Ha scrollozható elemen belül indult a touch, kihagyjuk
-        const target = e.target as HTMLElement;
-        const scrollable = target.closest('[data-swipe-ignore]');
-        if (scrollable) {
-          startX = -9999;
-          return;
-        }
-        isHorizontal = null;
-      };
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (startX === -9999 || isHorizontal !== true) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) < minSwipeDistance) return;
+      if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
 
-      const handleTouchMove = (e: TouchEvent) => {
-        const dx = Math.abs(e.targetTouches[0].clientX - startX);
-        const dy = Math.abs(e.targetTouches[0].clientY - startY);
+      const isLeftSwipe = dx < 0;
+      const isRightSwipe = dx > 0;
 
-        if (isHorizontal === null && (dx > 8 || dy > 8)) {
-          isHorizontal = dx > dy;
-        }
+      if (isRightSwipe && startXRelative < 60 && !isDrawerOpenRef.current) {
+        setIsDrawerOpen(true); return;
+      }
+      if (isLeftSwipe && isDrawerOpenRef.current) {
+        setIsDrawerOpen(false); return;
+      }
+      if (isDrawerOpenRef.current) return;
 
-        if (isHorizontal) {
-          e.preventDefault();
-        }
-      };
+      if (activeTabRef.current === "Add") {
+        if (isLeftSwipe && addViewModeRef.current === "calendar") { setAddViewMode("form"); return; }
+        if (isRightSwipe && addViewModeRef.current === "form") { setAddViewMode("calendar"); return; }
+      }
 
-      const handleTouchEnd = (e: TouchEvent) => {
-        if (isHorizontal !== true) return;
+      const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
+      const idx = tabs.indexOf(activeTabRef.current);
+      if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
+      else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
+    };
 
-        const dx = e.changedTouches[0].clientX - startX;
-        const dy = e.changedTouches[0].clientY - startY;
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: true });
 
-        if (Math.abs(dx) < minSwipeDistance) return;
-        if (Math.abs(dy) > Math.abs(dx) * 0.7) return;
-
-        const isLeftSwipe = dx < 0;
-        const isRightSwipe = dx > 0;
-
-        // Drawer kinyitás: bal szélről (60px) jobbra húzva
-        if (isRightSwipe && startXRelative < 60 && !isDrawerOpenRef.current) {
-          setIsDrawerOpen(true);
-          return;
-        }
-
-        // Drawer becsukás: balra húzva ha nyitva
-        if (isLeftSwipe && isDrawerOpenRef.current) {
-          setIsDrawerOpen(false);
-          return;
-        }
-
-        // Ha drawer nyitva van, ne váltson tab
-        if (isDrawerOpenRef.current) return;
-
-        // Add tab: naptár ↔ form váltás, ha van mit váltani
-        // Ha nincs (pl. form nézetből balra), eső át a tab váltásra
-        if (activeTabRef.current === "Add") {
-          if (isLeftSwipe && addViewModeRef.current === "calendar") { setAddViewMode("form"); return; }
-          if (isRightSwipe && addViewModeRef.current === "form") { setAddViewMode("calendar"); return; }
-          // nincs mit váltani → tab váltás következik
-        }
-
-        // Tab váltás
-        const tabs = ["Home", "Timeline", "Add", "Vault", "Profile"];
-        const idx = tabs.indexOf(activeTabRef.current);
-        if (isLeftSwipe && idx < tabs.length - 1) setActiveTab(tabs[idx + 1]);
-        else if (isRightSwipe && idx > 0) setActiveTab(tabs[idx - 1]);
-      };
-
-      // document-ra tesszük hogy a child elemek ne nyeljék el
-      document.addEventListener("touchstart", handleTouchStart, { passive: true });
-      document.addEventListener("touchmove", handleTouchMove, { passive: false });
-      document.addEventListener("touchend", handleTouchEnd, { passive: true });
-
-      return () => {
-        document.removeEventListener("touchstart", handleTouchStart);
-        document.removeEventListener("touchmove", handleTouchMove);
-        document.removeEventListener("touchend", handleTouchEnd);
-      };
-    }, 100);
-
-    return () => clearTimeout(timer);
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
 
