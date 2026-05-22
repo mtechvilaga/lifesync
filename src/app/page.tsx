@@ -1466,15 +1466,12 @@ export default function Home() {
                 <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "1px solid var(--card-border)", borderRadius: "10px", color: "var(--text-color)", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>{t("cancel")}</button>
               </form>
             ) : (
-              <p style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                {t("greeting")} <strong style={{ fontWeight: 700 }}>{formattedName}</strong>!
-              </p>
+              <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>
+                {lang === "hu" ? `Legyen szép napod, ${formattedName}!` : `Have a great day, ${formattedName}!`}
+              </h2>
             )}
-            <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "6px" }}>
-              {weather ? `${weather.temp}°C · ${weather.city}` : t("weatherFallback")}
-            </h2>
-            <p style={{ opacity: 0.9, fontSize: "15px", fontWeight: 500 }}>
-              {weather ? `${weather.desc} · ${t("niceDay")}` : t("niceDay")}
+            <p style={{ opacity: 0.85, fontSize: "15px", fontWeight: 500 }}>
+              {weather ? `${weather.temp}°C · ${weather.city} ${weather.desc}` : t("weatherFallback")}
             </p>
           </section>
 
