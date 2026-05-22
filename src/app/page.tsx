@@ -1529,13 +1529,13 @@ export default function Home() {
               {/* 1. Mai nap */}
               <div style={{
                 flex: "0 0 calc(100vw - 80px)",
-                padding: "20px",
+                padding: "14px 18px",
                 borderRadius: "16px",
                 background: "#0d0f22",
                 border: "1px solid rgba(139,92,246,0.2)",
                 position: "relative",
                 overflow: "hidden",
-                height: "160px",
+                height: "100px",
                 display: "flex", alignItems: "center",
               }}>
                 <div style={{ position: "absolute", right: "-10px", top: "-10px", width: "130px", height: "130px", backgroundImage: "url('/projects_bg.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "50%", opacity: 0.5, filter: "blur(1px)" }} />
@@ -1561,12 +1561,12 @@ export default function Home() {
               ].map((item, i) => (
                 <div key={i} style={{
                   flex: "0 0 calc(100vw - 80px)",
-                  padding: "20px",
+                  padding: "14px 18px",
                   borderRadius: "14px",
                   background: item.color,
                   border: `1px solid ${item.border}`,
                   display: "flex", alignItems: "center", gap: "14px",
-                  height: "160px",
+                  height: "100px",
                 }}>
                   <span style={{ fontSize: "28px", flexShrink: 0 }}>{item.icon}</span>
                   <div>
