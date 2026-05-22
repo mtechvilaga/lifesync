@@ -1528,14 +1528,14 @@ export default function Home() {
 
               {/* 1. Mai nap */}
               <div style={{
-                flex: "0 0 200px",
-                padding: "16px",
+                flex: "0 0 220px",
+                padding: "20px",
                 borderRadius: "16px",
                 background: "#0d0f22",
                 border: "1px solid rgba(139,92,246,0.2)",
                 position: "relative",
                 overflow: "hidden",
-                height: "120px",
+                height: "160px",
                 display: "flex", alignItems: "center",
               }}>
                 <div style={{ position: "absolute", right: "-10px", top: "-10px", width: "130px", height: "130px", backgroundImage: "url('/projects_bg.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "50%", opacity: 0.5, filter: "blur(1px)" }} />
@@ -1560,13 +1560,13 @@ export default function Home() {
                 { icon: "🗂", value: stats.allTime, label: t("allTimeLabel"), color: "rgba(34,197,94,0.12)",   border: "rgba(34,197,94,0.25)"   },
               ].map((item, i) => (
                 <div key={i} style={{
-                  flex: "0 0 160px",
-                  padding: "16px",
+                  flex: "0 0 180px",
+                  padding: "20px",
                   borderRadius: "14px",
                   background: item.color,
                   border: `1px solid ${item.border}`,
-                  display: "flex", alignItems: "center", gap: "12px",
-                  height: "120px",
+                  display: "flex", alignItems: "center", gap: "14px",
+                  height: "160px",
                 }}>
                   <span style={{ fontSize: "28px", flexShrink: 0 }}>{item.icon}</span>
                   <div>
