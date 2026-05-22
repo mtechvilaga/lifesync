@@ -6,10 +6,6 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { registerLocale } from "react-datepicker";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const huLocale = require("date-fns/locale/hu");
-registerLocale("hu", huLocale.hu || huLocale.default || huLocale);
 import BottomNav from "./components/BottomNav";
 
 export default function Home() {
@@ -2088,7 +2084,6 @@ export default function Home() {
                         placeholderText={t("dateTimePlaceholder")}
                         className="custom-datepicker"
                         fixedHeight
-                        locale={lang === "hu" ? "hu" : "en"}
                       />
                     </div>
                   )}
@@ -2116,7 +2111,6 @@ export default function Home() {
                 </h3>
                 <DatePicker
                   inline
-                  locale={lang === "hu" ? "hu" : "en"}
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
                   onChange={(date: Date | null) => {
                     if (date) {
@@ -2166,26 +2160,28 @@ export default function Home() {
                   }
                   .react-datepicker__current-month {
                     color: white !important;
-                    font-weight: 600 !important;
+                    font-weight: 700 !important;
                     font-size: 16px !important;
+                    text-transform: capitalize !important;
                   }
                   .react-datepicker__day-name {
-                    color: rgba(255,255,255,0.6) !important;
-                    font-weight: 500 !important;
+                    color: #ffffff !important;
+                    font-weight: 700 !important;
                     width: calc((100% - 14px) / 7) !important;
                     max-width: 2.2rem !important;
                     line-height: 2rem !important;
-                    font-size: 11px !important;
+                    font-size: 14px !important;
                     margin: 1px !important;
                   }
                   .react-datepicker__day {
-                    color: white !important;
+                    color: #ffffff !important;
                     width: calc((100% - 14px) / 7) !important;
                     max-width: 2.2rem !important;
                     line-height: 2rem !important;
                     border-radius: 8px !important;
                     margin: 1px !important;
-                    font-size: 13px !important;
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
                   }
                   .react-datepicker__week {
                     display: flex !important;
@@ -2195,12 +2191,12 @@ export default function Home() {
                     background: rgba(255,255,255,0.15) !important;
                   }
                   .react-datepicker__day--selected {
-                    background: rgba(255,255,255,0.2) !important;
-                    font-weight: 600 !important;
-                    border: 1px solid rgba(255,255,255,0.3) !important;
+                    background: transparent !important;
+                    font-weight: 500 !important;
+                    border: none !important;
                   }
                   .react-datepicker__day--keyboard-selected {
-                    background: rgba(255,255,255,0.15) !important;
+                    background: transparent !important;
                   }
                   .react-datepicker__day--outside-month {
                     color: rgba(255,255,255,0.3) !important;
@@ -2230,9 +2226,10 @@ export default function Home() {
                     background: #ff4444 !important;
                   }
                   .today-day {
-                    background: rgba(0, 212, 255, 0.55) !important;
+                    background: #3b82f6 !important;
+                    color: #ffffff !important;
                     font-weight: 700 !important;
-                    border-radius: 8px !important;
+                    border-radius: 50% !important;
                   }
                   .react-datepicker__navigation {
                     top: 12px !important;
@@ -2291,7 +2288,10 @@ export default function Home() {
                 );
               })()}
 
-
+              {/* Swipe hint */}
+              <div style={{ textAlign: "center", padding: "10px", opacity: 0.6, fontSize: "13px" }}>
+                💡 Jobbra húzva visszamehetsz a naptárhoz
+              </div>
             </div>
           )}
         </div>
