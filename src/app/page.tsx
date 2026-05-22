@@ -402,6 +402,8 @@ export default function Home() {
 
   // Swipe navigation – natív listener, passive:false hogy preventDefault működjön
   const minSwipeDistance = 50;
+  const isDrawerOpenRef = useRef(isDrawerOpen);
+  useEffect(() => { isDrawerOpenRef.current = isDrawerOpen; }, [isDrawerOpen]);
 
   useEffect(() => {
     const el = mainRef.current;
@@ -416,21 +418,42 @@ export default function Home() {
       if (touchStartRef.current === null || touchStartYRef.current === null) return;
       const dx = e.targetTouches[0].clientX - touchStartRef.current;
       const dy = e.targetTouches[0].clientY - touchStartYRef.current;
-      // Ha vízszintes swipe (dx domináns), megakadályozzuk az alapértelmezett viselkedést
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      // Csak akkor akadályozzuk meg a scroll-t ha egyértelműen vízszintes swipe
+      // ÉS a swipe a képernyő szélétől indul (drawer húzáshoz) vagy drawer nyitva van
+      const startX = touchStartRef.current;
+      const isEdgeSwipe = startX < 30 || isDrawerOpenRef.current;
+      if (Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 15 && isEdgeSwipe) {
         e.preventDefault();
       }
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (touchStartRef.current === null) return;
-      const dx = (e.changedTouches[0].clientX - touchStartRef.current);
+      const startX = touchStartRef.current;
+      const dx = (e.changedTouches[0].clientX - startX);
+      const dy = touchStartYRef.current !== null
+        ? (e.changedTouches[0].clientY - touchStartYRef.current)
+        : 0;
       const isLeftSwipe = dx < -minSwipeDistance;
       const isRightSwipe = dx > minSwipeDistance;
       touchStartRef.current = null;
       touchStartYRef.current = null;
 
       if (!isLeftSwipe && !isRightSwipe) return;
+      // Ha a swipe inkább függőleges, hagyjuk scrollozni
+      if (Math.abs(dy) > Math.abs(dx) * 0.8) return;
+
+      // Drawer: bal szélről jobbra húzva kinyit, drawer nyitva balra húzva becsuk
+      if (isRightSwipe && startX < 40 && !isDrawerOpenRef.current) {
+        setIsDrawerOpen(true);
+        return;
+      }
+      if (isLeftSwipe && isDrawerOpenRef.current) {
+        setIsDrawerOpen(false);
+        return;
+      }
+      // Ha drawer nyitva van, tab váltás ne történjen
+      if (isDrawerOpenRef.current) return;
 
       // Add tabon csak naptár↔form váltás, semmi más
       if (activeTabRef.current === "Add") {
@@ -1325,7 +1348,7 @@ export default function Home() {
       {/* ═══ FŐ TARTALOM ═══ */}
 
       <section className="header">
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
           {/* Hamburger gomb */}
           <button
             onClick={() => setIsDrawerOpen(true)}
@@ -1338,10 +1361,10 @@ export default function Home() {
             }}
           >
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
-            <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
+            <span style={{ display: "block", width: "14px", height: "2px", background: "var(--text-color)", borderRadius: "2px", alignSelf: "flex-start", marginLeft: "4px" }} />
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
           </button>
-          <div style={{ minWidth: 0, flex: 1 }}>
+          <div>
           <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
             {/* Logo ikon */}
             <div className="logo">
@@ -1373,7 +1396,7 @@ export default function Home() {
           </div>{/* end brand+subtitle wrapper */}
         </div>{/* end hamburger+content wrapper */}
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <div className="theme-toggle" onClick={toggleTheme} style={{ cursor: "pointer" }}>
             {isDarkMode ? "☀️" : "🌙"}
           </div>
