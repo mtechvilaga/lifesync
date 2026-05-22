@@ -453,6 +453,13 @@ export default function Home() {
           startX = -9999;
           return;
         }
+        // Ha scrollozható elemen belül indult a touch, kihagyjuk
+        const target = e.target as HTMLElement;
+        const scrollable = target.closest('[data-swipe-ignore]');
+        if (scrollable) {
+          startX = -9999;
+          return;
+        }
         isHorizontal = null;
       };
 
@@ -1535,7 +1542,7 @@ export default function Home() {
             </div>
 
             {/* Stat itemek - scrollozható */}
-            <div style={{ display: "flex", gap: "10px", overflowX: "auto", scrollbarWidth: "none", paddingBottom: "4px" }}>
+            <div data-swipe-ignore style={{ display: "flex", gap: "10px", overflowX: "auto", scrollbarWidth: "none", paddingBottom: "4px" }}>
               {[
                 { icon: "📅", value: stats.today,   label: t("todayLabel"),   color: "rgba(255,152,0,0.2)",   border: "rgba(255,152,0,0.35)"   },
                 { icon: "⚡", value: stats.week,    label: t("weekLabel"),    color: "rgba(33,211,239,0.15)", border: "rgba(33,211,239,0.3)"   },
@@ -1579,7 +1586,7 @@ export default function Home() {
             {recentMemories.length === 0 ? (
               <p style={{ opacity: 0.6, fontSize: "14px", padding: "10px" }}>{t("noEvents")}</p>
             ) : (
-              <div className="photos" style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "10px", scrollbarWidth: "none" }}>
+              <div data-swipe-ignore className="photos" style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "10px", scrollbarWidth: "none" }}>
                 {recentMemories.map((mem) => (
                   <div className="photo" key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab(t("timelineTitle")); }} style={{ minWidth: "120px", width: "120px", cursor: "pointer" }}>
                     {(() => {
