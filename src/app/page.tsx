@@ -7,8 +7,9 @@ import emailjs from '@emailjs/browser';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
-import { hu } from "date-fns/locale/hu";
-registerLocale("hu", hu);
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const huLocale = require("date-fns/locale/hu");
+registerLocale("hu", huLocale.hu || huLocale.default || huLocale);
 import BottomNav from "./components/BottomNav";
 
 export default function Home() {
