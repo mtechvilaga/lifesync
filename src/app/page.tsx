@@ -10,7 +10,6 @@ import { registerLocale } from "react-datepicker";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const huLocale = require("date-fns/locale/hu");
 registerLocale("hu", huLocale.hu || huLocale.default || huLocale);
-import BottomNav from "./components/BottomNav";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -1451,7 +1450,7 @@ export default function Home() {
 
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
-        <div key="Home" className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "80px", scrollbarWidth: "none", overscrollBehavior: "contain", paddingTop: "10px" }}>
+        <div key="Home" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain", paddingTop: "10px" }}>
           <section className="glass-card greeting" style={{ position: "relative" }}>
             {isEditingGreetingName ? (
               <form onSubmit={handleSaveGreetingName} style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
@@ -1593,7 +1592,7 @@ export default function Home() {
       )}
 
       {activeTab === "Timeline" && (
-        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px", overscrollBehavior: "contain" }}>
+        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 100px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px", overscrollBehavior: "contain" }}>
           <div style={{ padding: "0 4px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
               <h2 style={{ fontSize: "28px", fontWeight: 650 }}>{t("timelineTitle")}</h2>
@@ -1791,7 +1790,7 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "300px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           <div style={{ padding: "0 4px", marginBottom: "16px" }}>
             <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
@@ -2289,7 +2288,7 @@ export default function Home() {
       )}
 
       {activeTab === "Profile" && (
-        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           <div style={{ padding: "0 4px", marginBottom: "20px" }}>
             <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{t("profileTitle")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{t("profileSubtitle")}</p>
@@ -2482,7 +2481,7 @@ export default function Home() {
       )}
 
       {activeTab === "Vault" && (
-        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(100% - 140px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           {activeVaultFolder ? (
             // FOLDER DETAIL VIEW
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -2754,12 +2753,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* ÚJ BOTTOM NAV */}
-      <BottomNav 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        resetForm={resetForm}
-      />
+
 
       {/* Kereső Overlay */}
       {isSearchOpen && (
