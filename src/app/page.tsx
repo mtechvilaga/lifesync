@@ -1620,27 +1620,74 @@ export default function Home() {
             )}
           </section>
 
-          <section style={{ marginBottom: "32px", marginTop: "24px" }}>
-            <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px", padding: "0 4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>{t("activeProjects")}</span>
-              <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "14px", fontWeight: 600, color: "white", cursor: "pointer" }}>{t("allEvents")}</span>
-            </h2>
-            <div style={{ display: "flex", gap: "14px", overflowX: "auto", padding: "4px", paddingBottom: "16px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }} className="hide-scrollbar">
+          {/* ── AKTÍV PROJEKTEK KÁRTYA ── */}
+          <section style={{
+            position: "relative",
+            borderRadius: "clamp(14px, 4vw, 26px)",
+            overflow: "hidden",
+            marginBottom: "24px",
+            marginTop: "8px",
+            minHeight: "180px",
+            boxShadow: "0 14px 35px rgba(0,0,0,0.3)",
+          }}>
+            {/* Háttérkép */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: "url('/projects_bg.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              zIndex: 0,
+            }} />
+            {/* Sötétítő */}
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(135deg, rgba(10,8,40,0.75) 0%, rgba(30,15,60,0.5) 100%)",
+              zIndex: 1,
+            }} />
+
+            {/* Tartalom */}
+            <div style={{ position: "relative", zIndex: 2, padding: "clamp(14px, 4vw, 20px)" }}>
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>
+                  {t("activeProjects")}
+                </h2>
+                <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+                  {t("allEvents")}
+                </span>
+              </div>
+
+              {/* Projektek vagy üres állapot */}
               {vaultFolders.length === 0 ? (
-                <div style={{ padding: "10px", opacity: 0.6, fontSize: "14px" }}>
-                  Még nincsenek projektjeid. Kattints a Projekt menüre egy új létrehozásához!
+                <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px", lineHeight: 1.5, maxWidth: "260px" }}>
+                  {t("noProjects")}
+                </p>
+              ) : (
+                <div data-swipe-ignore style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
+                  {vaultFolders.map((folder) => (
+                    <div key={folder.id}
+                      onClick={() => { setActiveTab("Vault"); handleOpenFolder(folder); }}
+                      style={{
+                        flex: "0 0 100px",
+                        padding: "14px",
+                        borderRadius: "18px",
+                        background: "rgba(255,255,255,0.08)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        backdropFilter: "blur(10px)",
+                        display: "flex", flexDirection: "column", gap: "10px",
+                        cursor: "pointer",
+                      }}>
+                      <div style={{ width: "38px", height: "38px", borderRadius: "12px", background: `linear-gradient(135deg, ${folder.color_hex || '#7E7BFF'}cc, ${folder.color_hex || '#9B7BFF'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
+                        {folder.icon || '📁'}
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: "13px", fontWeight: 600, color: "white", lineHeight: 1.2 }}>{folder.name}</h3>
+                        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.55)", marginTop: "2px" }}>{t("open")}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ) : vaultFolders.map((folder) => (
-                <div key={folder.id} onClick={() => { setActiveTab("Vault"); handleOpenFolder(folder); }} className="glass-card" style={{ flex: "0 0 110px", padding: "16px", borderRadius: "20px", display: "flex", flexDirection: "column", gap: "12px", position: "relative", cursor: "pointer" }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: `linear-gradient(135deg, ${folder.color_hex || '#ffb74d'}cc, ${folder.color_hex || '#ff7043'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", boxShadow: `0 4px 12px ${folder.color_hex || '#ff7043'}50` }}>
-                    {folder.icon || '📁'}
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: "14px", fontWeight: 600, lineHeight: 1.2 }}>{folder.name}</h3>
-                    <p style={{ fontSize: "11px", opacity: 0.7, marginTop: "2px" }}>{t("open")}</p>
-                  </div>
-                </div>
-              ))}
+              )}
             </div>
           </section>
         </div>
