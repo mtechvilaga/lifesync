@@ -722,7 +722,7 @@ export default function Home() {
     setIsUploadingVaultFile(true);
     
     try {
-      const randomColors = ["#ffb74d", "#ff7043", "#42a5f5", "#66bb6a", "#ab47bc", "#26a69a"];
+      const randomColors = ["#ffb74d", "#a78bfa", "#42a5f5", "#66bb6a", "#ab47bc", "#26a69a"];
       const folderColor = randomColors[Math.floor(Math.random() * randomColors.length)];
 
       const { data, error } = await supabase.from('vault_folders').insert({
@@ -1079,7 +1079,7 @@ export default function Home() {
 
     const emailHtml = `
       <div style="font-family: 'Segoe UI', sans-serif; max-width: 500px; margin: 0 auto; background: #1a1a2e; color: white; border-radius: 20px; overflow: hidden;">
-        <div style="background: linear-gradient(135deg, #ffb74d, #ff7043); padding: 30px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #38bdf8, #8b5cf6); padding: 30px; text-align: center;">
           <h1 style="margin: 0; font-size: 28px;">LifeSync</h1>
           <p style="margin: 5px 0 0; opacity: 0.9;">Esemény értesítő</p>
         </div>
@@ -1302,12 +1302,12 @@ export default function Home() {
 
             <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("emailLabel")}</label>
+                <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("emailLabel")}</label>
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("emailPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
               </div>
               
                             <div>
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("passwordLabel")}</label>
+                <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("passwordLabel")}</label>
                 <div style={{ position: "relative", width: "100%" }}>
                   <input 
                     type={showPassword ? "text" : "password"} 
@@ -1346,7 +1346,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "15px", cursor: "pointer" }}>
+              <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "15px", cursor: "pointer" }}>
                 {isLoginMode ? t("login") : t("createAccount")}
               </button>
             </form>
@@ -1389,34 +1389,54 @@ export default function Home() {
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
           </button>
           <div>
-          <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "16px", cursor: "pointer" }}>
-            {/* Logo ikon */}
-            <div className="logo" style={{ width: "48px", height: "48px", borderRadius: "14px", background: "transparent" }}>
-              <img src="/lifesync-icon.png" alt="LifeSync" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }}>
+            {/* Neon LifeSync logo – ugyanaz a hangulat, mint a menüpanelen */}
+            <div className="logo" style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "20px",
+              background: "radial-gradient(circle, rgba(56,189,248,0.20), transparent 64%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 28px rgba(56,189,248,0.22), 0 0 34px rgba(168,85,247,0.14)",
+              flexShrink: 0,
+            }}>
+              <img
+                src="/lifesync-icon.png"
+                alt="LifeSync"
+                style={{ width: "50px", height: "50px", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(56,189,248,0.42))" }}
+              />
             </div>
 
             {/* Logo szöveg */}
-            <h1 style={{
-              fontFamily: "'SF Pro Display', 'Inter', 'Segoe UI', sans-serif",
-              fontWeight: 600,
-              fontSize: "36px",
-              lineHeight: "44px",
-              letterSpacing: "-0.02em",
-              background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              margin: 0
-            }}>
-              LifeSync
-            </h1>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <h1 style={{
+                fontFamily: "'SF Pro Display', 'Inter', 'Segoe UI', sans-serif",
+                fontWeight: 750,
+                fontSize: "34px",
+                lineHeight: "36px",
+                letterSpacing: "-0.03em",
+                background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #B984FF 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                margin: 0,
+                textShadow: "0 0 28px rgba(96,165,250,0.18)",
+              }}>
+                LifeSync
+              </h1>
+              <div className="subtitle" style={{
+                fontSize: "14px",
+                color: "rgba(226,232,240,0.74)",
+                marginTop: "4px",
+                fontWeight: 500,
+                letterSpacing: "0.01em",
+              }}>
+                Memories that matter.
+              </div>
+            </div>
           </div>
-          <div className="subtitle" style={{ 
-            fontSize: "14px", 
-            color: "rgba(244, 247, 251, 0.85)", 
-            marginTop: "8px",
-            fontWeight: 500
-          }}>{t("slogan")}</div>
           </div>{/* end brand+subtitle wrapper */}
         </div>{/* end hamburger+content wrapper */}
 
@@ -1477,7 +1497,7 @@ export default function Home() {
                     onChange={e => setGreetingNameInput(e.target.value)}
                     style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "6px 12px", color: "white", outline: "none", fontSize: "15px", flex: 1 }}
                   />
-                  <button type="submit" style={{ background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Mentés</button>
+                  <button type="submit" style={{ background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>Mentés</button>
                   <button type="button" onClick={() => setIsEditingGreetingName(false)} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", color: "white", padding: "8px 12px", fontSize: "14px", cursor: "pointer" }}>{t("cancel")}</button>
                 </form>
               ) : (
@@ -1505,217 +1525,377 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── ESEMÉNY STATISZTIKÁK ── */}
+          {/* ── ESEMÉNY STATISZTIKÁK – FÉNYESEBB NEON DESIGN ── */}
           <section style={{
-            borderRadius: "clamp(14px, 4vw, 26px)",
+            position: "relative",
+            borderRadius: "26px",
+            padding: "14px",
+            marginBottom: "16px",
             overflow: "hidden",
-            marginBottom: "clamp(10px, 2.5vw, 18px)",
-            background: "#070914",
-            border: "1px solid rgba(139,92,246,0.25)",
-            boxShadow: "0 0 32px rgba(124,58,237,0.12)",
+            background: "linear-gradient(145deg, rgba(28,32,72,0.96) 0%, rgba(43,34,97,0.92) 48%, rgba(13,25,64,0.94) 100%)",
+            border: "1px solid rgba(125, 211, 252, 0.58)",
+            boxShadow: "0 0 34px rgba(56,189,248,0.22), 0 0 42px rgba(168,85,247,0.18), inset 0 1px 0 rgba(255,255,255,0.14)",
+            backdropFilter: "blur(18px)",
           }}>
+            {/* fény/glow rétegek */}
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(circle at 54% 16%, rgba(196,181,253,0.34), transparent 30%), radial-gradient(circle at 90% 12%, rgba(34,211,238,0.18), transparent 34%), radial-gradient(circle at 10% 88%, rgba(59,130,246,0.20), transparent 36%)",
+              pointerEvents: "none",
+            }} />
+            <div style={{
+              position: "absolute",
+              inset: "1px",
+              borderRadius: "25px",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.08), transparent 44%)",
+              pointerEvents: "none",
+            }} />
+
             {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 10px" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#ffffff" }}>{t("eventStats")}</h3>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-                <polyline points="16 7 22 7 22 13"/>
-              </svg>
+            <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+              <h3 style={{
+                fontSize: "20px",
+                fontWeight: 900,
+                letterSpacing: "0.2px",
+                color: "#ffffff",
+                textShadow: "0 2px 16px rgba(0,0,0,0.35)",
+                margin: 0,
+              }}>{t("eventStats")}</h3>
+
+              <div style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(139,92,246,0.16)",
+                border: "1px solid rgba(167,139,250,0.34)",
+                boxShadow: "0 0 20px rgba(139,92,246,0.22)",
+              }}>
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                  <polyline points="16 7 22 7 22 13" />
+                </svg>
+              </div>
             </div>
 
-            {/* Scrollozható sor: 5 egyforma széles és magas kártya */}
-            <div data-swipe-ignore style={{ display: "flex", flexDirection: "row", gap: "10px", padding: "0 12px 12px", overflowX: "auto", scrollbarWidth: "none" }}>
-
-              {/* 1. Mai nap */}
+            {/* Fő stat kártya */}
+            <div style={{
+              position: "relative",
+              zIndex: 2,
+              minHeight: "110px",
+              borderRadius: "20px",
+              padding: "16px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              overflow: "hidden",
+              background: "linear-gradient(135deg, rgba(42,48,112,0.82), rgba(16,28,78,0.72))",
+              border: "1px solid rgba(167,139,250,0.55)",
+              boxShadow: "0 0 26px rgba(147,197,253,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
+            }}>
               <div style={{
-                flex: "0 0 calc(100vw - 80px)",
-                padding: "14px 18px",
-                borderRadius: "16px",
-                background: "#0d0f22",
-                border: "1px solid rgba(139,92,246,0.2)",
-                position: "relative",
-                overflow: "hidden",
-                height: "100px",
-                display: "flex", alignItems: "center",
+                position: "absolute",
+                right: "-22px",
+                top: "-34px",
+                width: "148px",
+                height: "148px",
+                borderRadius: "50%",
+                background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.44), rgba(168,85,247,0.55) 28%, rgba(37,99,235,0.28) 62%, transparent 72%)",
+                opacity: 0.52,
+                filter: "blur(0.2px)",
+              }} />
+              <div style={{
+                position: "absolute",
+                right: "-48px",
+                top: "46px",
+                width: "178px",
+                height: "38px",
+                borderRadius: "50%",
+                border: "1px solid rgba(96,165,250,0.45)",
+                transform: "rotate(-14deg)",
+                opacity: 0.5,
+              }} />
+
+              <div style={{
+                width: "62px",
+                height: "62px",
+                borderRadius: "18px",
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #22d3ee 100%)",
+                boxShadow: "0 0 28px rgba(99,102,241,0.62)",
               }}>
-                <div style={{ position: "absolute", right: "-10px", top: "-10px", width: "130px", height: "130px", backgroundImage: "url('/projects_bg.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "50%", opacity: 0.5, filter: "blur(1px)" }} />
-                <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "50%", background: "linear-gradient(to right, #0d0f22 20%, transparent 100%)", zIndex: 1 }} />
-                <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "12px", flexShrink: 0, background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", boxShadow: "0 4px 16px rgba(124,58,237,0.5)" }}>📅</div>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                      <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", lineHeight: 1 }}>{stats.today}</span>
-                    </div>
-                    <div style={{ fontSize: "15px", fontWeight: 600, color: "#ffffff", marginTop: "1px" }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "2px" }}>{t("todayLabel")}</div>
-                  </div>
-                </div>
+                <span style={{ fontSize: "28px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))" }}>🗓️</span>
               </div>
 
-              {/* 2-5. Többi stat kártya - ugyanolyan méret */}
+              <div style={{ position: "relative", zIndex: 2, minWidth: 0 }}>
+                <div style={{ fontSize: "46px", fontWeight: 950, lineHeight: 0.9, color: "#ffffff", textShadow: "0 4px 20px rgba(0,0,0,0.28)" }}>{stats.today}</div>
+                <div style={{ marginTop: "6px", fontSize: "20px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
+                <div style={{ marginTop: "6px", fontSize: "13px", fontWeight: 500, color: "rgba(226,232,240,0.76)" }}>{t("todayLabel")}</div>
+              </div>
+            </div>
+
+            {/* Elválasztó */}
+            <div style={{ position: "relative", zIndex: 2, margin: "12px 0 8px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
+
+            {/* Alsó statisztikák */}
+            <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0" }}>
               {[
-                { icon: "⚡", value: stats.week,    label: t("weekLabel"),    color: "rgba(139,92,246,0.12)", border: "rgba(139,92,246,0.25)" },
-                { icon: "🗓", value: stats.month,   label: t("monthLabel"),   color: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)"  },
-                { icon: "⭐", value: stats.year,    label: t("yearLabel"),    color: "rgba(234,179,8,0.12)",   border: "rgba(234,179,8,0.25)"   },
-                { icon: "🗂", value: stats.allTime, label: t("allTimeLabel"), color: "rgba(34,197,94,0.12)",   border: "rgba(34,197,94,0.25)"   },
-              ].map((item, i) => (
-                <div key={i} style={{
-                  flex: "0 0 calc(100vw - 80px)",
-                  padding: "14px 18px",
-                  borderRadius: "14px",
-                  background: item.color,
-                  border: `1px solid ${item.border}`,
-                  display: "flex", alignItems: "center", gap: "14px",
-                  height: "100px",
+                { icon: "calendar", value: stats.week, label: lang === "hu" ? "heti" : "weekly", color: "#38bdf8" },
+                { icon: "trend", value: stats.month, label: lang === "hu" ? "havi" : "monthly", color: "#a78bfa" },
+                { icon: "clock", value: stats.year, label: lang === "hu" ? "éves" : "yearly", color: "#3b82f6" },
+              ].map((item, index) => (
+                <div key={item.icon} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "4px 8px",
+                  borderLeft: index === 0 ? "none" : "1px solid rgba(255,255,255,0.12)",
                 }}>
-                  <span style={{ fontSize: "28px", flexShrink: 0 }}>{item.icon}</span>
+                  {item.icon === "calendar" && (
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  )}
+                  {item.icon === "trend" && (
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                      <polyline points="16 7 22 7 22 13" />
+                    </svg>
+                  )}
+                  {item.icon === "clock" && (
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                  )}
                   <div>
-                    <div style={{ fontSize: "28px", fontWeight: 700, color: "#ffffff", lineHeight: 1 }}>{item.value}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "4px", lineHeight: 1.3 }}>{item.label}</div>
+                    <div style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{item.value}</div>
+                    <div style={{ marginTop: "3px", fontSize: "10.5px", fontWeight: 600, color: "rgba(226,232,240,0.68)", lineHeight: 1 }}>{item.label}</div>
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Elválasztó */}
-            <div style={{ margin: "0 12px 10px", height: "1px", background: "rgba(255,255,255,0.07)" }} />
-
-            {/* Alsó 3 fix cella elválasztóval */}
-            <div style={{ display: "flex", padding: "0 12px 14px" }}>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px", padding: "6px 4px" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <div>
-                  <div style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff" }}>{stats.week}</div>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)" }}>{lang === "hu" ? "heti" : "weekly"}</div>
-                </div>
-              </div>
-              <div style={{ width: "1px", background: "rgba(255,255,255,0.08)", margin: "2px 0" }} />
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px", padding: "6px 10px" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-                <div>
-                  <div style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff" }}>{stats.month}</div>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)" }}>{lang === "hu" ? "havi" : "monthly"}</div>
-                </div>
-              </div>
-              <div style={{ width: "1px", background: "rgba(255,255,255,0.08)", margin: "2px 0" }} />
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "10px", padding: "6px 10px" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <div>
-                  <div style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff" }}>{stats.year}</div>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)" }}>{lang === "hu" ? "éves" : "yearly"}</div>
-                </div>
-              </div>
-            </div>
           </section>
 
-          <section className="glass-card recent">
-            <div className="section-head">
-              <span>{t("recentEvents")}</span>
-              <span onClick={() => setActiveTab(t("timelineTitle"))} style={{ cursor: "pointer" }}>{t("allEvents")}</span>
+          {/* ── LEGUTÓBBI ESEMÉNYEK – NEON KÁRTYA ── */}
+          <section style={{
+            position: "relative",
+            borderRadius: "26px",
+            padding: "16px",
+            marginBottom: "18px",
+            overflow: "hidden",
+            background: "linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.62))",
+            border: "1px solid rgba(56,189,248,0.35)",
+            boxShadow: "0 0 34px rgba(56,189,248,0.13), inset 0 1px 0 rgba(255,255,255,0.06)",
+            backdropFilter: "blur(18px)",
+          }}>
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(circle at 88% 15%, rgba(168,85,247,0.20), transparent 34%), radial-gradient(circle at 12% 90%, rgba(56,189,248,0.16), transparent 38%)",
+              pointerEvents: "none",
+            }} />
+
+            <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "19px", fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>{t("recentEvents")}</h3>
+                <p style={{ margin: "4px 0 0", fontSize: "12px", color: "rgba(226,232,240,0.58)" }}>{lang === "hu" ? "Gyors visszatekintés a legfrissebb emlékeidre." : "Quick look at your newest memories."}</p>
+              </div>
+              <button
+                onClick={() => setActiveTab(t("timelineTitle"))}
+                style={{
+                  border: "1px solid rgba(139,92,246,0.38)",
+                  background: "rgba(139,92,246,0.10)",
+                  color: "#c4b5fd",
+                  borderRadius: "999px",
+                  padding: "8px 12px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                {t("allEvents")} →
+              </button>
             </div>
 
             {recentMemories.length === 0 ? (
-              <p style={{ opacity: 0.6, fontSize: "14px", padding: "10px" }}>{t("noEvents")}</p>
+              <div style={{ position: "relative", zIndex: 1, padding: "22px", borderRadius: "20px", border: "1px dashed rgba(148,163,184,0.35)", background: "rgba(15,23,42,0.45)", color: "rgba(226,232,240,0.72)", display: "flex", alignItems: "center", gap: "14px" }}>
+                <span style={{ width: "46px", height: "46px", borderRadius: "15px", display: "grid", placeItems: "center", background: "linear-gradient(135deg, rgba(56,189,248,0.18), rgba(168,85,247,0.20))", border: "1px solid rgba(255,255,255,0.08)", fontSize: "22px" }}>📅</span>
+                <div>
+                  <strong style={{ display: "block", color: "#fff", fontSize: "15px" }}>{t("noEvents")}</strong>
+                  <span style={{ fontSize: "13px", color: "rgba(226,232,240,0.58)" }}>{lang === "hu" ? "Adj hozzá egy eseményt, hogy itt megjelenjen." : "Add an event so it appears here."}</span>
+                </div>
+              </div>
             ) : (
-              <div data-swipe-ignore className="photos" style={{ display: "flex", overflowX: "auto", gap: "12px", paddingBottom: "10px", scrollbarWidth: "none" }}>
-                {recentMemories.map((mem) => (
-                  <div className="photo" key={mem.id} onClick={() => { setScrollToEventId(mem.id); setActiveTab(t("timelineTitle")); }} style={{ minWidth: "120px", width: "120px", cursor: "pointer" }}>
-                    {(() => {
-                      let parsedUrl = "";
-                      try {
-                        if (mem.image_url && mem.image_url.startsWith("[")) {
-                          const parsed = JSON.parse(mem.image_url);
-                          const firstImg = parsed.find((p: any) => p.type?.startsWith("image/"));
-                          if (firstImg) parsedUrl = firstImg.url;
-                        } else if (mem.image_url) {
-                          parsedUrl = mem.image_url;
-                        }
-                      } catch (e) {
-                        parsedUrl = mem.image_url || "";
-                      }
+              <div data-swipe-ignore style={{ position: "relative", zIndex: 1, display: "flex", overflowX: "auto", gap: "14px", paddingBottom: "4px", scrollbarWidth: "none" }}>
+                {recentMemories.map((mem) => {
+                  let parsedUrl = "";
+                  try {
+                    if (mem.image_url && mem.image_url.startsWith("[")) {
+                      const parsed = JSON.parse(mem.image_url);
+                      const firstImg = parsed.find((p: any) => p.type?.startsWith("image/"));
+                      if (firstImg) parsedUrl = firstImg.url;
+                    } else if (mem.image_url) {
+                      parsedUrl = mem.image_url;
+                    }
+                  } catch (e) {
+                    parsedUrl = mem.image_url || "";
+                  }
 
-                      return parsedUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={parsedUrl} alt={mem.title} style={{ height: "120px", objectFit: "cover", borderRadius: "12px", width: "100%" }} />
-                      ) : (
-                        <div style={{ height: "120px", borderRadius: "12px", width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "36px" }}>
-                          {mem.category === 'photo' ? '💭' : mem.category === 'utility' ? '⚡' : '📅'}
-                        </div>
-                      );
-                    })()}
-                    <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block", marginTop: "6px" }}>{mem.title}</strong>
-                    <small>{mem.event_date}</small>
-                  </div>
-                ))}
+                  return (
+                    <button
+                      key={mem.id}
+                      onClick={() => { setScrollToEventId(mem.id); setActiveTab(t("timelineTitle")); }}
+                      style={{
+                        flex: "0 0 138px",
+                        minHeight: "176px",
+                        borderRadius: "22px",
+                        padding: "10px",
+                        border: "1px solid rgba(148,163,184,0.24)",
+                        background: "linear-gradient(160deg, rgba(30,41,59,0.74), rgba(15,23,42,0.48))",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+                        color: "white",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div style={{
+                        height: "105px",
+                        borderRadius: "18px",
+                        overflow: "hidden",
+                        border: "1px solid rgba(255,255,255,0.12)",
+                        background: "radial-gradient(circle at 50% 20%, rgba(139,92,246,0.35), rgba(15,23,42,0.82))",
+                        display: "grid",
+                        placeItems: "center",
+                      }}>
+                        {parsedUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={parsedUrl} alt={mem.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          <span style={{ fontSize: "28px", filter: "drop-shadow(0 0 14px rgba(139,92,246,0.45))" }}>
+                            {mem.category === "photo" ? "🖼️" : mem.category === "utility" ? "⚡" : "📅"}
+                          </span>
+                        )}
+                      </div>
+                      <strong style={{ display: "block", marginTop: "10px", fontSize: "14px", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mem.title}</strong>
+                      <small style={{ display: "block", marginTop: "4px", color: "rgba(226,232,240,0.55)", fontSize: "11px" }}>{mem.event_date}</small>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>
 
-          {/* ── AKTÍV PROJEKTEK KÁRTYA ── */}
+          {/* ── AKTÍV PROJEKTEK – BOLYGÓS NEON KÁRTYA ── */}
           <section style={{
             position: "relative",
-            borderRadius: "clamp(14px, 4vw, 26px)",
+            borderRadius: "26px",
             overflow: "hidden",
+            minHeight: "190px",
             marginBottom: "24px",
-            marginTop: "8px",
-            minHeight: "180px",
-            boxShadow: "0 14px 35px rgba(0,0,0,0.3)",
+            padding: "18px",
+            border: "1px solid rgba(168,85,247,0.42)",
+            background: "linear-gradient(145deg, rgba(12,18,35,0.92), rgba(24,16,57,0.78))",
+            boxShadow: "0 0 38px rgba(168,85,247,0.16), inset 0 1px 0 rgba(255,255,255,0.06)",
+            backdropFilter: "blur(18px)",
           }}>
-            {/* Háttérkép */}
             <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: "url('/projects_bg.png')",
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "linear-gradient(90deg, rgba(10,15,30,0.94) 0%, rgba(10,15,30,0.70) 48%, rgba(10,15,30,0.20) 100%), url('/projects_bg.png')",
               backgroundSize: "cover",
               backgroundPosition: "center",
-              zIndex: 0,
+              opacity: 0.95,
+              pointerEvents: "none",
             }} />
-            {/* Sötétítő */}
             <div style={{
-              position: "absolute", inset: 0,
-              background: "linear-gradient(135deg, rgba(10,8,40,0.75) 0%, rgba(30,15,60,0.5) 100%)",
-              zIndex: 1,
+              position: "absolute",
+              right: "-24px",
+              bottom: "-26px",
+              width: "170px",
+              height: "170px",
+              borderRadius: "50%",
+              background: "radial-gradient(circle at 35% 30%, rgba(216,180,254,0.95), rgba(124,58,237,0.70) 38%, rgba(37,99,235,0.28) 70%, transparent 72%)",
+              filter: "blur(0.2px)",
+              boxShadow: "0 0 45px rgba(168,85,247,0.32)",
+              pointerEvents: "none",
+            }} />
+            <div style={{
+              position: "absolute",
+              right: "-36px",
+              bottom: "52px",
+              width: "220px",
+              height: "58px",
+              border: "2px solid rgba(139,92,246,0.45)",
+              borderRadius: "50%",
+              transform: "rotate(-13deg)",
+              pointerEvents: "none",
             }} />
 
-            {/* Tartalom */}
-            <div style={{ position: "relative", zIndex: 2, padding: "clamp(14px, 4vw, 20px)" }}>
-              {/* Header */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>
-                  {t("activeProjects")}
-                </h2>
-                <span onClick={() => setActiveTab("Vault")} style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
-                  {t("allEvents")}
-                </span>
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{t("activeProjects")}</h2>
+                  <p style={{ margin: "5px 0 0", fontSize: "12px", color: "rgba(226,232,240,0.58)" }}>{lang === "hu" ? "A fontos dolgaid egy helyen, gyors eléréssel." : "Your important things in one place."}</p>
+                </div>
+                <button
+                  onClick={() => setActiveTab("Vault")}
+                  style={{
+                    border: "1px solid rgba(56,189,248,0.34)",
+                    background: "rgba(56,189,248,0.10)",
+                    color: "#7dd3fc",
+                    borderRadius: "999px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  {t("allEvents")} →
+                </button>
               </div>
 
-              {/* Projektek vagy üres állapot */}
               {vaultFolders.length === 0 ? (
-                <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px", lineHeight: 1.5, maxWidth: "260px" }}>
+                <div style={{ marginTop: "20px", maxWidth: "270px", color: "rgba(226,232,240,0.76)", fontSize: "15px", lineHeight: 1.55 }}>
+                  <div style={{ width: "54px", height: "54px", borderRadius: "18px", border: "1px dashed rgba(196,181,253,0.48)", display: "grid", placeItems: "center", marginBottom: "12px", color: "#a78bfa", background: "rgba(139,92,246,0.10)" }}>⌁</div>
                   {t("noProjects")}
-                </p>
+                </div>
               ) : (
-                <div data-swipe-ignore style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
+                <div data-swipe-ignore style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none", maxWidth: "100%" }}>
                   {vaultFolders.map((folder) => (
-                    <div key={folder.id}
+                    <button
+                      key={folder.id}
                       onClick={() => { setActiveTab("Vault"); handleOpenFolder(folder); }}
                       style={{
-                        flex: "0 0 100px",
+                        flex: "0 0 126px",
+                        minHeight: "118px",
                         padding: "14px",
-                        borderRadius: "18px",
-                        background: "rgba(255,255,255,0.08)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        backdropFilter: "blur(10px)",
-                        display: "flex", flexDirection: "column", gap: "10px",
+                        borderRadius: "20px",
+                        background: "linear-gradient(160deg, rgba(30,41,59,0.78), rgba(15,23,42,0.52))",
+                        border: "1px solid rgba(255,255,255,0.14)",
+                        color: "white",
+                        textAlign: "left",
                         cursor: "pointer",
-                      }}>
-                      <div style={{ width: "38px", height: "38px", borderRadius: "12px", background: `linear-gradient(135deg, ${folder.color_hex || '#7E7BFF'}cc, ${folder.color_hex || '#9B7BFF'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-                        {folder.icon || '📁'}
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07)",
+                      }}
+                    >
+                      <div style={{ width: "42px", height: "42px", borderRadius: "15px", background: `linear-gradient(135deg, ${folder.color_hex || '#38bdf8'}cc, #a855f7)`, display: "grid", placeItems: "center", fontSize: "22px", boxShadow: "0 0 20px rgba(139,92,246,0.22)" }}>
+                        {folder.icon || "📁"}
                       </div>
-                      <div>
-                        <h3 style={{ fontSize: "13px", fontWeight: 600, color: "white", lineHeight: 1.2 }}>{folder.name}</h3>
-                        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.55)", marginTop: "2px" }}>{t("open")}</p>
-                      </div>
-                    </div>
+                      <strong style={{ display: "block", marginTop: "12px", fontSize: "13px", lineHeight: 1.25, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{folder.name}</strong>
+                      <span style={{ display: "block", marginTop: "3px", fontSize: "11px", color: "rgba(226,232,240,0.55)" }}>{t("open")}</span>
+                    </button>
                   ))}
                 </div>
               )}
@@ -1725,34 +1905,34 @@ export default function Home() {
       )}
 
       {activeTab === "Timeline" && (
-        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 100px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px", overscrollBehavior: "contain" }}>
-          <div style={{ padding: "0 4px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <h2 style={{ fontSize: "28px", fontWeight: 650 }}>{t("timelineTitle")}</h2>
+        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 100px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "26px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "18px", overscrollBehavior: "contain", background: "radial-gradient(circle at 78% 12%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 6% 58%, rgba(56,189,248,0.12), transparent 34%)" }}>
+          <div style={{ padding: "2px 4px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+              <h2 style={{ fontSize: "32px", fontWeight: 900, letterSpacing: "-0.04em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.26)" }}>{t("timelineTitle")}</h2>
               {events.length > 0 && (
                 <button
                   onClick={() => setShowDeleteAllConfirm(true)}
-                  style={{ fontSize: "12px", padding: "6px 12px", borderRadius: "20px", border: "1px solid rgba(255,1,1,0.5)", background: "rgba(255,1,1,0.2)", color: "#FF0101", cursor: "pointer", fontWeight: 600 }}
+                  style={{ fontSize: "12px", padding: "8px 13px", borderRadius: "18px", border: "1px solid rgba(244,63,94,0.55)", background: "linear-gradient(145deg, rgba(244,63,94,0.16), rgba(15,23,42,0.52))", color: "#fb7185", cursor: "pointer", fontWeight: 800, boxShadow: "0 0 18px rgba(244,63,94,0.12)", backdropFilter: "blur(12px)" }}
                 >
                   🗑️ Összes törlése
                 </button>
               )}
             </div>
-            <p style={{ opacity: 0.75, fontSize: "15px" }}>{t("timelineSubtitle")}</p>
+            <p style={{ opacity: 0.78, fontSize: "15px", color: "rgba(226,232,240,0.78)", lineHeight: 1.45 }}>{t("timelineSubtitle")}</p>
           </div>
 
-          <div style={{ position: "relative", paddingLeft: "8px", marginTop: "10px" }}>
+          <div style={{ position: "relative", paddingLeft: "6px", marginTop: "6px" }}>
              {/* Függőleges vonal */}
-             <div style={{ position: "absolute", left: "20px", top: 0, bottom: "100px", width: "2px", background: "rgba(255, 255, 255, 0.15)", borderRadius: "2px" }}></div>
+             <div style={{ position: "absolute", left: "20px", top: "10px", bottom: "100px", width: "2px", background: "linear-gradient(to bottom, rgba(56,189,248,0.7), rgba(139,92,246,0.55), rgba(139,92,246,0.05))", borderRadius: "2px", boxShadow: "0 0 16px rgba(56,189,248,0.35)" }}></div>
              
              {events.length === 0 && (
-                <p style={{ opacity: 0.6, fontSize: "14px", marginLeft: "40px", marginTop: "20px" }}>{t("noTimeline")}</p>
+                <div style={{ marginLeft: "42px", marginTop: "18px", padding: "18px", borderRadius: "22px", border: "1px solid rgba(139,92,246,0.35)", background: "linear-gradient(145deg, rgba(15,23,42,0.78), rgba(30,41,59,0.46))", color: "rgba(226,232,240,0.72)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>{t("noTimeline")}</div>
              )}
 
              {events.map((event) => (
                /* eslint-disable-next-line react/no-unknown-property */
                <div key={event.id} id={`event-${event.id}`} style={{ display: "flex", gap: "14px", marginBottom: "24px", position: "relative" }}>
-                 <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: "linear-gradient(135deg, #ffb74d, #ff7043)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", zIndex: 2, flexShrink: 0, marginTop: "12px", boxShadow: "0 0 10px rgba(255, 112, 67, 0.4)" }}>
+                 <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "linear-gradient(135deg, #38bdf8, #8b5cf6 55%, #c026d3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", zIndex: 2, flexShrink: 0, marginTop: "18px", boxShadow: "0 0 0 5px rgba(15,23,42,0.75), 0 0 22px rgba(56,189,248,0.45)" }}>
                    {event.category === 'event' ? '🎂' : event.category === 'utility' ? '⚡' : '🏔'}
                  </div>
                  
@@ -1764,15 +1944,15 @@ export default function Home() {
                      }
                      setExpandedEvents(prev => ({ ...prev, [event.id]: !prev[event.id] }));
                    }}
-                   style={{ flex: 1, padding: "16px", borderRadius: "20px", position: "relative", cursor: "pointer", transition: "all 0.3s ease", border: expandedEvents[event.id] ? "1px solid rgba(255, 152, 0, 0.4)" : "1px solid var(--card-border)" }}
+                   style={{ flex: 1, padding: "18px", borderRadius: "24px", position: "relative", cursor: "pointer", transition: "all 0.3s ease", background: expandedEvents[event.id] ? "linear-gradient(145deg, rgba(15,23,42,0.94), rgba(49,46,129,0.48))" : "linear-gradient(145deg, rgba(15,23,42,0.86), rgba(30,41,59,0.48))", border: expandedEvents[event.id] ? "1px solid rgba(139,92,246,0.68)" : "1px solid rgba(148,163,184,0.22)", boxShadow: expandedEvents[event.id] ? "0 0 0 1px rgba(56,189,248,0.15), 0 20px 42px rgba(0,0,0,0.34), 0 0 28px rgba(139,92,246,0.22)" : "0 16px 34px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05)", backdropFilter: "blur(16px)" }}
                  >
-                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                       <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>
+                       <span style={{ fontSize: "12px", color: "rgba(186,230,253,0.86)", fontWeight: 800, letterSpacing: "0.02em" }}>
                          {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}
                        </span>
                        {event.recurring_type && (
-                         <span style={{ fontSize: "10px", background: "rgba(0,212,255,0.2)", border: "1px solid rgba(0,212,255,0.5)", borderRadius: "10px", padding: "1px 7px", color: "#00D4FF", fontWeight: 600 }}>
+                         <span style={{ fontSize: "10px", background: "rgba(56,189,248,0.14)", border: "1px solid rgba(56,189,248,0.45)", borderRadius: "999px", padding: "3px 8px", color: "#67e8f9", fontWeight: 800, boxShadow: "0 0 12px rgba(56,189,248,0.12)" }}>
                            🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}
                          </span>
                        )}
@@ -1783,14 +1963,14 @@ export default function Home() {
                          e.stopPropagation();
                          setActiveMenuId(activeMenuId === event.id ? null : event.id);
                        }} 
-                       style={{ opacity: 0.7, cursor: "pointer", padding: "0 8px", fontSize: "16px", letterSpacing: "1px" }}
+                       style={{ opacity: 0.88, cursor: "pointer", padding: "2px 8px", fontSize: "18px", letterSpacing: "2px", color: "rgba(226,232,240,0.8)" }}
                      >
                        •••
                      </span>
                    </div>
 
                    {activeMenuId === event.id && (
-                     <div className="options-menu" style={{ position: "absolute", right: "16px", top: "40px", background: "rgba(30,30,30,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", padding: "6px", zIndex: 10, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", backdropFilter: "blur(10px)", display: "flex", flexDirection: "column", gap: "4px" }}>
+                     <div className="options-menu" style={{ position: "absolute", right: "16px", top: "44px", background: "rgba(2,6,23,0.94)", border: "1px solid rgba(139,92,246,0.32)", borderRadius: "16px", padding: "7px", zIndex: 10, boxShadow: "0 14px 30px rgba(0,0,0,0.45), 0 0 22px rgba(139,92,246,0.16)", backdropFilter: "blur(14px)", display: "flex", flexDirection: "column", gap: "5px" }}>
                         <button onClick={(e) => { e.stopPropagation(); handleEditEvent(event); }} style={{ background: "transparent", border: "1px solid transparent", color: "white", fontSize: "14px", fontWeight: 500, cursor: "pointer", padding: "8px 16px", borderRadius: "8px", width: "100%", textAlign: "center", transition: "all 0.2s" }}>
                           Módosítás
                         </button>
@@ -1800,7 +1980,7 @@ export default function Home() {
                      </div>
                    )}
                    
-                   <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: expandedEvents[event.id] ? "6px" : "0" }}>
+                   <h3 style={{ fontSize: "19px", fontWeight: 850, marginBottom: expandedEvents[event.id] ? "8px" : "0", color: "#fff", letterSpacing: "-0.02em", textShadow: "0 0 18px rgba(96,165,250,0.14)" }}>
                      <span>{event.title}</span>
                    </h3>
 
@@ -1830,13 +2010,13 @@ export default function Home() {
                          if (docs > 0) parts.push(`📄 ${docs} dokumentum`);
                          
                          return (
-                           <span style={{ fontSize: "11px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", padding: "4px 8px", borderRadius: "10px", alignSelf: "flex-start", opacity: 0.8, display: "flex", alignItems: "center", gap: "4px" }}>
+                           <span style={{ fontSize: "11px", background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.18)", padding: "5px 9px", borderRadius: "999px", alignSelf: "flex-start", color: "rgba(186,230,253,0.9)", display: "flex", alignItems: "center", gap: "4px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                              📎 {parts.join(" • ")}
                            </span>
                          );
                        })()}
                        {event.description && (
-                         <span style={{ fontSize: "13px", opacity: 0.5, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
+                         <span style={{ fontSize: "13px", color: "rgba(203,213,225,0.62)", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
                            {event.description}
                          </span>
                        )}
@@ -1846,7 +2026,7 @@ export default function Home() {
                    {expandedEvents[event.id] && (
                      <div style={{ marginTop: "12px", animation: "fade-in 0.2s ease-out" }} onClick={(e) => e.stopPropagation()}>
                        {event.description && (
-                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{event.description}</p>
+                         <p style={{ fontSize: "14px", color: "rgba(226,232,240,0.82)", lineHeight: 1.5, marginBottom: "10px" }}>{event.description}</p>
                        )}
 
                        {(() => {
@@ -1875,7 +2055,7 @@ export default function Home() {
                               {images.length > 0 && (
                                 <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
                                   {images.map((img, idx) => (
-                                    <a key={idx} href={img.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", flexShrink: 0, width: images.length === 1 ? "100%" : "120px", height: images.length === 1 ? "160px" : "100px", borderRadius: "14px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+                                    <a key={idx} href={img.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", flexShrink: 0, width: images.length === 1 ? "100%" : "120px", height: images.length === 1 ? "160px" : "100px", borderRadius: "16px", overflow: "hidden", border: "1px solid rgba(139,92,246,0.35)", boxShadow: "0 12px 24px rgba(0,0,0,0.25)" }}>
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
                                       <img src={img.url} alt={img.name || "Kép"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                     </a>
@@ -1887,7 +2067,7 @@ export default function Home() {
                               {audios.length > 0 && (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   {audios.map((audio, idx) => (
-                                    <div key={idx} style={{ background: "rgba(255,255,255,0.06)", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                                    <div key={idx} style={{ background: "rgba(15,23,42,0.7)", padding: "12px 14px", borderRadius: "16px", border: "1px solid rgba(139,92,246,0.22)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                                       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                                         <span style={{ fontSize: "16px" }}>🎙️</span>
                                         <span style={{ fontSize: "13px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{audio.name || "Hangfelvétel"}</span>
@@ -1902,7 +2082,7 @@ export default function Home() {
                               {docs.length > 0 && (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                                   {docs.map((doc, idx) => (
-                                    <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", color: "white", textDecoration: "none", fontSize: "13px", fontWeight: 500, transition: "background 0.2s" }} className="doc-pill">
+                                    <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(15,23,42,0.72)", padding: "11px 14px", borderRadius: "14px", border: "1px solid rgba(139,92,246,0.24)", color: "white", textDecoration: "none", fontSize: "13px", fontWeight: 600, transition: "background 0.2s", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }} className="doc-pill">
                                       <span style={{ fontSize: "16px" }}>📄</span>
                                       <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{doc.name || (lang === "hu" ? "Dokumentum" : "Document")}</span>
                                       <span style={{ fontSize: "12px", opacity: 0.5 }}>{t("openDoc")}</span>
@@ -1923,28 +2103,28 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
-          <div style={{ padding: "0 4px", marginBottom: "16px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
+        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", overscrollBehavior: "contain", background: "radial-gradient(circle at 75% 18%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 8% 58%, rgba(56,189,248,0.12), transparent 32%)" }}>
+          <div style={{ padding: "2px 4px 0", marginBottom: "18px" }}>
+            <h2 style={{ fontSize: "30px", fontWeight: 850, marginBottom: "6px", letterSpacing: "-0.03em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.25)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
           </div>
 
           {addViewMode === "form" ? (
-          <div className="glass-card" style={{ padding: "20px" }}>
+          <div className="glass-card" style={{ padding: "22px", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("titleLabel")}</label>
-                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
+                <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("titleLabel")}</label>
+                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", fontSize: "15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} />
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <div>
-                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("dateLabel")}</label>
-                  <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
+                  <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("dateLabel")}</label>
+                  <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("categoryLabel")}</label>
-                  <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", appearance: "none", fontSize: "15px" }}>
+                  <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("categoryLabel")}</label>
+                  <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", appearance: "none", fontSize: "15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
                     <option value="event" style={{color: "black"}}>{t("categoryEvent")}</option>
                     <option value="utility" style={{color: "black"}}>{t("categoryUtility")}</option>
                     <option value="photo" style={{color: "black"}}>{t("categoryPhoto")}</option>
@@ -1958,17 +2138,17 @@ export default function Home() {
                   <div style={{ marginBottom: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
                       <label style={{ fontSize: "13.5px", fontWeight: 600, opacity: 0.9 }}>🔁 Ismétlődő esemény</label>
-                      <div onClick={() => setIsRecurring(!isRecurring)} style={{ width: "44px", height: "24px", borderRadius: "12px", background: isRecurring ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.15)", cursor: "pointer", position: "relative", transition: "all 0.3s ease" }}>
+                      <div onClick={() => setIsRecurring(!isRecurring)} style={{ width: "44px", height: "24px", borderRadius: "12px", background: isRecurring ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.15)", cursor: "pointer", position: "relative", transition: "all 0.3s ease" }}>
                         <div style={{ position: "absolute", top: "3px", left: isRecurring ? "23px" : "3px", width: "18px", height: "18px", borderRadius: "50%", background: "white", transition: "left 0.3s ease", boxShadow: "0 2px 4px rgba(0,0,0,0.3)" }} />
                       </div>
                     </div>
                     {isRecurring && (
-                      <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: "16px", padding: "14px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <div style={{ background: "linear-gradient(145deg, rgba(15,23,42,0.78), rgba(30,41,59,0.42))", borderRadius: "18px", padding: "14px", border: "1px solid rgba(139,92,246,0.28)", display: "flex", flexDirection: "column", gap: "12px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
                         <div>
                           <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>{t("howOften")}</label>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                             {[{ value: "daily", label: t("daily") }, { value: "weekly", label: t("weekly") }, { value: "biweekly", label: t("biweekly") }, { value: "monthly", label: t("monthly") }, { value: "yearly", label: t("yearly") }].map(opt => (
-                              <button key={opt.value} type="button" onClick={() => setRecurringType(opt.value as any)} style={{ padding: "6px 12px", borderRadius: "20px", border: "none", fontSize: "12px", fontWeight: 600, cursor: "pointer", background: recurringType === opt.value ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
+                              <button key={opt.value} type="button" onClick={() => setRecurringType(opt.value as any)} style={{ padding: "6px 12px", borderRadius: "20px", border: "none", fontSize: "12px", fontWeight: 600, cursor: "pointer", background: recurringType === opt.value ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                 {opt.label}
                               </button>
                             ))}
@@ -1979,7 +2159,7 @@ export default function Home() {
                             <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>{t("whichDays")}</label>
                             <div style={{ display: "flex", gap: "6px" }}>
                               {lang === "hu" ? ["H", "K", "Sz", "Cs", "P", "Szo", "V"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day, idx) => (
-                                <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
+                                <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                   {day}
                                 </button>
                               ))}
@@ -1994,13 +2174,13 @@ export default function Home() {
                   </div>
                 )}
 
-                <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>{t("notesLabel")}</label>
-                <textarea rows={3} value={newEventDesc} onChange={e => setNewEventDesc(e.target.value)} placeholder={t("notesPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", resize: "none", fontSize: "15px" }}></textarea>
+                <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("notesLabel")}</label>
+                <textarea rows={3} value={newEventDesc} onChange={e => setNewEventDesc(e.target.value)} placeholder={t("notesPlaceholder")} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", resize: "none", fontSize: "15px", minHeight: "92px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}></textarea>
               </div>
 
               {/* MEGLÉVŐ CSATOLMÁNYOK (ha szerkesztés van) */}
               {existingAttachments.length > 0 && (
-                <div style={{ marginTop: "6px", background: "rgba(0,0,0,0.15)", padding: "12px", borderRadius: "16px", border: "1px dashed rgba(255,255,255,0.15)" }}>
+                <div style={{ marginTop: "6px", background: "rgba(8,15,28,0.58)", padding: "12px", borderRadius: "18px", border: "1px dashed rgba(139,92,246,0.32)" }}>
                   <label style={{ fontSize: "12.5px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "8px" }}>{t("currentAttachments")}</label>
                   
                   {/* Meglévő képek */}
@@ -2049,12 +2229,12 @@ export default function Home() {
               )}
 
               {/* MÉDIA SZEKCIÓ - összecsukható */}
-              <div style={{ marginTop: "8px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
-                <button type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: showMediaSection ? "rgba(255,112,67,0.15)" : "transparent", border: "none", color: showMediaSection ? "#ff7043" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
+              <div style={{ marginTop: "8px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.36))", borderRadius: "18px", border: "1px solid rgba(139,92,246,0.26)", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <button type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: showMediaSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showMediaSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📎</span> Mellékletek
                     {(newEventImages.length + newEventDocs.length + newEventAudios.length) > 0 && (
-                      <span style={{ background: "#ff7043", color: "white", borderRadius: "20px", padding: "1px 8px", fontSize: "11px" }}>
+                      <span style={{ background: "#a78bfa", color: "white", borderRadius: "20px", padding: "1px 8px", fontSize: "11px" }}>
                         {newEventImages.length + newEventDocs.length + newEventAudios.length}
                       </span>
                     )}
@@ -2089,7 +2269,7 @@ export default function Home() {
                   </div>
                 )}
                 
-                <button type="button" onClick={() => eventImageInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
+                <button type="button" onClick={() => eventImageInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(15,23,42,0.78)", borderRadius: "16px", color: "rgba(226,232,240,0.96)", border: "1px dashed rgba(139,92,246,0.38)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
                   <span>📸</span> {newEventImages.length > 0 ? t("addMoreImages") : t("attachImage")}
                 </button>
               </div>
@@ -2119,7 +2299,7 @@ export default function Home() {
                   </div>
                 )}
                 
-                <button type="button" onClick={() => eventDocInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
+                <button type="button" onClick={() => eventDocInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(15,23,42,0.78)", borderRadius: "16px", color: "rgba(226,232,240,0.96)", border: "1px dashed rgba(139,92,246,0.38)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
                   <span>📄</span> {newEventDocs.length > 0 ? t("addMoreDocs") : t("attachDoc")}
                 </button>
               </div>
@@ -2163,10 +2343,10 @@ export default function Home() {
 
                 {!isRecording && (
                   <div style={{ display: "flex", gap: "8px" }}>
-                    <button type="button" onClick={() => startRecording("event")} style={{ flex: 1, padding: "10px", background: "rgba(255, 112, 67, 0.15)", borderRadius: "12px", color: "#ff7043", border: "1px dashed #ff7043", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 600, cursor: "pointer" }}>
+                    <button type="button" onClick={() => startRecording("event")} style={{ flex: 1, padding: "10px", background: "rgba(139,92,246,0.15)", borderRadius: "12px", color: "#a78bfa", border: "1px dashed #a78bfa", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 600, cursor: "pointer" }}>
                       <span>🎙️</span> Hangjegyzet
                     </button>
-                    <button type="button" onClick={() => eventAudioInputRef.current?.click()} style={{ flex: 1, padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
+                    <button type="button" onClick={() => eventAudioInputRef.current?.click()} style={{ flex: 1, padding: "10px", background: "rgba(15,23,42,0.78)", borderRadius: "16px", color: "rgba(226,232,240,0.96)", border: "1px dashed rgba(139,92,246,0.38)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
                       <span>📂</span> Hangfájl
                     </button>
                   </div>
@@ -2179,8 +2359,8 @@ export default function Home() {
               </div>
 
                             {/* EMAIL SZEKCIÓ - összecsukható */}
-              <div style={{ marginTop: "8px", background: "rgba(255,255,255,0.05)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden" }}>
-                <button type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(255,112,67,0.15)" : "transparent", border: "none", color: showEmailSection ? "#ff7043" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
+              <div style={{ marginTop: "8px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.36))", borderRadius: "18px", border: "1px solid rgba(139,92,246,0.26)", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <button type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📧</span> Email értesítés
                   </span>
@@ -2194,15 +2374,15 @@ export default function Home() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
-                    <input type="checkbox" checked={emailNotifyNow} onChange={e => setEmailNotifyNow(e.target.checked)} style={{ accentColor: "#ff7043", width: "18px", height: "18px" }} />
+                    <input type="checkbox" checked={emailNotifyNow} onChange={e => setEmailNotifyNow(e.target.checked)} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
                     Azonnali értesítő email
                   </label>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
-                    <input type="checkbox" checked={emailNotify1Day} onChange={e => setEmailNotify1Day(e.target.checked)} style={{ accentColor: "#ff7043", width: "18px", height: "18px" }} />
+                    <input type="checkbox" checked={emailNotify1Day} onChange={e => setEmailNotify1Day(e.target.checked)} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
                     Emlékeztető 1 nappal előtte
                   </label>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
-                    <input type="checkbox" checked={emailNotifyCustom} onChange={e => setEmailNotifyCustom(e.target.checked)} style={{ accentColor: "#ff7043", width: "18px", height: "18px" }} />
+                    <input type="checkbox" checked={emailNotifyCustom} onChange={e => setEmailNotifyCustom(e.target.checked)} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
                     Dátum és idő szerint
                   </label>
                   {emailNotifyCustom && (
@@ -2227,9 +2407,9 @@ export default function Home() {
 
               <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
                 {editingEventId && (
-                  <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "var(--input-bg)", border: "1px solid var(--input-border)", borderRadius: "18px", color: "var(--text-color)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
+                  <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "rgba(15,23,42,0.82)", border: "1px solid rgba(148,163,184,0.28)", borderRadius: "20px", color: "rgba(226,232,240,0.96)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
                 )}
-                <button type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "18px", color: "white", fontWeight: 600, boxShadow: "0 6px 20px rgba(255, 112, 67, 0.4)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
+                <button type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
                   {isUploading ? t("uploading") : (editingEventId ? t("saveChanges") : t("save"))}
                 </button>
               </div>
@@ -2399,7 +2579,7 @@ export default function Home() {
                     background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
                     color: "#ffffff", fontSize: "16px", fontWeight: 600,
                     display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                    cursor: "pointer", marginBottom: "14px",
+                    cursor: "pointer", marginBottom: "10px",
                     boxShadow: "0 4px 20px rgba(99,102,241,0.4)",
                   }}
                 >
@@ -2458,466 +2638,215 @@ export default function Home() {
       )}
 
       {activeTab === "Profile" && (
-        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
-          <div style={{ padding: "0 4px", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{t("profileTitle")}</h2>
-            <p style={{ opacity: 0.75, fontSize: "15px" }}>{t("profileSubtitle")}</p>
+        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+          <div style={{ padding: "2px 8px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+              <h2 style={{ fontSize: "38px", fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 10px 35px rgba(255,255,255,0.12)" }}>{t("profileTitle")}</h2>
+              <p style={{ color: "rgba(226,232,240,0.7)", fontSize: "16px", marginTop: "8px" }}>{t("profileSubtitle")}</p>
+            </div>
+            <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "linear-gradient(145deg, rgba(15,23,42,0.92), rgba(30,41,59,0.65))", border: "1px solid rgba(148,163,184,0.22)", boxShadow: "0 0 25px rgba(139,92,246,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "23px" }}>👤</div>
           </div>
 
-          <div className="glass-card" style={{ padding: "24px", borderRadius: "24px", display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "24px" }}>
+          <div style={{ position: "relative", padding: "24px", borderRadius: "28px", marginBottom: "26px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.86))", border: "1px solid rgba(76,169,255,0.72)", boxShadow: "0 0 0 1px rgba(168,85,247,0.35), 0 24px 70px rgba(0,0,0,0.36), inset 0 0 42px rgba(59,130,246,0.08)" }}>
+            <div style={{ position: "absolute", right: "-42px", bottom: "-58px", width: "190px", height: "190px", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.16), transparent 68%)" }} />
+            <div style={{ position: "absolute", right: "18px", bottom: "10px", fontSize: "180px", lineHeight: 1, color: "rgba(255,255,255,0.025)", fontWeight: 900 }}>S</div>
+
             {isEditingProfile ? (
-              <form onSubmit={handleUpdateProfile} style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center", width: "100%" }}>
+              <form onSubmit={handleUpdateProfile} style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", width: "100%" }}>
                 <input type="file" accept="image/*" ref={profileFileInputRef} hidden onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setEditProfileFile(e.target.files[0]);
                     setEditProfilePreview(URL.createObjectURL(e.target.files[0]));
                   }
                 }} />
-                
-                <div onClick={() => profileFileInputRef.current?.click()} style={{ width: "80px", height: "80px", borderRadius: "50%", background: editProfilePreview ? "transparent" : "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", cursor: "pointer", border: "2px dashed rgba(255,255,255,0.4)", overflow: "hidden" }}>
-                  {editProfilePreview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={editProfilePreview} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : "📷"}
+                <div onClick={() => profileFileInputRef.current?.click()} style={{ position: "relative", width: "114px", height: "114px", borderRadius: "50%", padding: "4px", cursor: "pointer", background: "linear-gradient(135deg, #38bdf8, #8b5cf6, #e879f9)", boxShadow: "0 0 32px rgba(99,102,241,0.45)" }}>
+                  <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "rgba(15,23,42,0.9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "30px" }}>
+                    {editProfilePreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={editProfilePreview} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : "📷"}
+                  </div>
+                  <span style={{ position: "absolute", right: "0", bottom: "2px", width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(135deg, #2563eb, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", boxShadow: "0 10px 24px rgba(0,0,0,0.35)" }}>✎</span>
                 </div>
-                <small style={{ opacity: 0.6 }}>{t("clickToChange")}</small>
-
-                <input type="text" value={editProfileName} onChange={e => setEditProfileName(e.target.value)} placeholder={t("fullName")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", marginTop: "10px" }} />
-                
-                <input type="password" value={editProfilePassword} onChange={e => setEditProfilePassword(e.target.value)} placeholder={t("newPassword")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none" }} />
-
-                <div style={{ display: "flex", gap: "10px", width: "100%", marginTop: "10px" }}>
-                  <button type="button" onClick={() => setIsEditingProfile(false)} style={{ flex: 1, padding: "12px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600 }}>{t("cancel")}</button>
-                  <button type="submit" disabled={isUpdatingProfile} style={{ flex: 1, padding: "12px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, opacity: isUpdatingProfile ? 0.7 : 1 }}>{isUpdatingProfile ? "Mentés..." : t("save")}</button>
+                <small style={{ color: "rgba(226,232,240,0.62)" }}>{t("clickToChange")}</small>
+                <input type="text" value={editProfileName} onChange={e => setEditProfileName(e.target.value)} placeholder={t("fullName")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "15px 16px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
+                <input type="password" value={editProfilePassword} onChange={e => setEditProfilePassword(e.target.value)} placeholder={t("newPassword")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "15px 16px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", width: "100%", marginTop: "4px" }}>
+                  <button type="button" onClick={() => setIsEditingProfile(false)} style={{ padding: "15px", background: "rgba(15,23,42,0.65)", border: "1px solid rgba(148,163,184,0.28)", borderRadius: "17px", color: "white", fontWeight: 800, cursor: "pointer" }}>{t("cancel")}</button>
+                  <button type="submit" disabled={isUpdatingProfile} style={{ padding: "15px", background: "linear-gradient(135deg, #38bdf8, #7c3aed, #c026d3)", border: "none", borderRadius: "17px", color: "white", fontWeight: 900, cursor: "pointer", boxShadow: "0 12px 32px rgba(124,58,237,0.35)", opacity: isUpdatingProfile ? 0.7 : 1 }}>{isUpdatingProfile ? "Mentés..." : t("save")}</button>
                 </div>
               </form>
             ) : (
-              <>
-                <div style={{ margin: "0 auto 16px", width: "80px", height: "80px", borderRadius: "50%", background: avatarUrl ? "transparent" : "linear-gradient(135deg, #ffb74d, #ff7043)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "36px", boxShadow: "0 8px 24px rgba(255, 112, 67, 0.4)", overflow: "hidden" }}>
-                  {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : "👤"}
+              <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "112px 1fr", alignItems: "center", gap: "22px" }}>
+                <div style={{ position: "relative", width: "112px", height: "112px", borderRadius: "50%", padding: "4px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6, #f8fafc)", boxShadow: "0 0 36px rgba(59,130,246,0.5)" }}>
+                  <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: avatarUrl ? "transparent" : "linear-gradient(135deg, #facc15, #fb923c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "42px" }}>
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : "👤"}
+                  </div>
+                  <button onClick={openEditProfile} style={{ position: "absolute", right: "-6px", bottom: "-4px", width: "58px", height: "58px", borderRadius: "50%", border: "1px solid rgba(168,85,247,0.65)", background: "linear-gradient(135deg, rgba(59,130,246,0.95), rgba(147,51,234,0.95))", color: "white", boxShadow: "0 12px 28px rgba(0,0,0,0.45)", cursor: "pointer" }}>✎</button>
                 </div>
-                <h3 style={{ fontSize: "22px", fontWeight: 600, marginBottom: "4px" }}>{formattedName}</h3>
-                <p style={{ fontSize: "14px", opacity: 0.7 }}>{session?.user?.email}</p>
-                
-                <button onClick={openEditProfile} style={{ marginTop: "18px", padding: "12px 24px", background: "var(--input-bg)", borderRadius: "16px", border: "1px solid var(--input-border)", color: "var(--text-color)", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>
-                  Profil szerkesztése
-                </button>
-              </>
+                <div>
+                  <h3 style={{ fontSize: "27px", fontWeight: 900, margin: "0 0 7px", color: "#fff", letterSpacing: "-0.02em" }}>{formattedName}</h3>
+                  <p style={{ fontSize: "16px", color: "rgba(226,232,240,0.66)", marginBottom: "22px" }}>{session?.user?.email}</p>
+                  <button onClick={openEditProfile} style={{ width: "100%", maxWidth: "260px", padding: "15px 20px", background: "linear-gradient(145deg, rgba(15,23,42,0.9), rgba(30,41,59,0.55))", borderRadius: "18px", border: "1px solid rgba(168,85,247,0.75)", color: "#fff", fontSize: "15px", fontWeight: 850, cursor: "pointer", boxShadow: "0 0 24px rgba(139,92,246,0.18)" }}>✎ Profil szerkesztése</button>
+                </div>
+              </div>
             )}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <h4 style={{ fontSize: "13px", fontWeight: 700, opacity: 0.5, marginLeft: "12px", marginTop: "8px", letterSpacing: "1px" }}>{lang === "hu" ? "BEÁLLÍTÁSOK" : "SETTINGS"}</h4>
-            
-            <div className="glass-card" style={{ borderRadius: "24px", overflow: "hidden" }}>
-              <div 
-                onClick={async () => {
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <h4 style={{ fontSize: "15px", fontWeight: 900, color: "rgba(148,163,184,0.78)", marginLeft: "12px", letterSpacing: "2px" }}>{lang === "hu" ? "BEÁLLÍTÁSOK" : "SETTINGS"}</h4>
+            <div style={{ borderRadius: "28px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.88))", border: "1px solid rgba(76,169,255,0.62)", boxShadow: "0 0 0 1px rgba(139,92,246,0.22), inset 0 0 42px rgba(59,130,246,0.06)" }}>
+              {[
+                { icon: "🔔", title: "Rendszer Értesítések", sub: lang === "hu" ? "Kattints az engedélyezéshez" : "Click to enable", onClick: async () => {
                   if ("Notification" in window) {
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
                       playNotificationSound(true);
-                      new Notification("LifeSync", {
-                        body: "Értesítések sikeresen engedélyezve!",
-                        icon: "/icon.png"
-                      });
-                    } else {
-                      alert("Az értesítések blokkolva vannak. Engedélyezd őket a böngésző beállításaiban!");
-                    }
-                  } else {
-                    alert("A böngésződ nem támogatja a push értesítéseket.");
-                  }
-                }} 
-                style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "20px" }}>🔔</span>
-                  <div style={{ textAlign: "left" }}>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>Rendszer Értesítések</span>
-                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>{lang === "hu" ? "Kattints az engedélyezéshez" : "Click to enable"}</span>
+                      new Notification("LifeSync", { body: "Értesítések sikeresen engedélyezve!", icon: "/icon.png" });
+                    } else alert("Az értesítések blokkolva vannak. Engedélyezd őket a böngésző beállításaiban!");
+                  } else alert("A böngésződ nem támogatja a push értesítéseket.");
+                }, right: <div style={{ width: "52px", height: "30px", borderRadius: "999px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", position: "relative", boxShadow: "0 0 22px rgba(99,102,241,0.5)" }}><div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "white", position: "absolute", right: "3px", top: "3px" }} /></div> },
+                { icon: "🔊", title: t("soundNotify"), sub: lang === "hu" ? "Hangjelzés sikeres mentéseknél" : "Sound on successful saves", right: <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><button onClick={(e) => { e.stopPropagation(); playNotificationSound(true); }} style={{ padding: "8px 13px", background: "rgba(15,23,42,0.68)", border: "1px solid rgba(59,130,246,0.35)", borderRadius: "12px", color: "white", fontWeight: 800, cursor: "pointer" }}>Teszt ▶</button><div onClick={(e) => { e.stopPropagation(); setSoundEnabled(!soundEnabled); }} style={{ width: "52px", height: "30px", borderRadius: "999px", background: soundEnabled ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative", cursor: "pointer" }}><div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "white", position: "absolute", left: soundEnabled ? "25px" : "3px", top: "3px", transition: "all 0.25s" }} /></div></div> },
+                { icon: "🌙", title: t("darkMode"), sub: isDarkMode ? "Bekapcsolva" : "Kikapcsolva", onClick: toggleTheme, right: <div style={{ width: "52px", height: "30px", borderRadius: "999px", background: isDarkMode ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative" }}><div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "white", position: "absolute", left: isDarkMode ? "25px" : "3px", top: "3px", transition: "all 0.25s" }} /></div> },
+                { icon: "📧", title: t("savedLogin"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? localStorage.getItem("remembered_login_email") || "" : t("notSaved"), right: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? <button onClick={(e) => { e.stopPropagation(); localStorage.removeItem("remembered_login_email"); setEmail(""); showToast("Bejelentkezési email törölve a memóriából!", 'info'); }} style={{ padding: "10px 14px", background: "rgba(244,63,94,0.12)", border: "1px solid rgba(244,63,94,0.65)", borderRadius: "14px", color: "#fb7185", fontWeight: 850, cursor: "pointer" }}>Törlés 🗑</button> : <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "24px" }}>›</span> },
+                { icon: "✉️", title: t("savedRecipient"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_custom_email") ? localStorage.getItem("remembered_custom_email") || "" : t("notSaved"), right: <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "30px" }}>›</span> },
+                { icon: "🚪", title: t("signOutLabel"), sub: "", onClick: () => supabase.auth.signOut(), danger: true, right: <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "30px" }}>›</span> },
+              ].map((item, idx) => (
+                <div key={idx} onClick={item.onClick} style={{ padding: "18px 20px", display: "grid", gridTemplateColumns: "54px 1fr auto", gap: "14px", alignItems: "center", borderBottom: idx === 5 ? "none" : "1px solid rgba(148,163,184,0.12)", cursor: item.onClick ? "pointer" : "default" }}>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "15px", background: "linear-gradient(145deg, rgba(30,41,59,0.82), rgba(15,23,42,0.72))", border: "1px solid rgba(148,163,184,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "21px" }}>{item.icon}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ color: item.danger ? "#f43f5e" : "#fff", fontSize: "17px", fontWeight: 850 }}>{item.title}</div>
+                    {item.sub && <div style={{ color: "rgba(226,232,240,0.58)", fontSize: "13px", marginTop: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.sub}</div>}
                   </div>
+                  {item.right}
                 </div>
-                <div style={{ width: "40px", height: "24px", borderRadius: "12px", background: typeof window !== "undefined" && (window as any).Notification?.permission === "granted" ? "#66bb6a" : "#ff9800", position: "relative" }}>
-                  <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", right: "2px", top: "2px" }}></div>
-                </div>
-              </div>
-
-              <div 
-                style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
-                  <span style={{ fontSize: "20px" }}>🔊</span>
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>{t("soundNotify")}</span>
-                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>{lang === "hu" ? "Hangjelzés sikeres mentéseknél" : "Sound on successful saves"}</span>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playNotificationSound(true);
-                    }} 
-                    style={{ padding: "6px 12px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "10px", color: "white", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}
-                  >
-                    Teszt ▶️
-                  </button>
-                  <div 
-                    onClick={() => setSoundEnabled(!soundEnabled)} 
-                    style={{ width: "40px", height: "24px", borderRadius: "12px", background: soundEnabled ? "#ff9800" : "rgba(120,120,120,0.3)", position: "relative", transition: "all 0.3s", cursor: "pointer" }}
-                  >
-                    <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", left: soundEnabled ? "auto" : "2px", right: soundEnabled ? "2px" : "auto", top: "2px", transition: "all 0.3s" }}></div>
-                  </div>
-                </div>
-              </div>
-              <div onClick={toggleTheme} style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "20px" }}>🌙</span>
-                  <span style={{ fontSize: "15px", fontWeight: 500 }}>{t("darkMode")}</span>
-                </div>
-                <div style={{ width: "40px", height: "24px", borderRadius: "12px", background: isDarkMode ? "#ff9800" : "rgba(120,120,120,0.3)", position: "relative", transition: "all 0.3s" }}>
-                  <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", left: isDarkMode ? "auto" : "2px", right: isDarkMode ? "2px" : "auto", top: "2px", transition: "all 0.3s" }}></div>
-                </div>
-              </div>
-
-              
-              <div 
-                style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "left" }}>
-                  <span style={{ fontSize: "20px" }}>📧</span>
-                  <div>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>{t("savedLogin")}</span>
-                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>
-                      {typeof window !== "undefined" && localStorage.getItem("remembered_login_email") 
-                        ? localStorage.getItem("remembered_login_email") 
-                        : t("notSaved")}
-                    </span>
-                  </div>
-                </div>
-                {typeof window !== "undefined" && localStorage.getItem("remembered_login_email") && (
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem("remembered_login_email");
-                      setEmail("");
-                      showToast("Bejelentkezési email törölve a memóriából!", 'info');
-                    }} 
-                    style={{ padding: "8px 12px", background: "rgba(255, 1, 1, 0.2)", border: "1px solid rgba(255, 1, 1, 0.5)", borderRadius: "12px", color: "#FF0101", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}
-                  >
-                    Törlés 🗑️
-                  </button>
-                )}
-              </div>
-
-              <div 
-                style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", textAlign: "left" }}>
-                  <span style={{ fontSize: "20px" }}>✉️</span>
-                  <div>
-                    <span style={{ fontSize: "15px", fontWeight: 500, display: "block" }}>{t("savedRecipient")}</span>
-                    <span style={{ fontSize: "11px", opacity: 0.5, display: "block", marginTop: "2px" }}>
-                      {typeof window !== "undefined" && localStorage.getItem("remembered_custom_email") 
-                        ? localStorage.getItem("remembered_custom_email") 
-                        : t("notSaved")}
-                    </span>
-                  </div>
-                </div>
-                {typeof window !== "undefined" && localStorage.getItem("remembered_custom_email") && (
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem("remembered_custom_email");
-                      setCustomEmail("");
-                      showToast("Címzett email törölve a memóriából!", 'info');
-                    }} 
-                    style={{ padding: "8px 12px", background: "rgba(255, 82, 82, 0.15)", border: "1px solid rgba(255, 82, 82, 0.3)", borderRadius: "12px", color: "#ff5252", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}
-                  >
-                    Törlés 🗑️
-                  </button>
-                )}
-              </div>
-
-              <div onClick={() => supabase.auth.signOut()} style={{ padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <span style={{ fontSize: "20px" }}>🚪</span>
-                  <span style={{ fontSize: "15px", fontWeight: 500, color: "#BA00FF" }}>{t("signOutLabel")}</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       )}
 
       {activeTab === "Vault" && (
-        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
           {activeVaultFolder ? (
-            // FOLDER DETAIL VIEW
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <button onClick={() => setActiveVaultFolder(null)} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", padding: "10px 16px", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span>←</span> Vissza
-                </button>
-                <button onClick={() => setIsEditingVaultFolder(!isEditingVaultFolder)} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", padding: "10px 16px", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600 }}>
-                  {isEditingVaultFolder ? t("cancel") : "Beállítások"}
-                </button>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <button onClick={() => setActiveVaultFolder(null)} style={{ background: "linear-gradient(145deg, rgba(15,23,42,0.85), rgba(30,41,59,0.55))", border: "1px solid rgba(148,163,184,0.22)", padding: "12px 18px", borderRadius: "16px", color: "white", fontWeight: 850, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px" }}>← {lang === "hu" ? "Vissza" : "Back"}</button>
+                <button onClick={() => setIsEditingVaultFolder(!isEditingVaultFolder)} style={{ background: "rgba(139,92,246,0.16)", border: "1px solid rgba(168,85,247,0.5)", padding: "12px 18px", borderRadius: "16px", color: "#d8b4fe", fontWeight: 850, cursor: "pointer", fontSize: "14px" }}>{isEditingVaultFolder ? t("cancel") : "⚙️ " + t("settings")}</button>
               </div>
 
-              {isEditingVaultFolder ? (
-                <div className="glass-card" style={{ padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
-                  <h3 style={{ fontSize: "16px", fontWeight: 600 }}>{t("projectSettings")}</h3>
-                  <form onSubmit={handleUpdateVaultFolder} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    <input autoFocus required type="text" value={editVaultFolderName} onChange={e => setEditVaultFolderName(e.target.value)} placeholder={t("projectName")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
-                    <input type="text" value={editVaultFolderDescription} onChange={e => setEditVaultFolderDescription(e.target.value)} placeholder={t("projectDesc")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
-                    
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
-                       {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
-                         <div key={icon} onClick={() => setEditVaultFolderIcon(icon)} style={{ padding: "8px", borderRadius: "10px", background: editVaultFolderIcon === icon ? "rgba(255,255,255,0.15)" : "transparent", cursor: "pointer", fontSize: "20px", transition: "all 0.2s", flexShrink: 0 }}>{icon}</div>
-                       ))}
+              <div style={{ position: "relative", padding: "22px", borderRadius: "26px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.86))", border: "1px solid rgba(76,169,255,0.56)", boxShadow: "0 0 0 1px rgba(168,85,247,0.28), 0 20px 55px rgba(0,0,0,0.35)" }}>
+                <div style={{ position: "absolute", right: "-40px", bottom: "-70px", width: "180px", height: "180px", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.18), transparent 65%)" }} />
+                {isEditingVaultFolder ? (
+                  <form onSubmit={handleUpdateVaultFolder} style={{ position: "relative", display: "flex", flexDirection: "column", gap: "13px" }}>
+                    <h3 style={{ fontSize: "20px", fontWeight: 900, color: "white" }}>{t("projectSettings")}</h3>
+                    <input autoFocus required type="text" value={editVaultFolderName} onChange={e => setEditVaultFolderName(e.target.value)} placeholder={t("projectName")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "15px 16px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
+                    <input type="text" value={editVaultFolderDescription} onChange={e => setEditVaultFolderDescription(e.target.value)} placeholder={t("projectDesc")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "15px 16px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
+                      {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
+                        <button key={icon} type="button" onClick={() => setEditVaultFolderIcon(icon)} style={{ height: "54px", borderRadius: "16px", background: editVaultFolderIcon === icon ? "rgba(139,92,246,0.28)" : "rgba(15,23,42,0.55)", border: editVaultFolderIcon === icon ? "1px solid rgba(168,85,247,0.75)" : "1px solid rgba(148,163,184,0.16)", cursor: "pointer", fontSize: "24px" }}>{icon}</button>
+                      ))}
                     </div>
-
-                    <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
-                      <button type="button" onClick={handleDeleteVaultFolder} style={{ flex: 1, padding: "14px", background: "rgba(255,1,1,0.2)", border: "1px solid rgba(255,1,1,0.5)", borderRadius: "14px", color: "#FF0101", fontWeight: 600, fontSize: "15px" }}>{t("deleteProject")}</button>
-                      <button type="submit" style={{ flex: 1, padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, fontSize: "15px", boxShadow: "0 4px 15px rgba(255, 112, 67, 0.3)" }}>Mentés</button>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "4px" }}>
+                      <button type="button" onClick={handleDeleteVaultFolder} style={{ padding: "15px", background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.42)", borderRadius: "17px", color: "#f87171", fontWeight: 850, cursor: "pointer" }}>{t("deleteProject")}</button>
+                      <button type="submit" style={{ padding: "15px", background: "linear-gradient(135deg, #38bdf8, #7c3aed, #c026d3)", border: "none", borderRadius: "17px", color: "white", fontWeight: 900, cursor: "pointer", boxShadow: "0 12px 32px rgba(124,58,237,0.35)" }}>{t("save")}</button>
                     </div>
                   </form>
-                </div>
-              ) : (
-                <div className="glass-card" style={{ padding: "24px", borderRadius: "24px", display: "flex", alignItems: "center", gap: "16px" }}>
-                  <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: `linear-gradient(135deg, ${activeVaultFolder.color_hex || '#ffb74d'}cc, ${activeVaultFolder.color_hex || '#ff7043'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", boxShadow: `0 8px 20px ${activeVaultFolder.color_hex || '#ff7043'}50` }}>
-                    {activeVaultFolder.icon || '📁'}
-                  </div>
-                  <div>
-                    <h2 style={{ fontSize: "24px", fontWeight: 700 }}>{activeVaultFolder.name}</h2>
-                    {activeVaultFolder.description && (
-                      <p style={{ opacity: 0.8, fontSize: "13px", marginTop: "3px", fontStyle: "italic" }}>{activeVaultFolder.description}</p>
-                    )}
-                    <p style={{ opacity: 0.7, fontSize: "13px", marginTop: "4px" }}>{vaultFiles.length} fájl</p>
-                  </div>
-                </div>
-              )}
-
-              <div style={{ marginTop: "10px" }}>
-                <input type="file" ref={vaultFileInputRef} hidden multiple onChange={handleUploadVaultFile} />
-                
-                {isRecording && recordingTarget === "folder" ? (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", padding: "14px 16px", background: "rgba(255, 82, 82, 0.15)", borderRadius: "18px", border: "1px solid rgba(255, 82, 82, 0.3)" }}>
-                    <span style={{ color: "#ff5252", fontSize: "18px" }}>🔴</span>
-                    <span style={{ fontSize: "15px", fontWeight: 600, flex: 1 }}>Rögzítés... {formatTime(recordingSeconds)}</span>
-                    <button onClick={stopRecording} style={{ padding: "8px 16px", background: "#ff5252", border: "none", borderRadius: "12px", color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>{t("stopRecording")}</button>
-                  </div>
                 ) : (
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <button onClick={() => vaultFileInputRef.current?.click()} disabled={isUploadingVaultFile} style={{ flex: 1, padding: "14px", background: "var(--input-bg)", border: "2px dashed var(--input-border)", borderRadius: "18px", color: "var(--text-color)", fontWeight: 600, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", fontSize: "14px", opacity: isUploadingVaultFile ? 0.6 : 1, cursor: "pointer" }}>
-                      <span style={{ fontSize: "18px" }}>{isUploadingVaultFile ? '⏳' : '📤'}</span> 
-                      {isUploadingVaultFile ? 'Feltöltés...' : 'Fájl feltöltése'}
-                    </button>
-                    <button onClick={() => startRecording("folder")} disabled={isUploadingVaultFile} style={{ flex: 1, padding: "14px", background: "rgba(255, 112, 67, 0.15)", border: "1px dashed #ff7043", borderRadius: "18px", color: "#ff7043", fontWeight: 600, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", fontSize: "14px", cursor: "pointer" }}>
-                      <span style={{ fontSize: "18px" }}>🎙️</span> Hangjegyzet
-                    </button>
+                  <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "18px" }}>
+                    <div style={{ width: "68px", height: "68px", borderRadius: "20px", background: "linear-gradient(135deg, #38bdf8, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "33px", boxShadow: "0 0 32px rgba(99,102,241,0.42)", flexShrink: 0 }}>{activeVaultFolder.icon || '📁'}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <h2 style={{ fontSize: "26px", fontWeight: 900, color: "white", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{activeVaultFolder.name}</h2>
+                      {activeVaultFolder.description && <p style={{ color: "rgba(226,232,240,0.62)", fontSize: "14px", marginTop: "5px" }}>{activeVaultFolder.description}</p>}
+                      <p style={{ color: "rgba(226,232,240,0.45)", fontSize: "13px", marginTop: "6px" }}>{vaultFiles.length} {lang === "hu" ? "fájl" : "files"}</p>
+                    </div>
                   </div>
                 )}
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
+              <input type="file" ref={vaultFileInputRef} hidden multiple onChange={handleUploadVaultFile} />
+              {isRecording && recordingTarget === "folder" ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", background: "rgba(239,68,68,0.12)", borderRadius: "18px", border: "1px solid rgba(239,68,68,0.35)" }}><span style={{ color: "#f87171" }}>🔴</span><span style={{ fontSize: "15px", fontWeight: 800, flex: 1, color: "white" }}>Rögzítés... {formatTime(recordingSeconds)}</span><button onClick={stopRecording} style={{ padding: "9px 15px", background: "#ef4444", border: "none", borderRadius: "12px", color: "white", fontWeight: 800, cursor: "pointer" }}>{t("stopRecording")}</button></div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <button onClick={() => vaultFileInputRef.current?.click()} disabled={isUploadingVaultFile} style={{ padding: "16px", background: "rgba(59,130,246,0.1)", border: "1px dashed rgba(56,189,248,0.45)", borderRadius: "18px", color: "#93c5fd", fontWeight: 850, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", cursor: "pointer" }}>{isUploadingVaultFile ? '⏳' : '📤'} {isUploadingVaultFile ? t("uploading") : t("uploadFile")}</button>
+                  <button onClick={() => startRecording("folder")} disabled={isUploadingVaultFile} style={{ padding: "16px", background: "rgba(168,85,247,0.1)", border: "1px dashed rgba(168,85,247,0.48)", borderRadius: "18px", color: "#d8b4fe", fontWeight: 850, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", cursor: "pointer" }}>🎙️ {lang === "hu" ? "Hangjegyzet" : "Voice note"}</button>
+                </div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {vaultFiles.map(file => (
-                  <div key={file.id} className="glass-card" style={{ padding: "16px", borderRadius: "20px", display: "flex", alignItems: "center", gap: "16px" }}>
-                    <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", overflow: "hidden", flexShrink: 0 }}>
+                  <div key={file.id} style={{ padding: "15px", borderRadius: "18px", display: "flex", alignItems: "center", gap: "14px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.45))", border: "1px solid rgba(148,163,184,0.15)" }}>
+                    <div style={{ width: "48px", height: "48px", borderRadius: "15px", background: "rgba(139,92,246,0.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", overflow: "hidden", flexShrink: 0 }}>
                       {file.file_type?.startsWith('image/') ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={file.file_url} alt="Kép" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      ) : file.file_type?.startsWith('audio/') ? (
-                        '🎙️'
-                      ) : (
-                        '📄'
-                      )}
+                      ) : file.file_type?.startsWith('audio/') ? '🎙️' : '📄'}
                     </div>
                     <div style={{ flex: 1, overflow: "hidden" }}>
-                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-color)", textDecoration: "none" }}>
-                        <h4 style={{ fontSize: "15px", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</h4>
-                      </a>
-                      <p style={{ fontSize: "12px", opacity: 0.5, marginBottom: file.file_type?.startsWith('audio/') ? "6px" : "0" }}>{new Date(file.created_at).toLocaleDateString()}</p>
-                      {file.file_type?.startsWith('audio/') && (
-                        <audio controls src={file.file_url} style={{ width: "100%", height: "32px", outline: "none" }} />
-                      )}
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" style={{ color: "white", textDecoration: "none" }}><h4 style={{ fontSize: "14px", fontWeight: 850, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</h4></a>
+                      <p style={{ fontSize: "11px", color: "rgba(226,232,240,0.44)", marginTop: "3px" }}>{new Date(file.created_at).toLocaleDateString()}</p>
+                      {file.file_type?.startsWith('audio/') && <audio controls src={file.file_url} style={{ width: "100%", height: "30px", marginTop: "6px" }} />}
                     </div>
-                    <button onClick={() => handleDeleteVaultFile(file.id)} style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,0,0,0.1)", border: "none", color: "#ff8a80", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>
-                      🗑️
-                    </button>
+                    <button onClick={() => handleDeleteVaultFile(file.id)} style={{ width: "38px", height: "38px", borderRadius: "14px", background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.26)", color: "#f87171", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>🗑️</button>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            // FOLDER LIST VIEW
             <>
-              <div style={{ padding: "0 4px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ padding: "2px 8px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 650, marginBottom: "4px" }}>{t("vaultTitle")}</h2>
-                  <p style={{ opacity: 0.75, fontSize: "14px" }}>{t("vaultSubtitle")}</p>
+                  <h2 style={{ fontSize: "38px", fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 10px 35px rgba(255,255,255,0.12)" }}>{t("vaultTitle")}</h2>
+                  <p style={{ color: "rgba(226,232,240,0.7)", fontSize: "16px", marginTop: "8px" }}>{t("vaultSubtitle")}</p>
                 </div>
-                <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", boxShadow: "0 8px 20px rgba(0,0,0,0.1)" }}>🗂️</div>
+                <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "linear-gradient(145deg, rgba(15,23,42,0.92), rgba(30,41,59,0.65))", border: "1px solid rgba(148,163,184,0.22)", boxShadow: "0 0 25px rgba(139,92,246,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "23px" }}>🗂️</div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                 {vaultFolders.length === 0 && (
-                    <div style={{ gridColumn: "1 / span 2", padding: "10px" }}>
-                      <p style={{ opacity: 0.6, fontSize: "14px" }}>{t("noFolders")}</p>
+              {vaultFolders.length === 0 && !isCreatingFolder && (
+                <div style={{ padding: "18px", borderRadius: "22px", border: "1px solid rgba(76,169,255,0.24)", background: "linear-gradient(145deg, rgba(15,23,42,0.7), rgba(30,41,59,0.42))", marginBottom: "18px", display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ width: "54px", height: "54px", borderRadius: "50%", border: "1px dashed rgba(168,85,247,0.65)", display: "flex", alignItems: "center", justifyContent: "center", color: "#a855f7", fontSize: "24px", flexShrink: 0 }}>□</div>
+                  <div><p style={{ color: "white", fontWeight: 850, fontSize: "16px", marginBottom: "4px" }}>{lang === "hu" ? "Még nincs projekted." : "No projects yet."}</p><p style={{ color: "rgba(226,232,240,0.55)", fontSize: "13px" }}>{lang === "hu" ? "Hozz létre egyet, hogy rendszerezd a fontos dolgaidat." : "Create one to organize your important things."}</p></div>
+                </div>
+              )}
+
+              {vaultFolders.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "18px" }}>
+                  {vaultFolders.map(folder => (
+                    <div key={folder.id} onClick={() => handleOpenFolder(folder)} style={{ padding: "18px", borderRadius: "22px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.44))", border: "1px solid rgba(148,163,184,0.16)", display: "flex", flexDirection: "column", gap: "14px", cursor: "pointer", boxShadow: "inset 0 0 26px rgba(59,130,246,0.04)" }}>
+                      <div style={{ width: "50px", height: "50px", borderRadius: "16px", background: "linear-gradient(135deg, #38bdf8, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", boxShadow: "0 0 24px rgba(99,102,241,0.32)" }}>{folder.icon || '📁'}</div>
+                      <div><h3 style={{ fontSize: "15px", fontWeight: 850, color: "white", marginBottom: "4px" }}>{folder.name}</h3><p style={{ fontSize: "12px", color: "rgba(226,232,240,0.45)" }}>{t("open")}</p></div>
                     </div>
-                 )}
-                
-                {vaultFolders.map((folder) => (
-                  <div key={folder.id} onClick={() => handleOpenFolder(folder)} className="glass-card" style={{ padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", gap: "16px", position: "relative", cursor: "pointer", transition: "transform 0.2s" }}>
-                    <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: `linear-gradient(135deg, ${folder.color_hex || '#ffb74d'}cc, ${folder.color_hex || '#ff7043'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", boxShadow: `0 8px 20px ${folder.color_hex || '#ff7043'}50` }}>
-                      {folder.icon || '📁'}
-                    </div>
-                    <div>
-                      <h3 style={{ fontSize: "15px", fontWeight: 600, lineHeight: 1.3, marginBottom: "4px" }}>{folder.name}</h3>
-                      <p style={{ fontSize: "13px", opacity: 0.7 }}>{t("open")}</p>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* Új projekt hozzáadása gomb */}
-                {isCreatingFolder ? (
-                  <div className="glass-card" style={{ gridColumn: "1 / span 2", padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)" }}>
-                    <h3 style={{ fontSize: "16px", fontWeight: 600 }}>{t("newProject")}</h3>
-                    <form onSubmit={handleCreateFolder} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      <input required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder={t("projectNamePlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
-                      <input type="text" value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} placeholder={t("projectDescPlaceholder")} style={{ width: "100%", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px", borderRadius: "12px", color: "white", outline: "none", fontSize: "15px" }} />
-                      
-                      <div style={{ display: "flex", gap: "8px", justifyContent: "space-around", alignItems: "center", background: "rgba(0,0,0,0.1)", padding: "4px", borderRadius: "14px", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
-                         {['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂', '🔑'].map(icon => (
-                           <div key={icon} onClick={() => setNewFolderIcon(icon)} style={{ padding: "8px", borderRadius: "10px", background: newFolderIcon === icon ? "rgba(255,255,255,0.15)" : "transparent", cursor: "pointer", fontSize: "20px", transition: "all 0.2s", flexShrink: 0 }}>{icon}</div>
-                         ))}
-                      </div>
+                  ))}
+                </div>
+              )}
 
-                      {/* KÉPEK SZAKASZ */}
-                      <div style={{ marginTop: "4px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("imagesLabel")}</label>
-                        <input type="file" ref={folderImageInputRef} accept="image/*" hidden multiple onChange={(e) => {
-                          if (e.target.files && e.target.files.length > 0) {
-                            const selected = Array.from(e.target.files);
-                            setNewFolderImages(prev => [...prev, ...selected]);
-                          }
-                        }} />
-                        
-                        {/* Képek vízszintes görgethető előnézete */}
-                        {newFolderImages.length > 0 && (
-                          <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "8px", marginBottom: "8px", scrollbarWidth: "none" }}>
-                            {newFolderImages.map((file, idx) => {
-                              const imgUrl = URL.createObjectURL(file);
-                              return (
-                                <div key={idx} style={{ position: "relative", width: "70px", height: "70px", flexShrink: 0, borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.2)" }}>
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={imgUrl} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                  <button type="button" onClick={() => setNewFolderImages(prev => prev.filter((_, i) => i !== idx))} style={{ position: "absolute", top: "2px", right: "2px", width: "18px", height: "18px", borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", color: "white", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontWeight: "bold" }}>✕</button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                        
-                        <button type="button" onClick={() => folderImageInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                          <span>📸</span> {newFolderImages.length > 0 ? t("addMoreImages") : t("attachImage")}
-                        </button>
-                      </div>
+              {isCreatingFolder ? (
+                <section style={{ position: "relative", padding: "24px", borderRadius: "30px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.86))", border: "1px solid rgba(76,169,255,0.68)", boxShadow: "0 0 0 1px rgba(168,85,247,0.42), 0 24px 70px rgba(0,0,0,0.36), inset 0 0 46px rgba(59,130,246,0.07)" }}>
+                  <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(circle at top left, rgba(56,189,248,0.12), transparent 36%), radial-gradient(circle at bottom right, rgba(168,85,247,0.16), transparent 42%)" }} />
+                  <form onSubmit={handleCreateFolder} style={{ position: "relative", display: "flex", flexDirection: "column", gap: "17px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "13px" }}><div style={{ width: "46px", height: "46px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "26px", color: "white", boxShadow: "0 0 30px rgba(99,102,241,0.45)" }}>+</div><h3 style={{ fontSize: "24px", fontWeight: 900, color: "white" }}>{t("newProject")}</h3></div>
 
-                      {/* DOKUMENTUMOK SZAKASZ */}
-                      <div style={{ marginTop: "8px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("docsLabel")}</label>
-                        <input type="file" ref={folderDocInputRef} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" hidden multiple onChange={(e) => {
-                          if (e.target.files && e.target.files.length > 0) {
-                            const selected = Array.from(e.target.files);
-                            setNewFolderDocs(prev => [...prev, ...selected]);
-                          }
-                        }} />
+                    <div style={{ position: "relative" }}><span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", fontSize: "20px", opacity: 0.65 }}>▭</span><input required type="text" value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder={t("projectNamePlaceholder")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "16px 16px 16px 52px", borderRadius: "17px", color: "white", outline: "none", fontSize: "16px" }} /></div>
+                    <div style={{ position: "relative" }}><span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", fontSize: "20px", opacity: 0.65 }}>✎</span><input type="text" value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} placeholder={t("projectDescPlaceholder")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "16px 16px 16px 52px", borderRadius: "17px", color: "white", outline: "none", fontSize: "16px" }} /></div>
 
-                        {/* Dokumentumok függőleges listája */}
-                        {newFolderDocs.length > 0 && (
-                          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "8px", maxHeight: "100px", overflowY: "auto", paddingRight: "2px" }}>
-                            {newFolderDocs.map((file, idx) => (
-                              <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden", flex: 1 }}>
-                                  <span style={{ fontSize: "16px" }}>📄</span>
-                                  <span style={{ fontSize: "12px", opacity: 0.9, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{file.name}</span>
-                                </div>
-                                <button type="button" onClick={() => setNewFolderDocs(prev => prev.filter((_, i) => i !== idx))} style={{ background: "transparent", border: "none", color: "#ff8a80", fontSize: "12px", cursor: "pointer", paddingLeft: "10px", fontWeight: "bold" }}>✕</button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        
-                        <button type="button" onClick={() => folderDocInputRef.current?.click()} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                          <span>📄</span> {newFolderDocs.length > 0 ? t("addMoreDocs") : t("attachDoc")}
-                        </button>
-                      </div>
+                    <div><p style={{ fontSize: "15px", color: "rgba(255,255,255,0.82)", marginBottom: "10px", fontWeight: 850 }}>{t("categoryLabel")}</p><div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "10px" }}>{['📁', '📄', '💼', '⚡', '🏠', '🚗', '🎂'].map(icon => (<button key={icon} type="button" onClick={() => setNewFolderIcon(icon)} style={{ height: "52px", borderRadius: "15px", background: newFolderIcon === icon ? "rgba(139,92,246,0.28)" : "rgba(15,23,42,0.58)", border: newFolderIcon === icon ? "1px solid rgba(168,85,247,0.85)" : "1px solid rgba(148,163,184,0.16)", cursor: "pointer", fontSize: "22px", boxShadow: newFolderIcon === icon ? "0 0 18px rgba(139,92,246,0.26)" : "none" }}>{icon}</button>))}</div></div>
 
-                      {/* HANGOK SZAKASZ */}
-                      <div style={{ marginTop: "12px", marginBottom: "4px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: 600, opacity: 0.8, display: "block", marginBottom: "6px" }}>{t("audioLabel")}</label>
-                        <input type="file" ref={folderAudioInputRef} accept="audio/*" hidden multiple onChange={(e) => {
-                          if (e.target.files && e.target.files.length > 0) {
-                            const selected = Array.from(e.target.files);
-                            setNewFolderAudios(prev => [...prev, ...selected]);
-                          }
-                        }} />
+                    <div><p style={{ fontSize: "15px", color: "rgba(255,255,255,0.82)", marginBottom: "10px", fontWeight: 850 }}>{t("imagesLabel")}</p><input type="file" ref={folderImageInputRef} accept="image/*" hidden multiple onChange={(e) => { if (e.target.files) setNewFolderImages(prev => [...prev, ...Array.from(e.target.files!)]); }} />{newFolderImages.length > 0 && <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "8px", scrollbarWidth: "none" }}>{newFolderImages.map((file, idx) => (<div key={idx} style={{ position: "relative", width: "66px", height: "66px", flexShrink: 0, borderRadius: "14px", overflow: "hidden", border: "1px solid rgba(168,85,247,0.55)" }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={URL.createObjectURL(file)} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} /><button type="button" onClick={() => setNewFolderImages(prev => prev.filter((_, i) => i !== idx))} style={{ position: "absolute", top: "3px", right: "3px", width: "20px", height: "20px", borderRadius: "50%", background: "rgba(0,0,0,0.72)", border: "none", color: "white", cursor: "pointer" }}>×</button></div>))}</div>}<label onClick={() => folderImageInputRef.current?.click()} style={{ display: "grid", gridTemplateColumns: "58px 1fr auto", alignItems: "center", gap: "14px", padding: "16px", borderRadius: "18px", border: "1px dashed rgba(148,163,184,0.36)", background: "rgba(15,23,42,0.48)", cursor: "pointer" }}><span style={{ width: "48px", height: "48px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(139,92,246,0.15)", fontSize: "25px" }}>☁️</span><span><b style={{ color: "white" }}>{newFolderImages.length > 0 ? t("addMoreImages") : t("attachImage")}</b><small style={{ display: "block", color: "rgba(226,232,240,0.55)", marginTop: "4px" }}>{lang === "hu" ? "Húzd ide a fájlokat, vagy tallózz" : "Drag files here or browse"}</small></span><span style={{ fontSize: "30px" }}>🖼️</span></label></div>
 
-                        {/* Új Hangjegyzetek listája */}
-                        {newFolderAudios.length > 0 && (
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px", maxHeight: "150px", overflowY: "auto" }}>
-                            {newFolderAudios.map((file, idx) => {
-                              const audioUrl = URL.createObjectURL(file);
-                              return (
-                                <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.05)", padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <span style={{ fontSize: "12px", opacity: 0.9, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", fontWeight: 500 }}>🎙️ {file.name}</span>
-                                    <button type="button" onClick={() => setNewFolderAudios(prev => prev.filter((_, i) => i !== idx))} style={{ background: "transparent", border: "none", color: "#ff8a80", fontSize: "12px", cursor: "pointer", fontWeight: "bold" }}>✕</button>
-                                  </div>
-                                  <audio controls src={audioUrl} style={{ width: "100%", height: "30px" }} />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                    <div><p style={{ fontSize: "15px", color: "rgba(255,255,255,0.82)", marginBottom: "10px", fontWeight: 850 }}>{t("docsLabel")}</p><input type="file" ref={folderDocInputRef} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" hidden multiple onChange={(e) => { if (e.target.files) setNewFolderDocs(prev => [...prev, ...Array.from(e.target.files!)]); }} />{newFolderDocs.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: "7px", marginBottom: "8px" }}>{newFolderDocs.map((file, idx) => (<div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.04)", padding: "9px 12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}><span style={{ fontSize: "12px", color: "rgba(255,255,255,0.82)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📄 {file.name}</span><button type="button" onClick={() => setNewFolderDocs(prev => prev.filter((_, i) => i !== idx))} style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontWeight: 900 }}>×</button></div>))}</div>}<label onClick={() => folderDocInputRef.current?.click()} style={{ display: "grid", gridTemplateColumns: "58px 1fr auto", alignItems: "center", gap: "14px", padding: "16px", borderRadius: "18px", border: "1px dashed rgba(148,163,184,0.36)", background: "rgba(15,23,42,0.48)", cursor: "pointer" }}><span style={{ width: "48px", height: "48px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(139,92,246,0.15)", fontSize: "25px" }}>▯</span><span><b style={{ color: "white" }}>{newFolderDocs.length > 0 ? t("addMoreDocs") : t("attachDoc")}</b><small style={{ display: "block", color: "rgba(226,232,240,0.55)", marginTop: "4px" }}>{lang === "hu" ? "Húzd ide a fájlokat, vagy tallózz" : "Drag files here or browse"}</small></span><span style={{ fontSize: "30px" }}>📄</span></label></div>
 
-                        {/* Hangfelvétel állapota */}
-                        {isRecording && recordingTarget === "folder" && (
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "12px", background: "rgba(255, 82, 82, 0.15)", borderRadius: "14px", border: "1px solid rgba(255, 82, 82, 0.3)", marginBottom: "8px" }}>
-                            <span style={{ color: "#ff5252", fontSize: "18px" }}>🔴</span>
-                            <span style={{ fontSize: "14px", fontWeight: 600 }}>Hang rögzítése... {formatTime(recordingSeconds)}</span>
-                            <button type="button" onClick={stopRecording} style={{ padding: "6px 12px", background: "#ff5252", border: "none", borderRadius: "8px", color: "white", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>{t("stopRecording")}</button>
-                          </div>
-                        )}
+                    <div><p style={{ fontSize: "15px", color: "rgba(255,255,255,0.82)", marginBottom: "10px", fontWeight: 850 }}>{t("audioLabel")}</p><input type="file" ref={folderAudioInputRef} accept="audio/*" hidden multiple onChange={(e) => { if (e.target.files) setNewFolderAudios(prev => [...prev, ...Array.from(e.target.files!)]); }} />{newFolderAudios.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "8px", maxHeight: "150px", overflowY: "auto" }}>{newFolderAudios.map((file, idx) => (<div key={idx} style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.04)", padding: "10px 12px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><span style={{ fontSize: "12px", color: "rgba(255,255,255,0.82)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 700 }}>🎙️ {file.name}</span><button type="button" onClick={() => setNewFolderAudios(prev => prev.filter((_, i) => i !== idx))} style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontWeight: 900 }}>×</button></div><audio controls src={URL.createObjectURL(file)} style={{ width: "100%", height: "30px" }} /></div>))}</div>}{isRecording && recordingTarget === "folder" ? (<div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 16px", background: "rgba(239,68,68,0.12)", borderRadius: "16px", border: "1px solid rgba(239,68,68,0.35)" }}><span style={{ color: "#f87171" }}>🔴</span><span style={{ fontSize: "14px", fontWeight: 850, color: "white", flex: 1 }}>Rögzítés... {formatTime(recordingSeconds)}</span><button type="button" onClick={stopRecording} style={{ padding: "7px 12px", background: "#ef4444", border: "none", borderRadius: "10px", color: "white", fontWeight: 800, cursor: "pointer" }}>{t("stopRecording")}</button></div>) : (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}><button type="button" onClick={() => startRecording("folder")} style={{ padding: "14px", background: "rgba(168,85,247,0.14)", borderRadius: "16px", color: "#d8b4fe", border: "1px solid rgba(168,85,247,0.45)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: 850, cursor: "pointer" }}>🎙️ {lang === "hu" ? "Hangjegyzet" : "Voice note"}</button><button type="button" onClick={() => folderAudioInputRef.current?.click()} style={{ padding: "14px", background: "rgba(59,130,246,0.1)", borderRadius: "16px", color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: 850, cursor: "pointer" }}>📂 {lang === "hu" ? "Hangfájl" : "Audio file"}</button></div>)}</div>
 
-                        {!isRecording && (
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <button type="button" onClick={() => startRecording("folder")} style={{ flex: 1, padding: "10px", background: "rgba(255, 112, 67, 0.15)", borderRadius: "12px", color: "#ff7043", border: "1px dashed #ff7043", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 600, cursor: "pointer" }}>
-                              <span>🎙️</span> Hangjegyzet
-                            </button>
-                            <button type="button" onClick={() => folderAudioInputRef.current?.click()} style={{ flex: 1, padding: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "12px", color: "var(--text-color)", border: "1px dashed var(--input-border)", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 500, cursor: "pointer" }}>
-                              <span>📂</span> Hangfájl
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-                        <button type="button" onClick={() => { setIsCreatingFolder(false); setNewFolderImages([]); setNewFolderDocs([]); setNewFolderAudios([]); setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50); }} style={{ flex: 1, padding: "14px", background: "transparent", border: "1px solid var(--card-border)", borderRadius: "14px", color: "var(--text-color)", fontWeight: 600, fontSize: "15px" }}>{t("cancel")}</button>
-                        <button type="submit" style={{ flex: 1, padding: "14px", background: "linear-gradient(135deg, #ffb74d, #ff7043)", border: "none", borderRadius: "14px", color: "white", fontWeight: 600, fontSize: "15px", boxShadow: "0 4px 15px rgba(255, 112, 67, 0.3)" }}>Mentés és Megnyitás</button>
-                      </div>
-                    </form>
-                  </div>
-                ) : (
-                  <div className="glass-card" onClick={() => { setIsCreatingFolder(true); setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50); }} style={{ padding: "20px", borderRadius: "24px", display: "flex", flexDirection: "column", alignItems: "center", justifyItems: "center", justifyContent: "center", gap: "10px", border: "1px dashed rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.05)", cursor: "pointer", transition: "all 0.2s" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-                        +
-                      </div>
-                      <h3 style={{ fontSize: "14px", fontWeight: 500, opacity: 0.8 }}>Új projekt</h3>
-                  </div>
-                )}
-              </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: "12px", marginTop: "4px" }}><button type="button" onClick={() => { setIsCreatingFolder(false); setNewFolderImages([]); setNewFolderDocs([]); setNewFolderAudios([]); setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50); }} style={{ padding: "17px", background: "rgba(15,23,42,0.74)", border: "1px solid rgba(148,163,184,0.26)", borderRadius: "18px", color: "white", fontWeight: 900, cursor: "pointer" }}>{t("cancel")}</button><button type="submit" style={{ padding: "17px", background: "linear-gradient(135deg, #38bdf8, #7c3aed, #c026d3)", border: "none", borderRadius: "18px", color: "white", fontWeight: 950, cursor: "pointer", boxShadow: "0 15px 36px rgba(124,58,237,0.38)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>✦ {lang === "hu" ? "Mentés és Megnyitás" : "Save & Open"}</button></div>
+                  </form>
+                </section>
+              ) : (
+                <button onClick={() => { setIsCreatingFolder(true); setTimeout(() => { if (vaultScrollRef.current) vaultScrollRef.current.scrollTop = 0; }, 50); }} style={{ width: "100%", padding: "19px", borderRadius: "24px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.45))", border: "1px solid rgba(76,169,255,0.42)", color: "white", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", boxShadow: "0 0 28px rgba(59,130,246,0.08)" }}><div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", fontWeight: 900, color: "white", flexShrink: 0, boxShadow: "0 0 24px rgba(99,102,241,0.42)" }}>+</div><span style={{ fontSize: "17px", fontWeight: 900 }}>{t("newProject")}</span></button>
+              )}
             </>
           )}
         </div>
@@ -2980,7 +2909,7 @@ export default function Home() {
                         {filteredFolders.map(folder => (
                           <div key={folder.id} onClick={() => { setIsSearchOpen(false); setActiveTab("Vault"); handleOpenFolder(folder); }} className="glass-card" style={{ padding: "14px", borderRadius: "16px", cursor: "pointer" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                              <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: `linear-gradient(135deg, ${folder.color_hex || '#ffb74d'}cc, ${folder.color_hex || '#ff7043'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
+                              <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: `linear-gradient(135deg, ${folder.color_hex || '#ffb74d'}cc, ${folder.color_hex || '#a78bfa'})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
                                 {folder.icon || '📁'}
                               </div>
                               <h5 style={{ fontSize: "15px", fontWeight: 600 }}>{folder.name}</h5>
@@ -3122,9 +3051,9 @@ export default function Home() {
           onClick={() => setIsDrawerOpen(false)}
           style={{
             position: "absolute", inset: 0, zIndex: 200,
-            background: "rgba(10,16,32,0.45)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
+            background: "rgba(2,6,18,0.72)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
             animation: "fadeInBackdrop 0.25s ease forwards"
           }}
         />
@@ -3134,14 +3063,23 @@ export default function Home() {
       <div style={{
         position: "absolute",
         top: 0, left: 0, bottom: 0,
-        width: "280px",
+        width: "min(340px, 88vw)",
         zIndex: 201,
-        background: "rgba(72,84,110,0.52)",
-        backdropFilter: "blur(28px)",
-        WebkitBackdropFilter: "blur(28px)",
-        borderRadius: "0 24px 24px 0",
-        border: "1px solid rgba(255,255,255,0.13)",
-        boxShadow: isDrawerOpen ? "18px 0 45px rgba(0,0,0,0.3), inset -1px 0 1px rgba(255,255,255,0.08)" : "none",
+        background: `
+          radial-gradient(circle at 18% 4%, rgba(56,189,248,0.26), transparent 25%),
+          radial-gradient(circle at 92% 6%, rgba(168,85,247,0.30), transparent 32%),
+          radial-gradient(circle at 86% 46%, rgba(124,58,237,0.20), transparent 34%),
+          radial-gradient(circle at 72% 92%, rgba(14,165,233,0.22), transparent 38%),
+          linear-gradient(180deg, rgba(4,8,23,0.98) 0%, rgba(5,12,31,0.99) 48%, rgba(3,8,20,1) 100%)
+        `,
+        backdropFilter: "blur(32px)",
+        WebkitBackdropFilter: "blur(32px)",
+        borderRadius: "0 34px 34px 0",
+        borderTop: "1px solid rgba(56,189,248,0.55)",
+        borderRight: "1px solid rgba(168,85,247,0.70)",
+        borderBottom: "1px solid rgba(37,99,235,0.55)",
+        borderLeft: "1px solid rgba(37,99,235,0.35)",
+        boxShadow: isDrawerOpen ? "24px 0 80px rgba(0,0,0,0.62), 0 0 46px rgba(56,189,248,0.20), 0 0 70px rgba(168,85,247,0.18), inset -1px 0 0 rgba(168,85,247,0.32), inset 1px 0 0 rgba(56,189,248,0.18)" : "none",
         display: "flex", flexDirection: "column",
         transform: isDrawerOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 0.35s ease",
@@ -3149,37 +3087,87 @@ export default function Home() {
         overflowY: "auto",
         scrollbarWidth: "none",
       }}>
-
-        {/* ── FEJLÉC 72px ── */}
+        {/* Kozmikus háttértextúra + LifeSync vízjel */}
         <div style={{
-          height: "72px", flexShrink: 0,
-          padding: "0 20px",
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          background: `
+            radial-gradient(circle at 18% 18%, rgba(125,211,252,0.16) 0 1px, transparent 1.5px),
+            radial-gradient(circle at 74% 30%, rgba(196,181,253,0.16) 0 1px, transparent 1.5px),
+            radial-gradient(circle at 62% 74%, rgba(96,165,250,0.12) 0 1px, transparent 1.5px)
+          `,
+          backgroundSize: "54px 54px, 82px 82px, 120px 120px",
+          opacity: 0.55,
+        }} />
+        <div style={{
+          position: "absolute",
+          right: "34px",
+          top: "360px",
+          width: "210px",
+          height: "210px",
+          pointerEvents: "none",
+          zIndex: 0,
+          opacity: 0.08,
+          filter: "blur(0.2px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "210px",
+          fontWeight: 900,
+          lineHeight: 1,
+          color: "#8B5CF6",
+          transform: "rotate(-14deg)",
+          textShadow: "0 0 42px rgba(168,85,247,0.60)",
+        }}>S</div>
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          background: "linear-gradient(90deg, rgba(2,6,23,0.25) 0%, transparent 38%, rgba(168,85,247,0.10) 100%)",
+        }} />
+
+        {/* ── FEJLÉC ── */}
+        <div style={{
+          position: "relative", zIndex: 1,
+          minHeight: "120px", flexShrink: 0,
+          padding: "26px 28px 16px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <img src="/lifesync-icon.png" alt="Logo"
-              style={{ width: "42px", height: "42px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
+            <div style={{
+              width: "62px", height: "62px", borderRadius: "22px",
+              background: "radial-gradient(circle, rgba(56,189,248,0.20), transparent 62%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 0 30px rgba(56,189,248,0.22)"
+            }}>
+              <img src="/lifesync-icon.png" alt="Logo"
+                style={{ width: "54px", height: "54px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
+            </div>
             <div>
               <div style={{
-                fontSize: "24px", fontWeight: 700, lineHeight: 1.1,
+                fontSize: "32px", fontWeight: 750, lineHeight: 1.05,
                 background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
                 WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent"
               }}>LifeSync</div>
-              <div style={{ fontSize: "11px", color: "rgba(244,247,251,0.55)", marginTop: "2px" }}>
+              <div style={{ fontSize: "14px", color: "rgba(226,232,240,0.72)", marginTop: "6px", letterSpacing: "0.01em" }}>
                 Memories that matter.
               </div>
             </div>
           </div>
           <button onClick={() => setIsDrawerOpen(false)} style={{
-            width: "32px", height: "32px", borderRadius: "10px",
-            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)",
-            color: "#F4F7FB", fontSize: "15px", cursor: "pointer",
+            width: "54px", height: "54px", borderRadius: "20px",
+            background: "rgba(15,23,42,0.50)", border: "1px solid rgba(167,139,250,0.34)",
+            color: "#FFFFFF", fontSize: "24px", cursor: "pointer",
+            boxShadow: "0 0 26px rgba(168,85,247,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
             display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
           }}>✕</button>
         </div>
 
         {/* ── MENÜ LISTA ── */}
-        <nav style={{ padding: "4px 12px 0", display: "flex", flexDirection: "column", gap: "2px" }}>
+        <nav style={{ position: "relative", zIndex: 1, padding: "18px 26px 0", display: "flex", flexDirection: "column", gap: "12px" }}>
           {([
             { tab: "Home",     label: t("home"),           active: activeTab === "Home",
               icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8L12 3l9 7.8V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9.2z"/><path d="M9 21V12h6v9"/></svg> },
@@ -3205,40 +3193,42 @@ export default function Home() {
                 }
               }}
               style={{
-                height: "52px", flexShrink: 0,
-                display: "flex", alignItems: "center", gap: "14px",
-                padding: "0 18px",
-                borderRadius: "16px",
-                border: item.active ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
+                height: "66px", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "22px",
+                padding: "0 28px",
+                borderRadius: "22px",
+                border: item.active ? "1px solid rgba(147,197,253,0.72)" : "1px solid transparent",
                 background: item.active
-                  ? "linear-gradient(90deg, rgba(142,139,255,0.42) 0%, rgba(106,120,255,0.24) 100%)"
+                  ? "linear-gradient(90deg, rgba(139,92,246,0.56) 0%, rgba(37,99,235,0.38) 100%)"
                   : "transparent",
-                color: item.active ? "#FFFFFF" : item.disabled ? "rgba(244,247,251,0.35)" : "rgba(244,247,251,0.72)",
+                boxShadow: item.active ? "0 0 34px rgba(59,130,246,0.32), 0 0 22px rgba(168,85,247,0.20), inset 0 1px 0 rgba(255,255,255,0.18)" : "none",
+                color: item.active ? "#FFFFFF" : item.disabled ? "rgba(148,163,184,0.38)" : "rgba(226,232,240,0.80)",
                 cursor: item.disabled ? "default" : "pointer",
                 width: "100%", textAlign: "left",
                 transition: "all 0.18s ease",
               }}
             >
               <span style={{
-                width: "22px", height: "22px", flexShrink: 0,
+                width: "30px", height: "30px", flexShrink: 0,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: item.active ? "#FFFFFF" : item.disabled ? "rgba(244,247,251,0.3)" : "rgba(244,247,251,0.72)"
+                color: item.active ? "#FFFFFF" : item.disabled ? "rgba(148,163,184,0.34)" : "rgba(191,219,254,0.86)",
+                filter: item.active ? "drop-shadow(0 0 10px rgba(147,197,253,0.7))" : "drop-shadow(0 0 8px rgba(59,130,246,0.25))"
               }}>{item.icon}</span>
-              <span style={{ fontSize: "16px", fontWeight: item.active ? 600 : 500 }}>{item.label}</span>
+              <span style={{ fontSize: "22px", fontWeight: item.active ? 750 : 650, letterSpacing: "0.01em" }}>{item.label}</span>
             </button>
           ))}
         </nav>
 
         {/* ── ÚJ MEMÓRIA GOMB 52px ── */}
-        <div style={{ padding: "14px 12px 0" }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "22px 26px 0" }}>
           <button
             onClick={() => { setActiveTab("Add"); setIsDrawerOpen(false); }}
             style={{
-              height: "52px", width: "100%",
-              borderRadius: "18px", border: "none",
-              background: "linear-gradient(90deg, #9B87FF 0%, #6B78FF 100%)",
-              boxShadow: "0 10px 28px rgba(106,120,255,0.34), inset 0 1px 1px rgba(255,255,255,0.28)",
-              color: "#FFFFFF", fontSize: "16px", fontWeight: 600,
+              height: "66px", width: "100%",
+              borderRadius: "24px", border: "1px solid rgba(147,197,253,0.45)",
+              background: "linear-gradient(90deg, #38BDF8 0%, #6366F1 48%, #A855F7 100%)",
+              boxShadow: "0 0 34px rgba(99,102,241,0.38), 0 14px 36px rgba(99,102,241,0.28), inset 0 1px 1px rgba(255,255,255,0.30)",
+              color: "#FFFFFF", fontSize: "21px", fontWeight: 750,
               display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               cursor: "pointer",
             }}
@@ -3249,20 +3239,20 @@ export default function Home() {
         </div>
 
         {/* ── ELVÁLASZTÓ ── */}
-        <div style={{ margin: "12px 20px", height: "1px", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+        <div style={{ margin: "24px 40px 16px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.35), transparent)", flexShrink: 0 }} />
 
         {/* ── BEÁLLÍTÁSOK 52px ── */}
-        <div style={{ padding: "0 12px", flexShrink: 0 }}>
+        <div style={{ padding: "0 26px", flexShrink: 0 }}>
           <button
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "52px", width: "100%",
-              display: "flex", alignItems: "center", gap: "14px",
-              padding: "0 18px", borderRadius: "16px",
+              height: "60px", width: "100%",
+              display: "flex", alignItems: "center", gap: "22px",
+              padding: "0 28px", borderRadius: "20px",
               border: "1px solid transparent", background: "transparent",
-              color: "rgba(244,247,251,0.72)",
+              color: "rgba(226,232,240,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "16px", fontWeight: 500,
+              fontSize: "21px", fontWeight: 650,
               transition: "background 0.18s"
             }}
           >
@@ -3275,18 +3265,18 @@ export default function Home() {
         </div>
 
         {/* ── NYELV VÁLTÓ ── */}
-        <div style={{ padding: "0 12px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 26px", flexShrink: 0 }}>
           <button
             onClick={() => setIsLangOpen(!isLangOpen)}
             style={{
-              height: "52px", width: "100%",
-              display: "flex", alignItems: "center", gap: "14px",
-              padding: "0 18px", borderRadius: "16px",
+              height: "60px", width: "100%",
+              display: "flex", alignItems: "center", gap: "22px",
+              padding: "0 28px", borderRadius: "20px",
               border: isLangOpen ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
               background: isLangOpen ? "rgba(126,123,255,0.12)" : "transparent",
-              color: "rgba(244,247,251,0.72)",
+              color: "rgba(226,232,240,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "16px", fontWeight: 500,
+              fontSize: "21px", fontWeight: 650,
               transition: "all 0.18s"
             }}
           >
@@ -3395,20 +3385,20 @@ export default function Home() {
         </div>
 
         {/* ── ELVÁLASZTÓ ── */}
-        <div style={{ margin: "8px 20px", height: "1px", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+        <div style={{ position: "relative", zIndex: 1, margin: "18px 40px 14px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.32), transparent)", flexShrink: 0 }} />
 
         {/* ── KIJELENTKEZÉS ── */}
-        <div style={{ padding: "0 12px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 26px", flexShrink: 0 }}>
           <button
             onClick={() => { supabase.auth.signOut(); setIsDrawerOpen(false); }}
             style={{
-              height: "52px", width: "100%",
-              display: "flex", alignItems: "center", gap: "14px",
-              padding: "0 18px", borderRadius: "16px",
+              height: "60px", width: "100%",
+              display: "flex", alignItems: "center", gap: "22px",
+              padding: "0 28px", borderRadius: "20px",
               border: "1px solid transparent", background: "transparent",
-              color: "rgba(244,247,251,0.65)",
+              color: "rgba(248,113,113,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "16px", fontWeight: 500,
+              fontSize: "21px", fontWeight: 650,
               transition: "background 0.18s"
             }}
           >
@@ -3425,16 +3415,16 @@ export default function Home() {
         <div style={{ flex: 1 }} />
 
         {/* ── PROFIL KÁRTYA 72px alul ── */}
-        <div style={{ padding: "0 12px 24px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 26px 28px", flexShrink: 0 }}>
           <div
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "72px", padding: "0 14px",
-              borderRadius: "18px",
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.16)",
-              boxShadow: "inset 0 1px 1px rgba(255,255,255,0.12)",
-              display: "flex", alignItems: "center", gap: "12px",
+              height: "92px", padding: "0 22px",
+              borderRadius: "26px",
+              background: "linear-gradient(135deg, rgba(15,23,42,0.78), rgba(17,24,39,0.58))",
+              border: "1px solid rgba(147,197,253,0.26)",
+              boxShadow: "0 0 34px rgba(59,130,246,0.16), 0 0 28px rgba(168,85,247,0.12), inset 0 1px 1px rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", gap: "18px",
               cursor: "pointer",
             }}
           >
@@ -3442,7 +3432,8 @@ export default function Home() {
               width: "42px", height: "42px", borderRadius: "50%",
               background: "linear-gradient(135deg, #7E7BFF, #9B7BFF)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "17px", fontWeight: 700, color: "white",
+              fontSize: "22px", fontWeight: 800, color: "white",
+              boxShadow: "0 0 26px rgba(168,85,247,0.34)",
               flexShrink: 0, overflow: "hidden"
             }}>
               {avatarUrl
@@ -3451,19 +3442,19 @@ export default function Home() {
               }
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
-              <div style={{ fontSize: "15px", fontWeight: 600, color: "#F4F7FB", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: "22px", fontWeight: 750, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {formattedName}
               </div>
-              <div style={{ fontSize: "12px", color: "rgba(244,247,251,0.55)", marginTop: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: "16px", color: "rgba(203,213,225,0.64)", marginTop: "6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {session?.user?.email}
               </div>
             </div>
             <span style={{
-              width: "28px", height: "28px", borderRadius: "8px",
-              background: "rgba(255,255,255,0.10)",
-              border: "1px solid rgba(255,255,255,0.16)",
+              width: "48px", height: "48px", borderRadius: "18px",
+              background: "rgba(15,23,42,0.60)",
+              border: "1px solid rgba(148,163,255,0.26)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "rgba(244,247,251,0.72)", fontSize: "14px", flexShrink: 0
+              color: "rgba(226,232,240,0.86)", fontSize: "28px", flexShrink: 0
             }}>›</span>
           </div>
         </div>
