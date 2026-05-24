@@ -1368,6 +1368,85 @@ export default function Home() {
     }
   };
 
+  const handleEventEmailNotifications = async () => {
+    if (!session) return;
+
+    const userEmail = customEmail.trim() || session.user.email;
+    if (!userEmail) {
+      showToast("Nincs email cím az értesítéshez.", "error");
+      return;
+    }
+
+    if (customEmail.trim()) {
+      localStorage.setItem("remembered_custom_email", customEmail.trim());
+    }
+
+    const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "";
+    const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "";
+    const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "";
+
+    const templateParams = {
+      to_email: userEmail,
+      event_title: newEventTitle,
+      event_date: newEventDate,
+      event_desc: newEventDesc || "Nincs leírás",
+      subject: `LifeSync: ${newEventTitle}`,
+    };
+
+    if (emailNotifyNow) {
+      if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+        showToast("Az azonnali email nincs beállítva: hiányzik az EmailJS adat.", "error");
+      } else {
+        try {
+          await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+        } catch (emailErr: any) {
+          console.error("Email küldési hiba:", emailErr);
+          showToast("Az azonnali email küldése nem sikerült.", "error");
+        }
+      }
+    }
+
+    let scheduledCount = 0;
+    const saveScheduledEmail = async (sendAt: Date, label: string) => {
+      if (sendAt <= new Date()) {
+        showToast(`${label} időpont már elmúlt, ezért nem lett időzítve.`, "info");
+        return;
+      }
+
+      const { error: scheduleError } = await supabase.from("scheduled_emails").insert({
+        user_id: session.user.id,
+        to_email: userEmail,
+        event_title: newEventTitle,
+        event_date: newEventDate,
+        event_desc: newEventDesc || "",
+        send_at: sendAt.toISOString(),
+        sent: false,
+      });
+
+      if (scheduleError) {
+        console.error("Időzített email mentési hiba:", scheduleError);
+        showToast("Email időzítés mentési hiba: " + scheduleError.message, "error");
+      } else {
+        scheduledCount += 1;
+      }
+    };
+
+    if (emailNotify1Day) {
+      const sendAt = new Date(newEventDate);
+      sendAt.setDate(sendAt.getDate() - 1);
+      sendAt.setHours(8, 0, 0, 0);
+      await saveScheduledEmail(sendAt, "Az 1 nappal előtte email");
+    }
+
+    if (emailNotifyCustom && customNotifyDateTime) {
+      await saveScheduledEmail(customNotifyDateTime, "Az egyedi email emlékeztető");
+    }
+
+    if (scheduledCount > 0) {
+      showToast(`${scheduledCount} email emlékeztető időzítve.`, "success");
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) return;
@@ -1455,6 +1534,7 @@ export default function Home() {
           showToast("Hiba mentés közben: " + error.message, 'error');
         } else {
           showToast(t("toastRecurring"), 'success');
+          await handleEventEmailNotifications();
           resetForm();
           fetchEvents();
           setActiveTab(t("timelineTitle"));
@@ -1474,64 +1554,7 @@ export default function Home() {
       if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
       } else {
-          // Email küldés EmailJS-sel
-          const userEmail = customEmail.trim() || session.user.email;
-          if (customEmail.trim()) {
-            localStorage.setItem('remembered_custom_email', customEmail.trim());
-          }
-          const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '';
-          const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || '';
-          const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '';
-
-          if (userEmail && SERVICE_ID) {
-            try {
-              const templateParams = {
-                to_email: userEmail,
-                event_title: newEventTitle,
-                event_date: newEventDate,
-                event_desc: newEventDesc || 'Nincs leírás',
-                subject: `LifeSync: ${newEventTitle}`,
-              };
-
-              if (emailNotifyNow) {
-                await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
-              }
-
-              // Időzített emlékeztetők mentése Supabase-be
-              if (emailNotify1Day) {
-                const sendAt = new Date(newEventDate);
-                sendAt.setDate(sendAt.getDate() - 1);
-                sendAt.setHours(8, 0, 0, 0);
-                if (sendAt > new Date()) {
-                  await supabase.from('scheduled_emails').insert({
-                    user_id: session.user.id,
-                    to_email: userEmail,
-                    event_title: newEventTitle,
-                    event_date: newEventDate,
-                    event_desc: newEventDesc || '',
-                    send_at: sendAt.toISOString(),
-                    sent: false
-                  });
-                }
-              }
-              if (emailNotifyCustom && customNotifyDateTime) {
-                const sendAt = customNotifyDateTime;
-                if (sendAt > new Date()) {
-                  await supabase.from('scheduled_emails').insert({
-                    user_id: session.user.id,
-                    to_email: userEmail,
-                    event_title: newEventTitle,
-                    event_date: newEventDate,
-                    event_desc: newEventDesc || '',
-                    send_at: sendAt.toISOString(),
-                    sent: false
-                  });
-                }
-              }
-            } catch (emailErr) {
-              console.error('Email küldési hiba:', emailErr);
-            }
-          }
+          await handleEventEmailNotifications();
 
           showToast(t("toastSaved"), 'success');
           resetForm();
