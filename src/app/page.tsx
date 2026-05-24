@@ -25,6 +25,9 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showSplash, setShowSplash] = useState(false);
+
+  // Login utáni layout stabilizálás: iOS/PWA alatt az első render néha rossz viewport-mérettel számol.
+  const [appReady, setAppReady] = useState(false);
   
   // Real data state
   const [events, setEvents] = useState<any[]>([]);
@@ -100,6 +103,53 @@ export default function Home() {
       window.removeEventListener("offline", goOffline);
     };
   }, []);
+
+  useEffect(() => {
+    const applyViewportSize = () => {
+      const height = window.visualViewport?.height || window.innerHeight;
+      document.documentElement.style.setProperty("--app-height", `${height}px`);
+    };
+
+    applyViewportSize();
+    window.addEventListener("resize", applyViewportSize);
+    window.visualViewport?.addEventListener("resize", applyViewportSize);
+    window.visualViewport?.addEventListener("scroll", applyViewportSize);
+
+    return () => {
+      window.removeEventListener("resize", applyViewportSize);
+      window.visualViewport?.removeEventListener("resize", applyViewportSize);
+      window.visualViewport?.removeEventListener("scroll", applyViewportSize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!session || showSplash) {
+      setAppReady(false);
+      return;
+    }
+
+    const applyViewportSize = () => {
+      const height = window.visualViewport?.height || window.innerHeight;
+      document.documentElement.style.setProperty("--app-height", `${height}px`);
+    };
+
+    applyViewportSize();
+    const raf = window.requestAnimationFrame(() => {
+      applyViewportSize();
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    const timer = window.setTimeout(() => {
+      applyViewportSize();
+      window.dispatchEvent(new Event("resize"));
+      setAppReady(true);
+    }, 180);
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
+  }, [session, showSplash]);
 
   // Service Worker regisztráció
   useEffect(() => {
@@ -1226,7 +1276,7 @@ export default function Home() {
 
   if (!session || showSplash) {
     return (
-      <main className="phone" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", padding: "24px", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: showSplash ? "center" : "flex-start", alignItems: "center", gap: "20px" }}>
+      <main className="phone" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "var(--app-height, 100dvh)", minHeight: "100dvh", padding: "24px", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: showSplash ? "center" : "flex-start", alignItems: "center", gap: "20px" }}>
         {!showSplash && (
           <div className="theme-toggle" onClick={toggleTheme} style={{ position: "absolute", top: "25px", right: "25px", cursor: "pointer", zIndex: 100 }}>
             {isDarkMode ? "☀️" : "🌙"}
@@ -1363,10 +1413,32 @@ export default function Home() {
     );
   }
 
+  if (session && !showSplash && !appReady) {
+    return (
+      <main
+        className="phone"
+        style={{
+          width: "100%",
+          height: "var(--app-height, 100dvh)",
+          minHeight: "100dvh",
+          overflow: "hidden",
+          background: "#06111f",
+        }}
+      />
+    );
+  }
+
   return (
     <main 
       className="phone"
       ref={mainRef}
+      style={{
+        height: "var(--app-height, 100dvh)",
+        minHeight: "100dvh",
+        maxHeight: "var(--app-height, 100dvh)",
+        overflow: "hidden",
+        boxSizing: "border-box",
+      }}
 
     >
       {/* ═══ FŐ TARTALOM ═══ */}
@@ -1452,7 +1524,7 @@ export default function Home() {
 
       {/* Main Content Area based on Tab */}
       {activeTab === "Home" && (
-        <div key="Home" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain", paddingTop: "10px" }}>
+        <div key="Home" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 120px)", overflowY: "auto", paddingBottom: "20px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", paddingTop: "10px" }}>
           {/* ── GREETING KÁRTYA ── */}
           <section style={{
             position: "relative",
@@ -1905,7 +1977,7 @@ export default function Home() {
       )}
 
       {activeTab === "Timeline" && (
-        <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 100px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "26px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "18px", overscrollBehavior: "contain", background: "radial-gradient(circle at 78% 12%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 6% 58%, rgba(56,189,248,0.12), transparent 34%)" }}>
+        <div key="Timeline" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 100px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "26px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", gap: "18px", overscrollBehavior: "contain", background: "radial-gradient(circle at 78% 12%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 6% 58%, rgba(56,189,248,0.12), transparent 34%)" }}>
           <div style={{ padding: "2px 4px 0" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
               <h2 style={{ fontSize: "32px", fontWeight: 900, letterSpacing: "-0.04em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.26)" }}>{t("timelineTitle")}</h2>
@@ -2103,7 +2175,7 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", overscrollBehavior: "contain", background: "radial-gradient(circle at 75% 18%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 8% 58%, rgba(56,189,248,0.12), transparent 32%)" }}>
+        <div key="Add" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "radial-gradient(circle at 75% 18%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 8% 58%, rgba(56,189,248,0.12), transparent 32%)" }}>
           <div style={{ padding: "2px 4px 0", marginBottom: "18px" }}>
             <h2 style={{ fontSize: "30px", fontWeight: 850, marginBottom: "6px", letterSpacing: "-0.03em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.25)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
@@ -2638,7 +2710,7 @@ export default function Home() {
       )}
 
       {activeTab === "Profile" && (
-        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 92px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", overscrollBehavior: "contain", padding: "0 2px" }}>
+        <div key="Profile" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 92px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", padding: "0 2px" }}>
           <div style={{ padding: "0 6px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "10px" }}>
             <div>
               <h2 style={{ fontSize: "clamp(26px, 8vw, 32px)", fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 10px 35px rgba(255,255,255,0.12)" }}>{t("profileTitle")}</h2>
@@ -2730,7 +2802,7 @@ export default function Home() {
       )}
 
       {activeTab === "Vault" && (
-        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+        <div key="Vault" ref={vaultScrollRef} className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 120px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
           {activeVaultFolder ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -2871,7 +2943,7 @@ export default function Home() {
             style={{ width: "100%", padding: "16px", borderRadius: "16px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: "16px", outline: "none", marginBottom: "24px" }} 
           />
           
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "20px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "24px", paddingBottom: "20px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
             {searchQuery.length >= 2 ? (
               <>
                 {/* Timeline Eredmények */}
