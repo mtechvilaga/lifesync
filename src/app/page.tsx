@@ -52,6 +52,7 @@ export default function Home() {
 
   // Stats Carousel state
   const [activeStatIndex, setActiveStatIndex] = useState(0);
+  const [selectedStatsPeriod, setSelectedStatsPeriod] = useState<"today" | "week" | "month" | "year" | "all" | null>(null);
 
   // Status bar dynamic state
   const [currentTime, setCurrentTime] = useState("09:41");
@@ -981,6 +982,28 @@ export default function Home() {
     return { today: todayCount, week: weekCount, month: monthCount, year: yearCount, allTime: events.length };
   };
   const stats = calculateStats();
+
+  const getStatsPeriodEvents = (period: "today" | "week" | "month" | "year" | "all") => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todayObj = new Date();
+    const day = todayObj.getDay();
+    const diff = todayObj.getDate() - day + (day === 0 ? -6 : 1);
+    const startOfWeek = new Date(todayObj.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
+    const thisMonth = todayStr.substring(0, 7);
+    const thisYear = todayStr.substring(0, 4);
+
+    return events.filter((event) => {
+      if (!event.event_date) return false;
+      if (period === "all") return true;
+      if (period === "today") return event.event_date === todayStr;
+      if (period === "week") return new Date(event.event_date) >= startOfWeek;
+      if (period === "month") return event.event_date.startsWith(thisMonth);
+      if (period === "year") return event.event_date.startsWith(thisYear);
+      return false;
+    });
+  };
+
   const recentMemories = events.slice(0, 8);
 
   const handleStatsScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -1834,7 +1857,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── ESEMÉNY STATISZTIKÁK – FÉNYESEBB NEON DESIGN ── */}
+          {/* ── ESEMÉNY STATISZTIKÁK – KATTINTHATÓ CAROUSEL ── */}
           <section style={{
             position: "relative",
             borderRadius: "24px",
@@ -1846,22 +1869,20 @@ export default function Home() {
             boxShadow: "0 0 34px rgba(56,189,248,0.22), 0 0 42px rgba(168,85,247,0.18), inset 0 1px 0 rgba(255,255,255,0.14)",
             backdropFilter: "blur(18px)",
           }}>
-            {/* fény/glow rétegek */}
             <div style={{
               position: "absolute",
               inset: 0,
-              background: "radial-gradient(circle at 54% 16%, rgba(196,181,253,0.34), transparent 30%), radial-gradient(circle at 90% 12%, rgba(34,211,238,0.18), transparent 34%), radial-gradient(circle at 10% 88%, rgba(59,130,246,0.20), transparent 36%)",
+              background: "radial-gradient(circle at 54% 16%, rgba(196,181,253,0.26), transparent 30%), radial-gradient(circle at 90% 12%, rgba(34,211,238,0.15), transparent 34%), radial-gradient(circle at 10% 88%, rgba(59,130,246,0.18), transparent 36%)",
               pointerEvents: "none",
             }} />
             <div style={{
               position: "absolute",
               inset: "1px",
-              borderRadius: "25px",
+              borderRadius: "23px",
               background: "linear-gradient(180deg, rgba(255,255,255,0.08), transparent 44%)",
               pointerEvents: "none",
             }} />
 
-            {/* Header */}
             <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
               <h3 style={{
                 fontSize: "18px",
@@ -1890,110 +1911,172 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Fő stat kártya */}
-            <div style={{
-              position: "relative",
-              zIndex: 2,
-              minHeight: "96px",
-              borderRadius: "18px",
-              padding: "14px 12px",
-              display: "flex",
-              alignItems: "center",
-              gap: "13px",
-              overflow: "hidden",
-              background: "linear-gradient(135deg, rgba(42,48,112,0.82), rgba(16,28,78,0.72))",
-              border: "1px solid rgba(167,139,250,0.55)",
-              boxShadow: "0 0 26px rgba(147,197,253,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
-            }}>
-              <div style={{
-                position: "absolute",
-                right: "-34px",
-                top: "-28px",
-                width: "126px",
-                height: "126px",
-                borderRadius: "50%",
-                background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.44), rgba(168,85,247,0.55) 28%, rgba(37,99,235,0.28) 62%, transparent 72%)",
-                opacity: 0.52,
-                filter: "blur(0.2px)",
-              }} />
-              <div style={{
-                position: "absolute",
-                right: "-54px",
-                top: "44px",
-                width: "150px",
-                height: "32px",
-                borderRadius: "50%",
-                border: "1px solid rgba(96,165,250,0.45)",
-                transform: "rotate(-14deg)",
-                opacity: 0.5,
-              }} />
-
-              <div style={{
-                width: "54px",
-                height: "54px",
-                borderRadius: "16px",
-                flexShrink: 0,
+            <div
+              onScroll={handleStatsScroll}
+              style={{
+                position: "relative",
+                zIndex: 2,
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #22d3ee 100%)",
-                boxShadow: "0 0 28px rgba(99,102,241,0.62)",
-              }}>
-                <span style={{ fontSize: "24px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))" }}>🗓️</span>
-              </div>
+                gap: "10px",
+                overflowX: "auto",
+                scrollSnapType: "x mandatory",
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: "none",
+                paddingBottom: "4px",
+                marginRight: "-4px",
+              }}
+            >
+              {[
+                { period: "today" as const, icon: "🗓️", value: stats.today, title: lang === "hu" ? "Mai" : "Today", label: lang === "hu" ? "Események a mai napon" : "Events today", accent: "#38bdf8" },
+                { period: "week" as const, icon: "📅", value: stats.week, title: lang === "hu" ? "Heti" : "Weekly", label: lang === "hu" ? "Események ezen a héten" : "Events this week", accent: "#60a5fa" },
+                { period: "month" as const, icon: "↗️", value: stats.month, title: lang === "hu" ? "Havi" : "Monthly", label: lang === "hu" ? "Események ebben a hónapban" : "Events this month", accent: "#a78bfa" },
+                { period: "year" as const, icon: "🕒", value: stats.year, title: lang === "hu" ? "Éves" : "Yearly", label: lang === "hu" ? "Események ebben az évben" : "Events this year", accent: "#3b82f6" },
+                { period: "all" as const, icon: "✨", value: stats.allTime, title: lang === "hu" ? "Összes" : "All", label: lang === "hu" ? "Minden mentett esemény" : "All saved events", accent: "#c084fc" },
+              ].map((card) => {
+                const isActive = selectedStatsPeriod === card.period;
+                return (
+                  <button
+                    key={card.period}
+                    type="button"
+                    onClick={() => setSelectedStatsPeriod(isActive ? null : card.period)}
+                    style={{
+                      position: "relative",
+                      minWidth: "calc(100% - 20px)",
+                      scrollSnapAlign: "start",
+                      minHeight: "104px",
+                      borderRadius: "18px",
+                      padding: "13px 12px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "13px",
+                      overflow: "hidden",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      background: isActive
+                        ? "linear-gradient(135deg, rgba(67,56,202,0.92), rgba(30,64,175,0.76))"
+                        : "linear-gradient(135deg, rgba(42,48,112,0.82), rgba(16,28,78,0.72))",
+                      border: isActive ? "1px solid rgba(125,211,252,0.78)" : "1px solid rgba(167,139,250,0.55)",
+                      boxShadow: isActive
+                        ? "0 0 28px rgba(56,189,248,0.26), inset 0 1px 0 rgba(255,255,255,0.16)"
+                        : "0 0 22px rgba(147,197,253,0.14), inset 0 1px 0 rgba(255,255,255,0.12)",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute",
+                      right: "-38px",
+                      top: "-32px",
+                      width: "136px",
+                      height: "136px",
+                      borderRadius: "50%",
+                      background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,0.36), ${card.accent}77 30%, rgba(37,99,235,0.20) 64%, transparent 74%)`,
+                      opacity: 0.46,
+                    }} />
+                    <div style={{
+                      position: "absolute",
+                      right: "-54px",
+                      top: "46px",
+                      width: "150px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      border: "1px solid rgba(96,165,250,0.36)",
+                      transform: "rotate(-14deg)",
+                      opacity: 0.46,
+                    }} />
 
-              <div style={{ position: "relative", zIndex: 2, minWidth: 0 }}>
-                <div style={{ fontSize: "38px", fontWeight: 950, lineHeight: 0.9, color: "#ffffff", textShadow: "0 4px 20px rgba(0,0,0,0.28)" }}>{stats.today}</div>
-                <div style={{ marginTop: "6px", fontSize: "17px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
-                <div style={{ marginTop: "6px", fontSize: "12px", fontWeight: 500, color: "rgba(226,232,240,0.76)" }}>{t("todayLabel")}</div>
-              </div>
+                    <div style={{
+                      width: "54px",
+                      height: "54px",
+                      borderRadius: "16px",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #22d3ee 100%)",
+                      boxShadow: "0 0 24px rgba(99,102,241,0.48)",
+                    }}>
+                      <span style={{ fontSize: "24px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))" }}>{card.icon}</span>
+                    </div>
+
+                    <div style={{ position: "relative", zIndex: 2, minWidth: 0 }}>
+                      <div style={{ fontSize: "38px", fontWeight: 950, lineHeight: 0.9, color: "#ffffff", textShadow: "0 4px 20px rgba(0,0,0,0.28)" }}>{card.value}</div>
+                      <div style={{ marginTop: "6px", fontSize: "16px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{card.title}</div>
+                      <div style={{ marginTop: "6px", fontSize: "11.5px", fontWeight: 500, color: "rgba(226,232,240,0.76)", lineHeight: 1.25 }}>{card.label}</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Elválasztó */}
-            <div style={{ position: "relative", zIndex: 2, margin: "10px 0 7px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
-
-            {/* Alsó statisztikák */}
-            <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0" }}>
-              {[
-                { icon: "calendar", value: stats.week, label: lang === "hu" ? "heti" : "weekly", color: "#38bdf8" },
-                { icon: "trend", value: stats.month, label: lang === "hu" ? "havi" : "monthly", color: "#a78bfa" },
-                { icon: "clock", value: stats.year, label: lang === "hu" ? "éves" : "yearly", color: "#3b82f6" },
-              ].map((item, index) => (
-                <div key={item.icon} style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "6px",
-                  padding: "3px 6px",
-                  borderLeft: index === 0 ? "none" : "1px solid rgba(255,255,255,0.12)",
-                }}>
-                  {item.icon === "calendar" && (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                  )}
-                  {item.icon === "trend" && (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                      <polyline points="16 7 22 7 22 13" />
-                    </svg>
-                  )}
-                  {item.icon === "clock" && (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                  )}
-                  <div>
-                    <div style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{item.value}</div>
-                    <div style={{ marginTop: "3px", fontSize: "10.5px", fontWeight: 600, color: "rgba(226,232,240,0.68)", lineHeight: 1 }}>{item.label}</div>
-                  </div>
-                </div>
+            <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "center", gap: "5px", margin: "6px 0 8px" }}>
+              {["today", "week", "month", "year", "all"].map((period, index) => (
+                <span key={period} style={{
+                  width: activeStatIndex === index ? "15px" : "5px",
+                  height: "5px",
+                  borderRadius: "999px",
+                  background: activeStatIndex === index ? "rgba(125,211,252,0.85)" : "rgba(226,232,240,0.28)",
+                  transition: "all 0.2s ease",
+                }} />
               ))}
             </div>
+
+            {selectedStatsPeriod && (
+              <div style={{
+                position: "relative",
+                zIndex: 2,
+                borderRadius: "18px",
+                padding: "10px",
+                background: "rgba(2,6,23,0.42)",
+                border: "1px solid rgba(148,163,184,0.16)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <p style={{ margin: 0, color: "#fff", fontWeight: 900, fontSize: "13px" }}>
+                    {selectedStatsPeriod === "today" && (lang === "hu" ? "Mai események" : "Today events")}
+                    {selectedStatsPeriod === "week" && (lang === "hu" ? "Heti események" : "Weekly events")}
+                    {selectedStatsPeriod === "month" && (lang === "hu" ? "Havi események" : "Monthly events")}
+                    {selectedStatsPeriod === "year" && (lang === "hu" ? "Éves események" : "Yearly events")}
+                    {selectedStatsPeriod === "all" && (lang === "hu" ? "Összes esemény" : "All events")}
+                  </p>
+                  <button onClick={() => setSelectedStatsPeriod(null)} style={{ border: "none", background: "rgba(255,255,255,0.08)", color: "rgba(226,232,240,0.85)", borderRadius: "999px", width: "24px", height: "24px", cursor: "pointer" }}>×</button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "7px", maxHeight: "150px", overflowY: "auto", paddingRight: "2px" }}>
+                  {getStatsPeriodEvents(selectedStatsPeriod).length > 0 ? (
+                    getStatsPeriodEvents(selectedStatsPeriod).slice(0, 12).map((event) => (
+                      <button
+                        key={event.id}
+                        type="button"
+                        onClick={() => { setActiveTab("Timeline"); setScrollToEventId(event.id); }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "9px",
+                          width: "100%",
+                          border: "1px solid rgba(148,163,184,0.14)",
+                          borderRadius: "13px",
+                          padding: "8px 9px",
+                          background: "rgba(15,23,42,0.50)",
+                          color: "white",
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                      >
+                        <span style={{ width: "28px", height: "28px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(139,92,246,0.9), rgba(56,189,248,0.75))", flexShrink: 0 }}>🗓️</span>
+                        <span style={{ minWidth: 0, flex: 1 }}>
+                          <span style={{ display: "block", fontSize: "12.5px", fontWeight: 850, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.title}</span>
+                          <span style={{ display: "block", marginTop: "2px", fontSize: "10.5px", color: "rgba(226,232,240,0.62)" }}>{event.event_date}</span>
+                        </span>
+                        <span style={{ color: "rgba(226,232,240,0.45)", fontSize: "16px" }}>›</span>
+                      </button>
+                    ))
+                  ) : (
+                    <div style={{ padding: "12px 8px", borderRadius: "13px", color: "rgba(226,232,240,0.62)", fontSize: "12px", background: "rgba(15,23,42,0.36)" }}>
+                      {lang === "hu" ? "Nincs esemény ebben az időszakban." : "No events in this period."}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
 
           {/* ── LEGUTÓBBI ESEMÉNYEK – NEON KÁRTYA ── */}
