@@ -150,6 +150,87 @@ export default function Home() {
       .login-card input, .login-card button, .login-card span {
         pointer-events: auto;
       }
+
+      .neon-header-button {
+        background: linear-gradient(145deg, rgba(8,15,28,0.86), rgba(24,28,70,0.58)) !important;
+        border: 1px solid rgba(139,92,246,0.48) !important;
+        box-shadow: 0 0 18px rgba(56,189,248,0.16), 0 0 22px rgba(139,92,246,0.16), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+      }
+      .add-neon-card {
+        position: relative !important;
+        padding: 20px !important;
+        border-radius: 30px !important;
+        background:
+          radial-gradient(circle at 100% 18%, rgba(168,85,247,0.22), transparent 38%),
+          radial-gradient(circle at 0% 100%, rgba(56,189,248,0.16), transparent 42%),
+          linear-gradient(145deg, rgba(4,10,24,0.94), rgba(10,15,38,0.90) 48%, rgba(19,17,60,0.84)) !important;
+        border: 1px solid rgba(139,92,246,0.62) !important;
+        box-shadow: 0 0 0 1px rgba(56,189,248,0.18), 0 24px 70px rgba(0,0,0,0.52), 0 0 44px rgba(139,92,246,0.24), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+        overflow: hidden !important;
+      }
+      .add-neon-card::before {
+        content: "";
+        position: absolute;
+        inset: -35% -20% auto auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(168,85,247,0.24), transparent 64%);
+        pointer-events: none;
+      }
+      .add-neon-card form {
+        position: relative;
+        z-index: 1;
+        gap: 13px !important;
+      }
+      .add-neon-card label {
+        font-size: 13px !important;
+        letter-spacing: 0.01em;
+        color: rgba(241,245,249,0.92) !important;
+      }
+      .add-neon-card input:not([type="checkbox"]):not([type="file"]),
+      .add-neon-card select,
+      .add-neon-card textarea {
+        background: linear-gradient(145deg, rgba(7,13,30,0.82), rgba(18,24,54,0.62)) !important;
+        border: 1px solid rgba(96,165,250,0.30) !important;
+        border-radius: 18px !important;
+        color: #fff !important;
+        font-size: 15px !important;
+        padding: 13px 15px !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(56,189,248,0.05) !important;
+        outline: none !important;
+      }
+      .add-neon-card textarea {
+        min-height: 104px !important;
+        resize: vertical !important;
+      }
+      .add-neon-card input::placeholder,
+      .add-neon-card textarea::placeholder {
+        color: rgba(203,213,225,0.52) !important;
+      }
+      .add-accordion-button {
+        min-height: 56px !important;
+        padding: 10px 14px !important;
+        border-radius: 18px !important;
+        background: linear-gradient(145deg, rgba(12,18,44,0.82), rgba(20,26,62,0.58)) !important;
+        border: 1px solid rgba(96,165,250,0.28) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.22) !important;
+      }
+      .add-save-button {
+        min-height: 62px !important;
+        padding: 0 18px !important;
+        border-radius: 20px !important;
+        background: linear-gradient(135deg, #38bdf8 0%, #6366f1 52%, #c026d3 100%) !important;
+        font-size: 17px !important;
+        font-weight: 850 !important;
+        white-space: nowrap !important;
+        box-shadow: 0 16px 38px rgba(124,58,237,0.35), 0 0 28px rgba(56,189,248,0.24) !important;
+      }
+      .add-neon-card [style*="border: 1px dashed"] {
+        border-radius: 18px !important;
+        border-color: rgba(96,165,250,0.30) !important;
+        background: rgba(8,15,35,0.72) !important;
+      }
     `;
   }, []);
 
@@ -1708,6 +1789,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
           {/* Hamburger gomb */}
           <button
+            className="neon-header-button"
             onClick={() => setIsDrawerOpen(true)}
             style={{
               width: "42px", height: "42px", borderRadius: "14px",
@@ -1774,7 +1856,7 @@ export default function Home() {
         </div>{/* end hamburger+content wrapper */}
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div className="search" onClick={() => setIsSearchOpen(true)} style={{ cursor: "pointer" }}>
+          <div className="search neon-header-button" onClick={() => setIsSearchOpen(true)} style={{ cursor: "pointer" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -2524,13 +2606,20 @@ export default function Home() {
       {activeTab === "Add" && (
         <div key="Add" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "transparent" }}>
           <div style={{ padding: "2px 4px 0", marginBottom: "18px" }}>
-            <h2 style={{ fontSize: "30px", fontWeight: 850, marginBottom: "6px", letterSpacing: "-0.03em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.25)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
+            <h2 style={{ fontSize: "32px", fontWeight: 900, marginBottom: "8px", letterSpacing: "-0.04em", color: "#fff", textShadow: "0 0 28px rgba(139,92,246,0.35), 0 0 18px rgba(56,189,248,0.18)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
           </div>
 
           {addViewMode === "form" ? (
-          <div className="glass-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "hidden" }}>
+          <div className="glass-card add-neon-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "hidden" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
+                <div style={{ width: "50px", height: "50px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", boxShadow: "0 0 24px rgba(56,189,248,0.22)" }}>✦</div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 850, color: "#fff" }}>{editingEventId ? t("editEntry") : t("newEntry")}</h3>
+                  <p style={{ margin: "3px 0 0", fontSize: "13px", color: "rgba(203,213,225,0.68)" }}>{t("newHint")}</p>
+                </div>
+              </div>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("titleLabel")}</label>
                 <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.6vw, 15px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} />
@@ -2649,7 +2738,7 @@ export default function Home() {
 
               {/* MÉDIA SZEKCIÓ - összecsukható */}
               <div style={{ marginTop: "8px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.36))", borderRadius: "18px", border: "1px solid rgba(139,92,246,0.26)", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-                <button type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: showMediaSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showMediaSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
+                <button className="add-accordion-button" type="button" onClick={() => setShowMediaSection(!showMediaSection)} style={{ width: "100%", padding: "12px 16px", background: showMediaSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showMediaSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📎</span> Mellékletek
                     {(newEventImages.length + newEventDocs.length + newEventAudios.length) > 0 && (
@@ -2779,7 +2868,7 @@ export default function Home() {
 
                             {/* EMAIL SZEKCIÓ - összecsukható */}
               <div style={{ marginTop: "8px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.36))", borderRadius: "18px", border: "1px solid rgba(139,92,246,0.26)", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-                <button type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
+                <button className="add-accordion-button" type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📧</span> Email értesítés
                   </span>
@@ -2837,7 +2926,7 @@ export default function Home() {
                 {editingEventId && (
                   <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "rgba(15,23,42,0.82)", border: "1px solid rgba(148,163,184,0.28)", borderRadius: "20px", color: "rgba(226,232,240,0.96)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
                 )}
-                <button type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
+                <button className="add-save-button" type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
                   {isUploading ? t("uploading") : (editingEventId ? t("saveChanges") : t("save"))}
                 </button>
               </div>
