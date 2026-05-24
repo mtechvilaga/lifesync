@@ -3377,10 +3377,10 @@ export default function Home() {
         />
       )}
 
-      {/* Drawer panel – 280px, 100vh, border-radius 0 24px 24px 0 */}
+      {/* Drawer panel – óra alól indul, hogy ne csússzon a status bar alá */}
       <div style={{
         position: "absolute",
-        top: 0, left: 0, bottom: 0,
+        top: "66px", left: 0, bottom: 0,
         width: "min(276px, 76vw)",
         zIndex: 201,
         background: `
