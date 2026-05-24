@@ -52,6 +52,7 @@ export default function Home() {
 
   // Stats Carousel state
   const [activeStatIndex, setActiveStatIndex] = useState(0);
+  const statsDragRef = useRef({ startX: 0, startY: 0, moved: false });
   const [selectedStatsPeriod, setSelectedStatsPeriod] = useState<"today" | "week" | "month" | "year" | "all" | null>(null);
 
   // Status bar dynamic state
@@ -1912,7 +1913,25 @@ export default function Home() {
             </div>
 
             <div
+              data-swipe-ignore="true"
               onScroll={handleStatsScroll}
+              onTouchStart={(e) => {
+                const touch = e.touches[0];
+                statsDragRef.current = { startX: touch.clientX, startY: touch.clientY, moved: false };
+              }}
+              onTouchMove={(e) => {
+                const touch = e.touches[0];
+                const dx = Math.abs(touch.clientX - statsDragRef.current.startX);
+                const dy = Math.abs(touch.clientY - statsDragRef.current.startY);
+                if (dx > 8 && dx > dy) {
+                  statsDragRef.current.moved = true;
+                }
+              }}
+              onTouchEnd={() => {
+                if (statsDragRef.current.moved) {
+                  window.setTimeout(() => { statsDragRef.current.moved = false; }, 80);
+                }
+              }}
               style={{
                 position: "relative",
                 zIndex: 2,
@@ -1938,7 +1957,15 @@ export default function Home() {
                   <button
                     key={card.period}
                     type="button"
-                    onClick={() => setSelectedStatsPeriod(isActive ? null : card.period)}
+                    onClick={(e) => {
+                      if (statsDragRef.current.moved) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.setTimeout(() => { statsDragRef.current.moved = false; }, 80);
+                        return;
+                      }
+                      setSelectedStatsPeriod(isActive ? null : card.period);
+                    }}
                     style={{
                       position: "relative",
                       minWidth: "calc(100% - 20px)",
