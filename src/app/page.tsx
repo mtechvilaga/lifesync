@@ -120,6 +120,13 @@ export default function Home() {
         font-size: 16px !important;
         max-width: 100%;
         box-sizing: border-box;
+        scroll-margin-top: 110px;
+        scroll-margin-bottom: 340px;
+      }
+      .custom-datepicker, .mobile-datetime-input {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
       }
       .phone {
         width: min(100vw, 430px) !important;
@@ -166,22 +173,22 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Stabil app-magasság iPhone/PWA alatt.
+    // Fontos: billentyűzet nyitásakor NEM használjuk a visualViewport kisebb magasságát,
+    // mert attól az Add / email / időválasztó panelek teljesen felugranak.
     const applyViewportSize = () => {
-      const vv = window.visualViewport;
-      const height = vv && vv.scale <= 1.01 ? vv.height : window.innerHeight;
+      const height = window.innerHeight;
       document.documentElement.style.setProperty("--app-height", `${height}px`);
       document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
     };
 
     applyViewportSize();
     window.addEventListener("resize", applyViewportSize);
-    window.visualViewport?.addEventListener("resize", applyViewportSize);
-    window.visualViewport?.addEventListener("scroll", applyViewportSize);
+    window.addEventListener("orientationchange", applyViewportSize);
 
     return () => {
       window.removeEventListener("resize", applyViewportSize);
-      window.visualViewport?.removeEventListener("resize", applyViewportSize);
-      window.visualViewport?.removeEventListener("scroll", applyViewportSize);
+      window.removeEventListener("orientationchange", applyViewportSize);
     };
   }, []);
 
@@ -192,8 +199,7 @@ export default function Home() {
     }
 
     const applyViewportSize = () => {
-      const vv = window.visualViewport;
-      const height = vv && vv.scale <= 1.01 ? vv.height : window.innerHeight;
+      const height = window.innerHeight;
       document.documentElement.style.setProperty("--app-height", `${height}px`);
       document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
     };
@@ -1059,8 +1065,7 @@ export default function Home() {
         if (typeof window !== "undefined") {
           (document.activeElement as HTMLElement | null)?.blur?.();
           window.scrollTo(0, 0);
-          const vv = window.visualViewport;
-          const height = vv && vv.scale <= 1.01 ? vv.height : window.innerHeight;
+          const height = window.innerHeight;
           document.documentElement.style.setProperty("--app-height", `${height}px`);
           document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
           window.dispatchEvent(new Event("resize"));
@@ -2630,7 +2635,7 @@ export default function Home() {
                 <div style={{ padding: "0 12px 12px" }}>
                 <div style={{ marginBottom: "10px" }}>
                   <label style={{ fontSize: "11.5px", opacity: 0.8, marginBottom: "4px", display: "block" }}>{t("recipientEmail")}</label>
-                  <input type="email" value={customEmail} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px", backdropFilter: "blur(10px)" }} />
+                  <input type="email" value={customEmail} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px", backdropFilter: "blur(10px)", WebkitAppearance: "none", appearance: "none" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
@@ -2646,17 +2651,26 @@ export default function Home() {
                     Dátum és idő szerint
                   </label>
                   {emailNotifyCustom && (
-                    <div style={{ marginTop: "4px", paddingLeft: "28px", width: "100%" }}>
-                      <DatePicker
-                        selected={customNotifyDateTime}
-                        onChange={(date: Date | null) => setCustomNotifyDateTime(date)}
-                        showTimeSelect
-                        timeFormat="HH:mm"
-                        timeIntervals={15}
-                        dateFormat="yyyy. MM. dd. HH:mm"
-                        placeholderText={t("dateTimePlaceholder")}
-                        className="custom-datepicker"
-                        fixedHeight
+                    <div style={{ marginTop: "4px", paddingLeft: "0", width: "100%", boxSizing: "border-box" }}>
+                      <input
+                        type="datetime-local"
+                        className="mobile-datetime-input"
+                        value={customNotifyDateTime ? new Date(customNotifyDateTime.getTime() - customNotifyDateTime.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                        onChange={(e) => setCustomNotifyDateTime(e.target.value ? new Date(e.target.value) : null)}
+                        style={{
+                          width: "100%",
+                          maxWidth: "100%",
+                          boxSizing: "border-box",
+                          background: "rgba(255,255,255,0.08)",
+                          border: "1px solid rgba(255,255,255,0.2)",
+                          padding: "11px 12px",
+                          borderRadius: "14px",
+                          color: "white",
+                          outline: "none",
+                          fontSize: "16px",
+                          WebkitAppearance: "none",
+                          appearance: "none",
+                        }}
                       />
                     </div>
                   )}
