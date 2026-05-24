@@ -81,6 +81,11 @@ export default function Home() {
   const [loginKeyboardHeight, setLoginKeyboardHeight] = useState(0);
   const loginCardRef = useRef<HTMLDivElement | null>(null);
 
+  // iOS PWA első indítás fix: ikonról nyitva a Safari/WebKit késve ad pontos viewportot.
+  // Emiatt a login panel első rendernél elcsúszhat vagy nehezen kattintható lehet.
+  const [isPwaLoginBootReady, setIsPwaLoginBootReady] = useState(false);
+  const [pwaLoginBootKey, setPwaLoginBootKey] = useState(0);
+
   // Drawer (oldalsáv) state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -161,6 +166,8 @@ export default function Home() {
         -webkit-overflow-scrolling: touch;
         touch-action: manipulation;
         pointer-events: auto;
+        transform-origin: center top;
+        will-change: auto;
       }
       .login-card input, .login-card button, .login-card span {
         pointer-events: auto;
@@ -366,6 +373,70 @@ export default function Home() {
       window.removeEventListener("resize", updateLoginKeyboard);
     };
   }, [session, showSplash, isLoginInputFocused]);
+
+  // iOS PWA első ikonról indítás stabilizálás.
+  // A login panelt csak akkor engedjük kattinthatóan megjelenni, amikor az iOS már
+  // újraszámolta a safe-area / visualViewport / innerHeight értékeket.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (session || showSplash) {
+      setIsPwaLoginBootReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    setIsPwaLoginBootReady(false);
+
+    const applyStableLoginViewport = () => {
+      const height = window.innerHeight;
+      const width = Math.min(window.innerWidth, 430);
+      document.documentElement.style.setProperty("--app-height", `${height}px`);
+      document.documentElement.style.setProperty("--app-width", `${width}px`);
+      document.documentElement.style.setProperty("--login-keyboard-height", "0px");
+      setIsLoginKeyboardOpen(false);
+      setLoginKeyboardHeight(0);
+      window.scrollTo(0, 0);
+    };
+
+    applyStableLoginViewport();
+
+    const raf1 = window.requestAnimationFrame(() => {
+      applyStableLoginViewport();
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    const timers = [180, 420, 760].map((delay, index) =>
+      window.setTimeout(() => {
+        if (cancelled) return;
+        applyStableLoginViewport();
+        window.dispatchEvent(new Event("resize"));
+        if (index === 1) {
+          setPwaLoginBootKey((value) => value + 1);
+        }
+        if (index === 2) {
+          setIsPwaLoginBootReady(true);
+        }
+      }, delay)
+    );
+
+    const handlePageshow = () => {
+      applyStableLoginViewport();
+      setPwaLoginBootKey((value) => value + 1);
+      window.setTimeout(() => {
+        if (!cancelled) setIsPwaLoginBootReady(true);
+      }, 120);
+    };
+
+    window.addEventListener("pageshow", handlePageshow);
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf1);
+      timers.forEach(window.clearTimeout);
+      window.removeEventListener("pageshow", handlePageshow);
+    };
+  }, [session, showSplash]);
 
   // Service Worker regisztráció
   useEffect(() => {
@@ -1192,6 +1263,13 @@ export default function Home() {
   const handleLoginInputFocus = () => {
     // Csak a login layout állapotát váltjuk. A pozíciót a visualViewport alapján számoljuk.
     setIsLoginInputFocused(true);
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        const height = window.innerHeight;
+        document.documentElement.style.setProperty("--app-height", `${height}px`);
+        window.dispatchEvent(new Event("resize"));
+      }, 80);
+    }
   };
 
   const handleLoginInputBlur = () => {
@@ -1663,9 +1741,27 @@ export default function Home() {
           </div>
         </div>
 
+        {/* iOS PWA első indításkor rövid stabilizáló állapot */}
+        {!showSplash && !isPwaLoginBootReady && (
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "360px",
+              height: "220px",
+              borderRadius: "28px",
+              background: "rgba(8, 15, 35, 0.42)",
+              border: "1px solid rgba(96,165,250,0.18)",
+              boxShadow: "0 18px 50px rgba(0,0,0,0.24)",
+              opacity: 0.88,
+              flexShrink: 0,
+            }}
+          />
+        )}
+
         {/* Login Form */}
-        {!showSplash && (
+        {!showSplash && isPwaLoginBootReady && (
           <div 
+            key={pwaLoginBootKey}
             className="glass-card login-card"
             ref={loginCardRef}
             style={{ 
@@ -1681,7 +1777,7 @@ export default function Home() {
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
               marginBottom: isLoginKeyboardOpen ? "0px" : "40px",
-              transform: isLoginKeyboardOpen ? `translateY(-${Math.min(Math.max(loginKeyboardHeight * 0.18, 22), 82)}px)` : "translateY(0)",
+              transform: isLoginKeyboardOpen && isPwaLoginBootReady ? `translateY(-${Math.min(Math.max(loginKeyboardHeight * 0.12, 14), 48)}px)` : "translateY(0)",
               transition: "box-shadow 0.25s ease, padding 0.25s ease"
             }}
           >
