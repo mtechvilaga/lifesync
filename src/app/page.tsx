@@ -81,6 +81,55 @@ export default function Home() {
   const [lang, setLang] = useState<"hu" | "en">("hu");
   const t = (key: string): string => (translations[lang] as Record<string, string>)[key] ?? (translations.hu as Record<string, string>)[key] ?? key;
 
+  // iOS/PWA zoom fix: ha input mező 16px-nél kisebb, az iPhone belenagyít,
+  // és belépés után a fő app is túl nagy maradhat. Ez stabilizálja a skálát.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let viewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
+    if (!viewport) {
+      viewport = document.createElement("meta");
+      viewport.name = "viewport";
+      document.head.appendChild(viewport);
+    }
+    viewport.content = "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover";
+
+    const styleId = "lifesync-ios-zoom-fix";
+    let style = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!style) {
+      style = document.createElement("style");
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
+    style.textContent = `
+      html, body {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      input, textarea, select, button {
+        -webkit-text-size-adjust: 100%;
+      }
+      input, textarea, select {
+        font-size: 16px !important;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .phone {
+        width: min(100vw, 430px) !important;
+        max-width: 430px !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+      }
+      .page-transition {
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+      }
+    `;
+  }, []);
+
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -106,8 +155,10 @@ export default function Home() {
 
   useEffect(() => {
     const applyViewportSize = () => {
-      const height = window.visualViewport?.height || window.innerHeight;
+      const vv = window.visualViewport;
+      const height = vv && vv.scale <= 1.01 ? vv.height : window.innerHeight;
       document.documentElement.style.setProperty("--app-height", `${height}px`);
+      document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
     };
 
     applyViewportSize();
@@ -129,8 +180,10 @@ export default function Home() {
     }
 
     const applyViewportSize = () => {
-      const height = window.visualViewport?.height || window.innerHeight;
+      const vv = window.visualViewport;
+      const height = vv && vv.scale <= 1.01 ? vv.height : window.innerHeight;
       document.documentElement.style.setProperty("--app-height", `${height}px`);
+      document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
     };
 
     applyViewportSize();
@@ -142,12 +195,19 @@ export default function Home() {
     const timer = window.setTimeout(() => {
       applyViewportSize();
       window.dispatchEvent(new Event("resize"));
+      window.scrollTo(0, 0);
       setAppReady(true);
-    }, 180);
+    }, 360);
+
+    const lateTimer = window.setTimeout(() => {
+      applyViewportSize();
+      window.dispatchEvent(new Event("resize"));
+    }, 900);
 
     return () => {
       window.cancelAnimationFrame(raf);
       window.clearTimeout(timer);
+      window.clearTimeout(lateTimer);
     };
   }, [session, showSplash]);
 
@@ -959,6 +1019,15 @@ export default function Home() {
         showToast("Hiba a belépésnél: " + error.message, 'error');
       } else {
         localStorage.setItem('remembered_login_email', email);
+        if (typeof window !== "undefined") {
+          (document.activeElement as HTMLElement | null)?.blur?.();
+          window.scrollTo(0, 0);
+          const vv = window.visualViewport;
+          const height = vv && vv.scale <= 1.01 ? vv.height : window.innerHeight;
+          document.documentElement.style.setProperty("--app-height", `${height}px`);
+          document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
+          window.dispatchEvent(new Event("resize"));
+        }
         setShowSplash(true);
         setTimeout(() => setShowSplash(false), 4000);
       }
@@ -1418,7 +1487,8 @@ export default function Home() {
       <main
         className="phone"
         style={{
-          width: "100%",
+          width: "min(100vw, 430px)",
+          maxWidth: "430px",
           height: "var(--app-height, 100dvh)",
           minHeight: "100dvh",
           overflow: "hidden",
@@ -1433,10 +1503,13 @@ export default function Home() {
       className="phone"
       ref={mainRef}
       style={{
+        width: "min(100vw, 430px)",
+        maxWidth: "430px",
         height: "var(--app-height, 100dvh)",
         minHeight: "100dvh",
         maxHeight: "var(--app-height, 100dvh)",
         overflow: "hidden",
+        overflowX: "hidden",
         boxSizing: "border-box",
       }}
 
