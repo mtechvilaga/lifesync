@@ -1326,6 +1326,35 @@ export default function Home() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    if (typeof window !== "undefined") {
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      window.scrollTo(0, 0);
+      const height = window.innerHeight;
+      document.documentElement.style.setProperty("--app-height", `${height}px`);
+      document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
+      document.documentElement.style.setProperty("--login-keyboard-height", "0px");
+      window.dispatchEvent(new Event("resize"));
+      localStorage.setItem("lifesync_google_login_started", "true");
+    }
+
+    const redirectTo = typeof window !== "undefined" ? window.location.origin : undefined;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        queryParams: {
+          prompt: "select_account",
+        },
+      },
+    });
+
+    if (error) {
+      showToast("Google belépési hiba: " + error.message, "error");
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -1872,6 +1901,58 @@ export default function Home() {
                 {isLoginMode ? t("login") : t("createAccount")}
               </button>
             </form>
+
+            {isLoginMode && (
+              <div style={{ marginTop: isLoginKeyboardOpen ? "10px" : "14px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                  <div style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,184,0.35))" }} />
+                  <span style={{ fontSize: "12px", color: "rgba(203,213,225,0.72)", fontWeight: 700 }}>vagy</span>
+                  <div style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, rgba(148,163,184,0.35), transparent)" }} />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  style={{
+                    width: "100%",
+                    minHeight: "48px",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(96,165,250,0.30)",
+                    background: "linear-gradient(145deg, rgba(7,13,30,0.78), rgba(18,24,54,0.56))",
+                    color: "rgba(248,250,252,0.96)",
+                    fontWeight: 800,
+                    fontSize: "15px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 26px rgba(0,0,0,0.22)",
+                    touchAction: "manipulation",
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "8px",
+                      background: "rgba(255,255,255,0.96)",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#4285F4",
+                      fontWeight: 900,
+                      fontSize: "16px",
+                      fontFamily: "Arial, sans-serif",
+                    }}
+                  >
+                    G
+                  </span>
+                  Belépés Google-fiókkal
+                </button>
+              </div>
+            )}
 
             <div style={{ textAlign: "center", marginTop: isLoginKeyboardOpen ? "12px" : "18px", fontSize: "13.5px" }}>
               <span style={{ opacity: 0.7 }}>{isLoginMode ? t("noAccount") : t("alreadyHaveAccount")}</span>{" "}
