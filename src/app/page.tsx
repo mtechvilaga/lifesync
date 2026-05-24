@@ -1300,7 +1300,7 @@ export default function Home() {
               {isLoginMode ? t("signIn") : t("register")}
             </h2>
 
-            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("emailLabel")}</label>
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("emailPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
@@ -1392,9 +1392,9 @@ export default function Home() {
           <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }}>
             {/* Neon LifeSync logo – ugyanaz a hangulat, mint a menüpanelen */}
             <div className="logo" style={{
-              width: "clamp(44px, 12vw, 56px)",
-              height: "clamp(44px, 12vw, 56px)",
-              borderRadius: "18px",
+              width: "56px",
+              height: "56px",
+              borderRadius: "20px",
               background: "radial-gradient(circle, rgba(56,189,248,0.20), transparent 64%)",
               display: "flex",
               alignItems: "center",
@@ -1405,7 +1405,7 @@ export default function Home() {
               <img
                 src="/lifesync-icon.png"
                 alt="LifeSync"
-                style={{ width: "clamp(40px, 11vw, 50px)", height: "clamp(40px, 11vw, 50px)", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(56,189,248,0.42))" }}
+                style={{ width: "50px", height: "50px", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(56,189,248,0.42))" }}
               />
             </div>
 
@@ -1414,8 +1414,8 @@ export default function Home() {
               <h1 style={{
                 fontFamily: "'SF Pro Display', 'Inter', 'Segoe UI', sans-serif",
                 fontWeight: 750,
-                fontSize: "clamp(26px, 8vw, 34px)",
-                lineHeight: "clamp(28px, 8.5vw, 36px)",
+                fontSize: "34px",
+                lineHeight: "36px",
                 letterSpacing: "-0.03em",
                 background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #B984FF 100%)",
                 WebkitBackgroundClip: "text",
@@ -2110,21 +2110,21 @@ export default function Home() {
           </div>
 
           {addViewMode === "form" ? (
-          <div className="glass-card" style={{ padding: "22px", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)" }}>
-            <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div className="glass-card" style={{ padding: "clamp(16px, 4vw, 22px)", borderRadius: "28px", overflow: "hidden", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)" }}>
+            <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("titleLabel")}</label>
-                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", fontSize: "15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} />
+                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", boxSizing: "border-box", maxWidth: "100%", minWidth: 0, background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.8vw, 15px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} />
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("dateLabel")}</label>
-                  <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }} />
+                  <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", boxSizing: "border-box", maxWidth: "100%", minWidth: 0, display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.8vw, 15px)", colorScheme: "dark", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", WebkitAppearance: "none", appearance: "none" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("categoryLabel")}</label>
-                  <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", appearance: "none", fontSize: "15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+                  <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", boxSizing: "border-box", maxWidth: "100%", minWidth: 0, background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", appearance: "none", fontSize: "clamp(14px, 3.8vw, 15px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
                     <option value="event" style={{color: "black"}}>{t("categoryEvent")}</option>
                     <option value="utility" style={{color: "black"}}>{t("categoryUtility")}</option>
                     <option value="photo" style={{color: "black"}}>{t("categoryPhoto")}</option>
@@ -2175,7 +2175,7 @@ export default function Home() {
                 )}
 
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("notesLabel")}</label>
-                <textarea rows={3} value={newEventDesc} onChange={e => setNewEventDesc(e.target.value)} placeholder={t("notesPlaceholder")} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", resize: "none", fontSize: "15px", minHeight: "92px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}></textarea>
+                <textarea rows={3} value={newEventDesc} onChange={e => setNewEventDesc(e.target.value)} placeholder={t("notesPlaceholder")} style={{ width: "100%", boxSizing: "border-box", maxWidth: "100%", minWidth: 0, background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", resize: "none", fontSize: "clamp(14px, 3.8vw, 15px)", minHeight: "92px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}></textarea>
               </div>
 
               {/* MEGLÉVŐ CSATOLMÁNYOK (ha szerkesztés van) */}
@@ -2559,7 +2559,8 @@ export default function Home() {
                   .react-datepicker__navigation-icon::before {
                     border-color: white !important;
                   }
-                `}</style>
+                `}
+</style>
               </div>
 
               {/* Esemény hozzáadása gomb + nap eseményei */}
@@ -2638,18 +2639,18 @@ export default function Home() {
       )}
 
       {activeTab === "Profile" && (
-        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 92px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", overscrollBehavior: "contain", padding: "0 2px" }}>
-          <div style={{ padding: "0 6px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "10px" }}>
+        <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "22px", scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+          <div style={{ padding: "2px 8px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
             <div>
-              <h2 style={{ fontSize: "clamp(26px, 8vw, 32px)", fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 10px 35px rgba(255,255,255,0.12)" }}>{t("profileTitle")}</h2>
-              <p style={{ color: "rgba(226,232,240,0.7)", fontSize: "13px", marginTop: "6px", lineHeight: 1.35 }}>{t("profileSubtitle")}</p>
+              <h2 style={{ fontSize: "38px", fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 10px 35px rgba(255,255,255,0.12)" }}>{t("profileTitle")}</h2>
+              <p style={{ color: "rgba(226,232,240,0.7)", fontSize: "16px", marginTop: "8px" }}>{t("profileSubtitle")}</p>
             </div>
-            <div style={{ width: "42px", height: "42px", borderRadius: "15px", background: "linear-gradient(145deg, rgba(15,23,42,0.92), rgba(30,41,59,0.65))", border: "1px solid rgba(148,163,184,0.22)", boxShadow: "0 0 25px rgba(139,92,246,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>👤</div>
+            <div style={{ width: "48px", height: "48px", borderRadius: "16px", background: "linear-gradient(145deg, rgba(15,23,42,0.92), rgba(30,41,59,0.65))", border: "1px solid rgba(148,163,184,0.22)", boxShadow: "0 0 25px rgba(139,92,246,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "23px" }}>👤</div>
           </div>
 
-          <div style={{ position: "relative", padding: "16px", borderRadius: "24px", marginBottom: "22px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.86))", border: "1px solid rgba(76,169,255,0.72)", boxShadow: "0 0 0 1px rgba(168,85,247,0.35), 0 24px 70px rgba(0,0,0,0.36), inset 0 0 42px rgba(59,130,246,0.08)" }}>
-            <div style={{ position: "absolute", right: "-42px", bottom: "-58px", width: "150px", height: "150px", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.16), transparent 68%)" }} />
-            <div style={{ position: "absolute", right: "12px", bottom: "8px", fontSize: "130px", lineHeight: 1, color: "rgba(255,255,255,0.025)", fontWeight: 900 }}>S</div>
+          <div style={{ position: "relative", padding: "24px", borderRadius: "28px", marginBottom: "26px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.86))", border: "1px solid rgba(76,169,255,0.72)", boxShadow: "0 0 0 1px rgba(168,85,247,0.35), 0 24px 70px rgba(0,0,0,0.36), inset 0 0 42px rgba(59,130,246,0.08)" }}>
+            <div style={{ position: "absolute", right: "-42px", bottom: "-58px", width: "190px", height: "190px", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.16), transparent 68%)" }} />
+            <div style={{ position: "absolute", right: "18px", bottom: "10px", fontSize: "180px", lineHeight: 1, color: "rgba(255,255,255,0.025)", fontWeight: 900 }}>S</div>
 
             {isEditingProfile ? (
               <form onSubmit={handleUpdateProfile} style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", width: "100%" }}>
@@ -2677,28 +2678,28 @@ export default function Home() {
                 </div>
               </form>
             ) : (
-              <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "82px minmax(0, 1fr)", alignItems: "center", gap: "14px" }}>
-                <div style={{ position: "relative", width: "82px", height: "82px", borderRadius: "50%", padding: "3px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6, #f8fafc)", boxShadow: "0 0 28px rgba(59,130,246,0.45)" }}>
-                  <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: avatarUrl ? "transparent" : "linear-gradient(135deg, #facc15, #fb923c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "30px" }}>
+              <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "112px 1fr", alignItems: "center", gap: "22px" }}>
+                <div style={{ position: "relative", width: "112px", height: "112px", borderRadius: "50%", padding: "4px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6, #f8fafc)", boxShadow: "0 0 36px rgba(59,130,246,0.5)" }}>
+                  <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: avatarUrl ? "transparent" : "linear-gradient(135deg, #facc15, #fb923c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "42px" }}>
                     {avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : "👤"}
                   </div>
-                  <button onClick={openEditProfile} style={{ position: "absolute", right: "-5px", bottom: "-4px", width: "38px", height: "38px", borderRadius: "50%", border: "1px solid rgba(168,85,247,0.65)", background: "linear-gradient(135deg, rgba(59,130,246,0.95), rgba(147,51,234,0.95))", color: "white", boxShadow: "0 12px 28px rgba(0,0,0,0.45)", cursor: "pointer", fontSize: "14px" }}>✎</button>
+                  <button onClick={openEditProfile} style={{ position: "absolute", right: "-6px", bottom: "-4px", width: "58px", height: "58px", borderRadius: "50%", border: "1px solid rgba(168,85,247,0.65)", background: "linear-gradient(135deg, rgba(59,130,246,0.95), rgba(147,51,234,0.95))", color: "white", boxShadow: "0 12px 28px rgba(0,0,0,0.45)", cursor: "pointer" }}>✎</button>
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "clamp(18px, 5.4vw, 22px)", fontWeight: 900, margin: "0 0 5px", color: "#fff", letterSpacing: "-0.02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formattedName}</h3>
-                  <p style={{ fontSize: "12.5px", color: "rgba(226,232,240,0.66)", marginBottom: "14px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{session?.user?.email}</p>
-                  <button onClick={openEditProfile} style={{ width: "100%", maxWidth: "190px", padding: "11px 12px", background: "linear-gradient(145deg, rgba(15,23,42,0.9), rgba(30,41,59,0.55))", borderRadius: "15px", border: "1px solid rgba(168,85,247,0.75)", color: "#fff", fontSize: "12.5px", fontWeight: 850, cursor: "pointer", boxShadow: "0 0 24px rgba(139,92,246,0.18)", whiteSpace: "nowrap" }}>✎ Profil szerkesztése</button>
+                  <h3 style={{ fontSize: "27px", fontWeight: 900, margin: "0 0 7px", color: "#fff", letterSpacing: "-0.02em" }}>{formattedName}</h3>
+                  <p style={{ fontSize: "16px", color: "rgba(226,232,240,0.66)", marginBottom: "22px" }}>{session?.user?.email}</p>
+                  <button onClick={openEditProfile} style={{ width: "100%", maxWidth: "260px", padding: "15px 20px", background: "linear-gradient(145deg, rgba(15,23,42,0.9), rgba(30,41,59,0.55))", borderRadius: "18px", border: "1px solid rgba(168,85,247,0.75)", color: "#fff", fontSize: "15px", fontWeight: 850, cursor: "pointer", boxShadow: "0 0 24px rgba(139,92,246,0.18)" }}>✎ Profil szerkesztése</button>
                 </div>
               </div>
             )}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <h4 style={{ fontSize: "13px", fontWeight: 900, color: "rgba(148,163,184,0.78)", marginLeft: "10px", letterSpacing: "2px" }}>{lang === "hu" ? "BEÁLLÍTÁSOK" : "SETTINGS"}</h4>
-            <div style={{ borderRadius: "24px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.88))", border: "1px solid rgba(76,169,255,0.62)", boxShadow: "0 0 0 1px rgba(139,92,246,0.22), inset 0 0 42px rgba(59,130,246,0.06)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <h4 style={{ fontSize: "15px", fontWeight: 900, color: "rgba(148,163,184,0.78)", marginLeft: "12px", letterSpacing: "2px" }}>{lang === "hu" ? "BEÁLLÍTÁSOK" : "SETTINGS"}</h4>
+            <div style={{ borderRadius: "28px", overflow: "hidden", background: "linear-gradient(145deg, rgba(13,22,36,0.96), rgba(12,18,34,0.88))", border: "1px solid rgba(76,169,255,0.62)", boxShadow: "0 0 0 1px rgba(139,92,246,0.22), inset 0 0 42px rgba(59,130,246,0.06)" }}>
               {[
                 { icon: "🔔", title: "Rendszer Értesítések", sub: lang === "hu" ? "Kattints az engedélyezéshez" : "Click to enable", onClick: async () => {
                   if ("Notification" in window) {
@@ -2708,18 +2709,18 @@ export default function Home() {
                       new Notification("LifeSync", { body: "Értesítések sikeresen engedélyezve!", icon: "/icon.png" });
                     } else alert("Az értesítések blokkolva vannak. Engedélyezd őket a böngésző beállításaiban!");
                   } else alert("A böngésződ nem támogatja a push értesítéseket.");
-                }, right: <div style={{ width: "44px", height: "26px", borderRadius: "999px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", position: "relative", boxShadow: "0 0 22px rgba(99,102,241,0.5)" }}><div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", right: "3px", top: "3px" }} /></div> },
-                { icon: "🔊", title: t("soundNotify"), sub: lang === "hu" ? "Hangjelzés sikeres mentéseknél" : "Sound on successful saves", right: <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><button onClick={(e) => { e.stopPropagation(); playNotificationSound(true); }} style={{ padding: "7px 9px", background: "rgba(15,23,42,0.68)", border: "1px solid rgba(59,130,246,0.35)", borderRadius: "11px", color: "white", fontWeight: 800, cursor: "pointer", fontSize: "11.5px", whiteSpace: "nowrap" }}>Teszt ▶</button><div onClick={(e) => { e.stopPropagation(); setSoundEnabled(!soundEnabled); }} style={{ width: "44px", height: "26px", borderRadius: "999px", background: soundEnabled ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative", cursor: "pointer" }}><div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", left: soundEnabled ? "21px" : "3px", top: "3px", transition: "all 0.25s" }} /></div></div> },
-                { icon: "🌙", title: t("darkMode"), sub: isDarkMode ? "Bekapcsolva" : "Kikapcsolva", onClick: toggleTheme, right: <div style={{ width: "44px", height: "26px", borderRadius: "999px", background: isDarkMode ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative" }}><div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", left: isDarkMode ? "21px" : "3px", top: "3px", transition: "all 0.25s" }} /></div> },
-                { icon: "📧", title: t("savedLogin"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? localStorage.getItem("remembered_login_email") || "" : t("notSaved"), right: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? <button onClick={(e) => { e.stopPropagation(); localStorage.removeItem("remembered_login_email"); setEmail(""); showToast("Bejelentkezési email törölve a memóriából!", 'info'); }} style={{ padding: "8px 10px", background: "rgba(244,63,94,0.12)", border: "1px solid rgba(244,63,94,0.65)", borderRadius: "12px", color: "#fb7185", fontWeight: 850, cursor: "pointer", fontSize: "11.5px", whiteSpace: "nowrap" }}>Törlés 🗑</button> : <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "24px" }}>›</span> },
+                }, right: <div style={{ width: "52px", height: "30px", borderRadius: "999px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", position: "relative", boxShadow: "0 0 22px rgba(99,102,241,0.5)" }}><div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "white", position: "absolute", right: "3px", top: "3px" }} /></div> },
+                { icon: "🔊", title: t("soundNotify"), sub: lang === "hu" ? "Hangjelzés sikeres mentéseknél" : "Sound on successful saves", right: <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><button onClick={(e) => { e.stopPropagation(); playNotificationSound(true); }} style={{ padding: "8px 13px", background: "rgba(15,23,42,0.68)", border: "1px solid rgba(59,130,246,0.35)", borderRadius: "12px", color: "white", fontWeight: 800, cursor: "pointer" }}>Teszt ▶</button><div onClick={(e) => { e.stopPropagation(); setSoundEnabled(!soundEnabled); }} style={{ width: "52px", height: "30px", borderRadius: "999px", background: soundEnabled ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative", cursor: "pointer" }}><div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "white", position: "absolute", left: soundEnabled ? "25px" : "3px", top: "3px", transition: "all 0.25s" }} /></div></div> },
+                { icon: "🌙", title: t("darkMode"), sub: isDarkMode ? "Bekapcsolva" : "Kikapcsolva", onClick: toggleTheme, right: <div style={{ width: "52px", height: "30px", borderRadius: "999px", background: isDarkMode ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative" }}><div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "white", position: "absolute", left: isDarkMode ? "25px" : "3px", top: "3px", transition: "all 0.25s" }} /></div> },
+                { icon: "📧", title: t("savedLogin"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? localStorage.getItem("remembered_login_email") || "" : t("notSaved"), right: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? <button onClick={(e) => { e.stopPropagation(); localStorage.removeItem("remembered_login_email"); setEmail(""); showToast("Bejelentkezési email törölve a memóriából!", 'info'); }} style={{ padding: "10px 14px", background: "rgba(244,63,94,0.12)", border: "1px solid rgba(244,63,94,0.65)", borderRadius: "14px", color: "#fb7185", fontWeight: 850, cursor: "pointer" }}>Törlés 🗑</button> : <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "24px" }}>›</span> },
                 { icon: "✉️", title: t("savedRecipient"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_custom_email") ? localStorage.getItem("remembered_custom_email") || "" : t("notSaved"), right: <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "30px" }}>›</span> },
                 { icon: "🚪", title: t("signOutLabel"), sub: "", onClick: () => supabase.auth.signOut(), danger: true, right: <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "30px" }}>›</span> },
               ].map((item, idx) => (
-                <div key={idx} onClick={item.onClick} style={{ padding: "13px 12px", display: "grid", gridTemplateColumns: "42px minmax(0, 1fr) auto", gap: "10px", alignItems: "center", borderBottom: idx === 5 ? "none" : "1px solid rgba(148,163,184,0.12)", cursor: item.onClick ? "pointer" : "default", minHeight: "72px" }}>
-                  <div style={{ width: "38px", height: "38px", borderRadius: "13px", background: "linear-gradient(145deg, rgba(30,41,59,0.82), rgba(15,23,42,0.72))", border: "1px solid rgba(148,163,184,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "17px" }}>{item.icon}</div>
+                <div key={idx} onClick={item.onClick} style={{ padding: "18px 20px", display: "grid", gridTemplateColumns: "54px 1fr auto", gap: "14px", alignItems: "center", borderBottom: idx === 5 ? "none" : "1px solid rgba(148,163,184,0.12)", cursor: item.onClick ? "pointer" : "default" }}>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "15px", background: "linear-gradient(145deg, rgba(30,41,59,0.82), rgba(15,23,42,0.72))", border: "1px solid rgba(148,163,184,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "21px" }}>{item.icon}</div>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ color: item.danger ? "#f43f5e" : "#fff", fontSize: "clamp(13.5px, 4vw, 15.5px)", fontWeight: 850, lineHeight: 1.18, overflowWrap: "anywhere" }}>{item.title}</div>
-                    {item.sub && <div style={{ color: "rgba(226,232,240,0.58)", fontSize: "11.5px", marginTop: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.sub}</div>}
+                    <div style={{ color: item.danger ? "#f43f5e" : "#fff", fontSize: "17px", fontWeight: 850 }}>{item.title}</div>
+                    {item.sub && <div style={{ color: "rgba(226,232,240,0.58)", fontSize: "13px", marginTop: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.sub}</div>}
                   </div>
                   {item.right}
                 </div>
@@ -2798,7 +2799,7 @@ export default function Home() {
             </div>
           ) : (
             <>
-              <div style={{ padding: "0 6px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "10px" }}>
+              <div style={{ padding: "2px 8px 18px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
                   <h2 style={{ fontSize: "38px", fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 10px 35px rgba(255,255,255,0.12)" }}>{t("vaultTitle")}</h2>
                   <p style={{ color: "rgba(226,232,240,0.7)", fontSize: "16px", marginTop: "8px" }}>{t("vaultSubtitle")}</p>
