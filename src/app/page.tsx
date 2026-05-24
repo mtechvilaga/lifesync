@@ -1698,7 +1698,7 @@ export default function Home() {
             <span style={{ display: "block", width: "18px", height: "2px", background: "var(--text-color)", borderRadius: "2px" }} />
           </button>
           <div>
-          <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }}>
+          <div className="brand" onClick={playLogoSound} style={{ display: "flex", alignItems: "center", gap: "9px", cursor: "pointer" }}>
             {/* Neon LifeSync logo – ugyanaz a hangulat, mint a menüpanelen */}
             <div className="logo" style={{
               width: "clamp(44px, 12vw, 56px)",
@@ -1837,9 +1837,9 @@ export default function Home() {
           {/* ── ESEMÉNY STATISZTIKÁK – FÉNYESEBB NEON DESIGN ── */}
           <section style={{
             position: "relative",
-            borderRadius: "26px",
-            padding: "14px",
-            marginBottom: "16px",
+            borderRadius: "24px",
+            padding: "12px",
+            marginBottom: "15px",
             overflow: "hidden",
             background: "linear-gradient(145deg, rgba(28,32,72,0.96) 0%, rgba(43,34,97,0.92) 48%, rgba(13,25,64,0.94) 100%)",
             border: "1px solid rgba(125, 211, 252, 0.58)",
@@ -1864,7 +1864,7 @@ export default function Home() {
             {/* Header */}
             <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
               <h3 style={{
-                fontSize: "20px",
+                fontSize: "18px",
                 fontWeight: 900,
                 letterSpacing: "0.2px",
                 color: "#ffffff",
@@ -1873,9 +1873,9 @@ export default function Home() {
               }}>{t("eventStats")}</h3>
 
               <div style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "14px",
+                width: "32px",
+                height: "32px",
+                borderRadius: "13px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -1883,7 +1883,7 @@ export default function Home() {
                 border: "1px solid rgba(167,139,250,0.34)",
                 boxShadow: "0 0 20px rgba(139,92,246,0.22)",
               }}>
-                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
                   <polyline points="16 7 22 7 22 13" />
                 </svg>
@@ -1894,12 +1894,12 @@ export default function Home() {
             <div style={{
               position: "relative",
               zIndex: 2,
-              minHeight: "110px",
-              borderRadius: "20px",
-              padding: "16px 16px",
+              minHeight: "96px",
+              borderRadius: "18px",
+              padding: "14px 12px",
               display: "flex",
               alignItems: "center",
-              gap: "16px",
+              gap: "13px",
               overflow: "hidden",
               background: "linear-gradient(135deg, rgba(42,48,112,0.82), rgba(16,28,78,0.72))",
               border: "1px solid rgba(167,139,250,0.55)",
@@ -1907,10 +1907,10 @@ export default function Home() {
             }}>
               <div style={{
                 position: "absolute",
-                right: "-22px",
-                top: "-34px",
-                width: "148px",
-                height: "148px",
+                right: "-34px",
+                top: "-28px",
+                width: "126px",
+                height: "126px",
                 borderRadius: "50%",
                 background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.44), rgba(168,85,247,0.55) 28%, rgba(37,99,235,0.28) 62%, transparent 72%)",
                 opacity: 0.52,
@@ -1918,10 +1918,10 @@ export default function Home() {
               }} />
               <div style={{
                 position: "absolute",
-                right: "-48px",
-                top: "46px",
-                width: "178px",
-                height: "38px",
+                right: "-54px",
+                top: "44px",
+                width: "150px",
+                height: "32px",
                 borderRadius: "50%",
                 border: "1px solid rgba(96,165,250,0.45)",
                 transform: "rotate(-14deg)",
@@ -1929,9 +1929,9 @@ export default function Home() {
               }} />
 
               <div style={{
-                width: "62px",
-                height: "62px",
-                borderRadius: "18px",
+                width: "54px",
+                height: "54px",
+                borderRadius: "16px",
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
@@ -1939,18 +1939,18 @@ export default function Home() {
                 background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 45%, #22d3ee 100%)",
                 boxShadow: "0 0 28px rgba(99,102,241,0.62)",
               }}>
-                <span style={{ fontSize: "28px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))" }}>🗓️</span>
+                <span style={{ fontSize: "24px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.25))" }}>🗓️</span>
               </div>
 
               <div style={{ position: "relative", zIndex: 2, minWidth: 0 }}>
-                <div style={{ fontSize: "46px", fontWeight: 950, lineHeight: 0.9, color: "#ffffff", textShadow: "0 4px 20px rgba(0,0,0,0.28)" }}>{stats.today}</div>
-                <div style={{ marginTop: "6px", fontSize: "20px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
-                <div style={{ marginTop: "6px", fontSize: "13px", fontWeight: 500, color: "rgba(226,232,240,0.76)" }}>{t("todayLabel")}</div>
+                <div style={{ fontSize: "38px", fontWeight: 950, lineHeight: 0.9, color: "#ffffff", textShadow: "0 4px 20px rgba(0,0,0,0.28)" }}>{stats.today}</div>
+                <div style={{ marginTop: "6px", fontSize: "17px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{lang === "hu" ? "bejegyzés" : "entries"}</div>
+                <div style={{ marginTop: "6px", fontSize: "12px", fontWeight: 500, color: "rgba(226,232,240,0.76)" }}>{t("todayLabel")}</div>
               </div>
             </div>
 
             {/* Elválasztó */}
-            <div style={{ position: "relative", zIndex: 2, margin: "12px 0 8px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
+            <div style={{ position: "relative", zIndex: 2, margin: "10px 0 7px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
 
             {/* Alsó statisztikák */}
             <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0" }}>
@@ -1963,12 +1963,12 @@ export default function Home() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "8px",
-                  padding: "4px 8px",
+                  gap: "6px",
+                  padding: "3px 6px",
                   borderLeft: index === 0 ? "none" : "1px solid rgba(255,255,255,0.12)",
                 }}>
                   {item.icon === "calendar" && (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="4" width="18" height="18" rx="2" />
                       <line x1="16" y1="2" x2="16" y2="6" />
                       <line x1="8" y1="2" x2="8" y2="6" />
@@ -1976,19 +1976,19 @@ export default function Home() {
                     </svg>
                   )}
                   {item.icon === "trend" && (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
                       <polyline points="16 7 22 7 22 13" />
                     </svg>
                   )}
                   {item.icon === "clock" && (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
                   )}
                   <div>
-                    <div style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{item.value}</div>
+                    <div style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{item.value}</div>
                     <div style={{ marginTop: "3px", fontSize: "10.5px", fontWeight: 600, color: "rgba(226,232,240,0.68)", lineHeight: 1 }}>{item.label}</div>
                   </div>
                 </div>
@@ -2092,7 +2092,7 @@ export default function Home() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={parsedUrl} alt={mem.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         ) : (
-                          <span style={{ fontSize: "28px", filter: "drop-shadow(0 0 14px rgba(139,92,246,0.45))" }}>
+                          <span style={{ fontSize: "24px", filter: "drop-shadow(0 0 14px rgba(139,92,246,0.45))" }}>
                             {mem.category === "photo" ? "🖼️" : mem.category === "utility" ? "⚡" : "📅"}
                           </span>
                         )}
@@ -2468,7 +2468,7 @@ export default function Home() {
                             <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>{t("whichDays")}</label>
                             <div style={{ display: "flex", gap: "6px" }}>
                               {lang === "hu" ? ["H", "K", "Sz", "Cs", "P", "Szo", "V"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day, idx) => (
-                                <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
+                                <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "30px", height: "30px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                   {day}
                                 </button>
                               ))}
@@ -2984,7 +2984,7 @@ export default function Home() {
                       <img src={editProfilePreview} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : "📷"}
                   </div>
-                  <span style={{ position: "absolute", right: "0", bottom: "2px", width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(135deg, #2563eb, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", boxShadow: "0 10px 24px rgba(0,0,0,0.35)" }}>✎</span>
+                  <span style={{ position: "absolute", right: "0", bottom: "2px", width: "30px", height: "30px", borderRadius: "50%", background: "linear-gradient(135deg, #2563eb, #9333ea)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", boxShadow: "0 10px 24px rgba(0,0,0,0.35)" }}>✎</span>
                 </div>
                 <small style={{ color: "rgba(226,232,240,0.62)" }}>{t("clickToChange")}</small>
                 <input type="text" value={editProfileName} onChange={e => setEditProfileName(e.target.value)} placeholder={t("fullName")} style={{ width: "100%", background: "rgba(2,6,23,0.55)", border: "1px solid rgba(148,163,184,0.32)", padding: "15px 16px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px" }} />
@@ -3087,7 +3087,7 @@ export default function Home() {
 
               <input type="file" ref={vaultFileInputRef} hidden multiple onChange={handleUploadVaultFile} />
               {isRecording && recordingTarget === "folder" ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", background: "rgba(239,68,68,0.12)", borderRadius: "18px", border: "1px solid rgba(239,68,68,0.35)" }}><span style={{ color: "#f87171" }}>🔴</span><span style={{ fontSize: "15px", fontWeight: 800, flex: 1, color: "white" }}>Rögzítés... {formatTime(recordingSeconds)}</span><button onClick={stopRecording} style={{ padding: "9px 15px", background: "#ef4444", border: "none", borderRadius: "12px", color: "white", fontWeight: 800, cursor: "pointer" }}>{t("stopRecording")}</button></div>
+                <div style={{ display: "flex", alignItems: "center", gap: "9px", padding: "16px", background: "rgba(239,68,68,0.12)", borderRadius: "18px", border: "1px solid rgba(239,68,68,0.35)" }}><span style={{ color: "#f87171" }}>🔴</span><span style={{ fontSize: "15px", fontWeight: 800, flex: 1, color: "white" }}>Rögzítés... {formatTime(recordingSeconds)}</span><button onClick={stopRecording} style={{ padding: "9px 15px", background: "#ef4444", border: "none", borderRadius: "12px", color: "white", fontWeight: 800, cursor: "pointer" }}>{t("stopRecording")}</button></div>
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   <button onClick={() => vaultFileInputRef.current?.click()} disabled={isUploadingVaultFile} style={{ padding: "16px", background: "rgba(59,130,246,0.1)", border: "1px dashed rgba(56,189,248,0.45)", borderRadius: "18px", color: "#93c5fd", fontWeight: 850, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", cursor: "pointer" }}>{isUploadingVaultFile ? '⏳' : '📤'} {isUploadingVaultFile ? t("uploading") : t("uploadFile")}</button>
@@ -3109,7 +3109,7 @@ export default function Home() {
                       <p style={{ fontSize: "11px", color: "rgba(226,232,240,0.44)", marginTop: "3px" }}>{new Date(file.created_at).toLocaleDateString()}</p>
                       {file.file_type?.startsWith('audio/') && <audio controls src={file.file_url} style={{ width: "100%", height: "30px", marginTop: "6px" }} />}
                     </div>
-                    <button onClick={() => handleDeleteVaultFile(file.id)} style={{ width: "38px", height: "38px", borderRadius: "14px", background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.26)", color: "#f87171", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>🗑️</button>
+                    <button onClick={() => handleDeleteVaultFile(file.id)} style={{ width: "36px", height: "36px", borderRadius: "13px", background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.26)", color: "#f87171", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>🗑️</button>
                   </div>
                 ))}
               </div>
@@ -3176,7 +3176,7 @@ export default function Home() {
       {isSearchOpen && (
         <div className="page-transition" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, background: "rgba(23, 36, 54, 0.95)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", display: "flex", flexDirection: "column", padding: "40px 22px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650 }}>{t("searchTitle")}</h2>
+            <h2 style={{ fontSize: "24px", fontWeight: 650 }}>{t("searchTitle")}</h2>
             <button onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", width: "42px", height: "42px", borderRadius: "14px", color: "var(--text-color)", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
           
@@ -3380,8 +3380,8 @@ export default function Home() {
       {/* Drawer panel – óra alól indul, hogy ne csússzon a status bar alá */}
       <div style={{
         position: "absolute",
-        top: "66px", left: 0, bottom: 0,
-        width: "min(276px, 76vw)",
+        top: "52px", left: 0, bottom: 0,
+        width: "min(272px, 74vw)",
         zIndex: 201,
         background: `
           radial-gradient(circle at 18% 4%, rgba(56,189,248,0.26), transparent 25%),
@@ -3392,7 +3392,7 @@ export default function Home() {
         `,
         backdropFilter: "blur(32px)",
         WebkitBackdropFilter: "blur(32px)",
-        borderRadius: "0 24px 24px 0",
+        borderRadius: "0 22px 22px 0",
         borderTop: "1px solid rgba(56,189,248,0.55)",
         borderRight: "1px solid rgba(168,85,247,0.70)",
         borderBottom: "1px solid rgba(37,99,235,0.55)",
@@ -3450,27 +3450,27 @@ export default function Home() {
         {/* ── FEJLÉC ── */}
         <div style={{
           position: "relative", zIndex: 1,
-          minHeight: "72px", flexShrink: 0,
-          padding: "12px 14px 8px",
+          minHeight: "66px", flexShrink: 0,
+          padding: "10px 13px 7px",
           display: "flex", alignItems: "center", justifyContent: "flex-start",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{
-              width: "38px", height: "38px", borderRadius: "14px",
+              width: "36px", height: "36px", borderRadius: "13px",
               background: "radial-gradient(circle, rgba(56,189,248,0.20), transparent 62%)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 0 30px rgba(56,189,248,0.22)"
             }}>
               <img src="/lifesync-icon.png" alt="Logo"
-                style={{ width: "32px", height: "32px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
+                style={{ width: "30px", height: "30px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
             </div>
             <div>
               <div style={{
-                fontSize: "21px", fontWeight: 750, lineHeight: 1.05,
+                fontSize: "20px", fontWeight: 750, lineHeight: 1.05,
                 background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
                 WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent"
               }}>LifeSync</div>
-              <div style={{ fontSize: "11px", color: "rgba(226,232,240,0.72)", marginTop: "4px", letterSpacing: "0.01em" }}>
+              <div style={{ fontSize: "10.5px", color: "rgba(226,232,240,0.72)", marginTop: "4px", letterSpacing: "0.01em" }}>
                 Memories that matter.
               </div>
             </div>
@@ -3504,10 +3504,10 @@ export default function Home() {
                 }
               }}
               style={{
-                height: "44px", flexShrink: 0,
-                display: "flex", alignItems: "center", gap: "12px",
-                padding: "0 14px",
-                borderRadius: "16px",
+                height: "42px", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "11px",
+                padding: "0 13px",
+                borderRadius: "15px",
                 border: item.active ? "1px solid rgba(147,197,253,0.72)" : "1px solid transparent",
                 background: item.active
                   ? "linear-gradient(90deg, rgba(139,92,246,0.56) 0%, rgba(37,99,235,0.38) 100%)"
@@ -3520,12 +3520,12 @@ export default function Home() {
               }}
             >
               <span style={{
-                width: "22px", height: "22px", flexShrink: 0,
+                width: "21px", height: "21px", flexShrink: 0,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 color: item.active ? "#FFFFFF" : item.disabled ? "rgba(148,163,184,0.34)" : "rgba(191,219,254,0.86)",
                 filter: item.active ? "drop-shadow(0 0 10px rgba(147,197,253,0.7))" : "drop-shadow(0 0 8px rgba(59,130,246,0.25))"
               }}>{item.icon}</span>
-              <span style={{ fontSize: "14.5px", fontWeight: item.active ? 740 : 620, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
+              <span style={{ fontSize: "14px", fontWeight: item.active ? 730 : 610, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
             </button>
           ))}
         </nav>
@@ -3535,11 +3535,11 @@ export default function Home() {
           <button
             onClick={() => { setActiveTab("Add"); setIsDrawerOpen(false); }}
             style={{
-              height: "46px", width: "100%",
-              borderRadius: "18px", border: "1px solid rgba(147,197,253,0.45)",
+              height: "44px", width: "100%",
+              borderRadius: "17px", border: "1px solid rgba(147,197,253,0.45)",
               background: "linear-gradient(90deg, #38BDF8 0%, #6366F1 48%, #A855F7 100%)",
               boxShadow: "0 0 34px rgba(99,102,241,0.38), 0 14px 36px rgba(99,102,241,0.28), inset 0 1px 1px rgba(255,255,255,0.30)",
-              color: "#FFFFFF", fontSize: "15.5px", fontWeight: 730,
+              color: "#FFFFFF", fontSize: "15px", fontWeight: 720,
               display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               cursor: "pointer",
             }}
@@ -3558,7 +3558,7 @@ export default function Home() {
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
               height: "44px", width: "100%",
-              display: "flex", alignItems: "center", gap: "12px",
+              display: "flex", alignItems: "center", gap: "9px",
               padding: "0 14px", borderRadius: "16px",
               border: "1px solid transparent", background: "transparent",
               color: "rgba(226,232,240,0.82)",
@@ -3581,7 +3581,7 @@ export default function Home() {
             onClick={() => setIsLangOpen(!isLangOpen)}
             style={{
               height: "44px", width: "100%",
-              display: "flex", alignItems: "center", gap: "12px",
+              display: "flex", alignItems: "center", gap: "9px",
               padding: "0 14px", borderRadius: "16px",
               border: isLangOpen ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
               background: isLangOpen ? "rgba(126,123,255,0.12)" : "transparent",
@@ -3618,7 +3618,7 @@ export default function Home() {
                 onClick={() => { setLang("hu"); localStorage.setItem("lang", "hu"); setIsLangOpen(false); }}
                 style={{
                   width: "100%", height: "48px",
-                  display: "flex", alignItems: "center", gap: "12px",
+                  display: "flex", alignItems: "center", gap: "9px",
                   padding: "0 16px",
                   background: lang === "hu" ? "rgba(126,123,255,0.18)" : "transparent",
                   border: "none",
@@ -3643,7 +3643,7 @@ export default function Home() {
                 onClick={() => { setLang("en"); localStorage.setItem("lang", "en"); setIsLangOpen(false); }}
                 style={{
                   width: "100%", height: "48px",
-                  display: "flex", alignItems: "center", gap: "12px",
+                  display: "flex", alignItems: "center", gap: "9px",
                   padding: "0 16px",
                   background: lang === "en" ? "rgba(126,123,255,0.18)" : "transparent",
                   border: "none", borderBottom: "none",
@@ -3704,7 +3704,7 @@ export default function Home() {
             onClick={() => { supabase.auth.signOut(); setIsDrawerOpen(false); }}
             style={{
               height: "44px", width: "100%",
-              display: "flex", alignItems: "center", gap: "12px",
+              display: "flex", alignItems: "center", gap: "9px",
               padding: "0 14px", borderRadius: "16px",
               border: "1px solid transparent", background: "transparent",
               color: "rgba(248,113,113,0.82)",
@@ -3725,25 +3725,25 @@ export default function Home() {
         {/* ── SPACER ── */}
         <div style={{ flex: 1 }} />
 
-        {/* ── PROFIL KÁRTYA 72px alul ── */}
+        {/* ── PROFIL KÁRTYA kompakt alul ── */}
         <div style={{ position: "relative", zIndex: 1, padding: "0 14px 14px", flexShrink: 0 }}>
           <div
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "64px", padding: "0 14px",
-              borderRadius: "20px",
+              height: "54px", padding: "0 10px",
+              borderRadius: "17px",
               background: "linear-gradient(135deg, rgba(15,23,42,0.78), rgba(17,24,39,0.58))",
               border: "1px solid rgba(147,197,253,0.26)",
               boxShadow: "0 0 34px rgba(59,130,246,0.16), 0 0 28px rgba(168,85,247,0.12), inset 0 1px 1px rgba(255,255,255,0.12)",
-              display: "flex", alignItems: "center", gap: "12px",
+              display: "flex", alignItems: "center", gap: "9px",
               cursor: "pointer",
             }}
           >
             <div style={{
-              width: "36px", height: "36px", borderRadius: "50%",
+              width: "30px", height: "30px", borderRadius: "50%",
               background: "linear-gradient(135deg, #7E7BFF, #9B7BFF)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "18px", fontWeight: 800, color: "white",
+              fontSize: "15px", fontWeight: 800, color: "white",
               boxShadow: "0 0 26px rgba(168,85,247,0.34)",
               flexShrink: 0, overflow: "hidden"
             }}>
@@ -3753,19 +3753,19 @@ export default function Home() {
               }
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
-              <div style={{ fontSize: "18px", fontWeight: 750, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: "14.5px", fontWeight: 740, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {formattedName}
               </div>
-              <div style={{ fontSize: "16px", color: "rgba(203,213,225,0.64)", marginTop: "6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: "12px", color: "rgba(203,213,225,0.64)", marginTop: "3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {session?.user?.email}
               </div>
             </div>
             <span style={{
-              width: "48px", height: "48px", borderRadius: "18px",
+              width: "34px", height: "34px", borderRadius: "13px",
               background: "rgba(15,23,42,0.60)",
               border: "1px solid rgba(148,163,255,0.26)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "rgba(226,232,240,0.86)", fontSize: "28px", flexShrink: 0
+              color: "rgba(226,232,240,0.86)", fontSize: "22px", flexShrink: 0
             }}>›</span>
           </div>
         </div>
