@@ -2846,49 +2846,134 @@ export default function Home() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {/* Naptár */}
-              <div className="glass-card" style={{ padding: "20px", overflow: "hidden", width: "100%" }}>
+              <div
+                className="glass-card"
+                style={{
+                  position: "relative",
+                  padding: "18px",
+                  overflow: "hidden",
+                  width: "100%",
+                  borderRadius: "26px",
+                  background: "linear-gradient(145deg, rgba(8,13,33,0.94) 0%, rgba(25,23,72,0.86) 48%, rgba(5,13,30,0.96) 100%)",
+                  border: "1px solid rgba(125,211,252,0.38)",
+                  boxShadow: "0 0 34px rgba(56,189,248,0.16), 0 0 46px rgba(168,85,247,0.13), inset 0 1px 0 rgba(255,255,255,0.10)",
+                  backdropFilter: "blur(18px)",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "radial-gradient(circle at 88% 12%, rgba(139,92,246,0.20), transparent 32%), radial-gradient(circle at 14% 86%, rgba(34,211,238,0.12), transparent 34%), radial-gradient(circle at 88% 94%, rgba(99,102,241,0.22), transparent 22%)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "-34px",
+                    bottom: "-42px",
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle at 35% 35%, rgba(124,58,237,0.42), rgba(30,64,175,0.10) 54%, transparent 70%)",
+                    filter: "blur(1px)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: "1px",
+                    borderRadius: "25px",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.07), transparent 45%)",
+                    pointerEvents: "none",
+                  }}
+                />
+
                 {/* Naptár fejléc */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>📅</div>
-                    <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-color)" }}>{lang === "hu" ? "Naptár" : "Calendar"}</h3>
+                <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", gap: "10px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+                    <div
+                      style={{
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: "15px",
+                        background: "linear-gradient(135deg, #38bdf8 0%, #8b5cf6 100%)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "20px",
+                        boxShadow: "0 0 24px rgba(56,189,248,0.32), 0 0 26px rgba(139,92,246,0.26)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      📅
+                    </div>
+                    <h3 style={{ fontSize: "clamp(22px, 6vw, 28px)", fontWeight: 900, color: "#ffffff", margin: 0, letterSpacing: "-0.04em", textShadow: "0 0 22px rgba(255,255,255,0.10)" }}>
+                      {lang === "hu" ? "Naptár" : "Calendar"}
+                    </h3>
                   </div>
                   <button
                     onClick={() => setNewEventDate(new Date().toISOString().split("T")[0])}
                     style={{
-                      padding: "8px 16px", borderRadius: "20px",
-                      background: "rgba(99,102,241,0.15)",
-                      border: "1px solid rgba(99,102,241,0.4)",
-                      color: "#a5b4fc", fontSize: "13px", fontWeight: 600,
-                      cursor: "pointer", display: "flex", alignItems: "center", gap: "6px"
+                      padding: "10px 14px",
+                      borderRadius: "18px",
+                      background: "rgba(17,24,39,0.38)",
+                      border: "1px solid rgba(167,139,250,0.45)",
+                      color: "rgba(226,232,240,0.86)",
+                      fontSize: "13px",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "7px",
+                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(139,92,246,0.12)",
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
                     }}
                   >
                     <span>📅</span> {lang === "hu" ? "Mai nap" : "Today"}
                   </button>
                 </div>
 
-                <DatePicker
-                  inline
-                  locale={lang === "hu" ? "hu" : "en"}
-                  selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date: Date | null) => {
-                    if (date) {
-                      setNewEventDate(date.toISOString().split("T")[0]);
-                    }
+                <div
+                  style={{
+                    position: "relative",
+                    zIndex: 2,
+                    padding: "14px 12px 16px",
+                    borderRadius: "22px",
+                    background: "linear-gradient(145deg, rgba(5,10,28,0.64), rgba(23,25,71,0.54))",
+                    border: "1px solid rgba(167,139,250,0.25)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px rgba(0,0,0,0.18)",
+                    overflow: "hidden",
                   }}
-                  calendarClassName="custom-calendar"
-                  dayClassName={(date: Date) => {
-                    const dateStr = date.toISOString().split("T")[0];
-                    const hasEvent = events.some(e => e.event_date === dateStr);
-                    const isSunday = date.getDay() === 0;
-                    if (isSunday && hasEvent) return "has-event-day sunday-day";
-                    if (isSunday) return "sunday-day";
-                    if (hasEvent) return "has-event-day";
-                    return "";
-                  }}
-                />
+                >
+                  <DatePicker
+                    inline
+                    locale={lang === "hu" ? "hu" : "en"}
+                    selected={newEventDate ? new Date(newEventDate) : new Date()}
+                    onChange={(date: Date | null) => {
+                      if (date) {
+                        setNewEventDate(date.toISOString().split("T")[0]);
+                      }
+                    }}
+                    calendarClassName="custom-calendar lifesync-neon-calendar"
+                    dayClassName={(date: Date) => {
+                      const dateStr = date.toISOString().split("T")[0];
+                      const hasEvent = events.some(e => e.event_date === dateStr);
+                      const isSunday = date.getDay() === 0;
+                      if (isSunday && hasEvent) return "has-event-day sunday-day";
+                      if (isSunday) return "sunday-day";
+                      if (hasEvent) return "has-event-day";
+                      return "";
+                    }}
+                  />
+                </div>
+
                 <style>{`
-                  .custom-calendar {
+                  .lifesync-neon-calendar {
                     width: 100% !important;
                     max-width: 100% !important;
                     border: none !important;
@@ -2896,167 +2981,279 @@ export default function Home() {
                     font-family: 'SF Pro Display', 'Inter', sans-serif !important;
                     overflow: hidden !important;
                   }
-                  .react-datepicker__month-container {
+                  .lifesync-neon-calendar .react-datepicker__month-container {
                     width: 100% !important;
                     max-width: 100% !important;
                     float: none !important;
                   }
-                  .react-datepicker__day-names,
-                  .react-datepicker__week {
-                    display: flex !important;
-                    justify-content: space-between !important;
+                  .lifesync-neon-calendar .react-datepicker__header {
+                    position: relative !important;
+                    background: rgba(15,23,42,0.34) !important;
+                    border: none !important;
+                    padding: 12px 8px 8px !important;
+                    border-radius: 18px !important;
+                    margin-bottom: 10px !important;
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08) !important;
+                  }
+                  .lifesync-neon-calendar .react-datepicker__current-month {
+                    color: white !important;
+                    font-weight: 900 !important;
+                    font-size: 20px !important;
+                    letter-spacing: 0.04em !important;
+                    text-transform: capitalize !important;
+                    padding: 0 44px !important;
+                  }
+                  .lifesync-neon-calendar .react-datepicker__day-names,
+                  .lifesync-neon-calendar .react-datepicker__week {
+                    display: grid !important;
+                    grid-template-columns: repeat(7, 1fr) !important;
+                    align-items: center !important;
+                    gap: 4px !important;
                     width: 100% !important;
                   }
-                  .react-datepicker__header {
-                    background: rgba(255,255,255,0.05) !important;
-                    border: none !important;
-                    padding: 12px !important;
-                    border-radius: 12px !important;
-                  }
-                  .react-datepicker__current-month {
-                    color: white !important;
-                    font-weight: 700 !important;
-                    font-size: 16px !important;
+                  .lifesync-neon-calendar .react-datepicker__day-name {
+                    color: rgba(226,232,240,0.74) !important;
+                    font-weight: 800 !important;
+                    width: auto !important;
+                    max-width: none !important;
+                    line-height: 30px !important;
+                    font-size: 13px !important;
+                    margin: 0 !important;
                     text-transform: capitalize !important;
                   }
-                  .react-datepicker__day-name {
-                    color: #ffffff !important;
-                    font-weight: 700 !important;
-                    width: calc((100% - 14px) / 7) !important;
-                    max-width: 2.2rem !important;
-                    line-height: 2rem !important;
-                    font-size: 14px !important;
-                    margin: 1px !important;
+                  .lifesync-neon-calendar .react-datepicker__month {
+                    margin: 0 !important;
                   }
-                  .react-datepicker__day {
-                    color: #ffffff !important;
-                    width: calc((100% - 14px) / 7) !important;
-                    max-width: 2.2rem !important;
-                    line-height: 2rem !important;
-                    border-radius: 8px !important;
-                    margin: 1px !important;
-                    font-size: 14px !important;
-                    font-weight: 500 !important;
-                  }
-                  .react-datepicker__week {
-                    display: flex !important;
-                    justify-content: space-between !important;
-                  }
-                  .react-datepicker__day:hover {
-                    background: rgba(255,255,255,0.15) !important;
-                  }
-                  .react-datepicker__day--selected {
-                    background: transparent !important;
-                    font-weight: 500 !important;
-                    border: none !important;
-                  }
-                  .react-datepicker__day--keyboard-selected {
-                    background: transparent !important;
-                  }
-                  .react-datepicker__day--outside-month {
-                    color: rgba(255,255,255,0.3) !important;
-                  }
-                  .has-event-day {
+                  .lifesync-neon-calendar .react-datepicker__day {
                     position: relative !important;
+                    color: rgba(248,250,252,0.92) !important;
+                    width: auto !important;
+                    max-width: none !important;
+                    height: 40px !important;
+                    line-height: 40px !important;
+                    border-radius: 14px !important;
+                    margin: 0 !important;
+                    font-size: 18px !important;
+                    font-weight: 750 !important;
+                    transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease !important;
                   }
-                  .has-event-day::after {
+                  .lifesync-neon-calendar .react-datepicker__day:hover {
+                    background: rgba(139,92,246,0.18) !important;
+                    transform: translateY(-1px) !important;
+                    box-shadow: 0 0 16px rgba(139,92,246,0.14) !important;
+                  }
+                  .lifesync-neon-calendar .react-datepicker__day--selected,
+                  .lifesync-neon-calendar .react-datepicker__day--keyboard-selected {
+                    color: white !important;
+                    background: linear-gradient(135deg, #38bdf8 0%, #2563eb 45%, #8b5cf6 100%) !important;
+                    font-weight: 900 !important;
+                    border: 1px solid rgba(125,211,252,0.48) !important;
+                    box-shadow: 0 0 18px rgba(56,189,248,0.36), 0 0 26px rgba(139,92,246,0.32) !important;
+                  }
+                  .lifesync-neon-calendar .react-datepicker__day--outside-month {
+                    color: rgba(148,163,184,0.34) !important;
+                  }
+                  .lifesync-neon-calendar .sunday-day {
+                    color: #c084fc !important;
+                    font-weight: 850 !important;
+                  }
+                  .lifesync-neon-calendar .react-datepicker__day--selected.sunday-day,
+                  .lifesync-neon-calendar .react-datepicker__day--keyboard-selected.sunday-day {
+                    color: white !important;
+                  }
+                  .lifesync-neon-calendar .has-event-day::after {
                     content: '' !important;
                     position: absolute !important;
-                    bottom: 4px !important;
+                    bottom: 5px !important;
                     left: 50% !important;
                     transform: translateX(-50%) !important;
-                    width: 5px !important;
-                    height: 5px !important;
-                    background: #00BBFF !important;
+                    width: 6px !important;
+                    height: 6px !important;
+                    background: #22d3ee !important;
                     border-radius: 50% !important;
+                    box-shadow: 0 0 10px rgba(34,211,238,0.9) !important;
                   }
-                  .sunday-day {
-                    color: #ff4444 !important;
-                    font-weight: 600 !important;
+                  .lifesync-neon-calendar .sunday-day.has-event-day::after {
+                    background: #c084fc !important;
+                    box-shadow: 0 0 10px rgba(192,132,252,0.9) !important;
                   }
-                  .sunday-day.has-event-day {
-                    color: #ff4444 !important;
+                  .lifesync-neon-calendar .react-datepicker__navigation {
+                    top: 16px !important;
+                    width: 34px !important;
+                    height: 34px !important;
+                    border-radius: 12px !important;
+                    background: rgba(99,102,241,0.18) !important;
+                    border: 1px solid rgba(167,139,250,0.22) !important;
                   }
-                  .sunday-day.has-event-day::after {
-                    background: #ff4444 !important;
+                  .lifesync-neon-calendar .react-datepicker__navigation:hover {
+                    background: rgba(139,92,246,0.25) !important;
                   }
-
-                  .react-datepicker__navigation {
-                    top: 12px !important;
+                  .lifesync-neon-calendar .react-datepicker__navigation--previous {
+                    left: 8px !important;
                   }
-                  .react-datepicker__navigation-icon::before {
-                    border-color: white !important;
+                  .lifesync-neon-calendar .react-datepicker__navigation--next {
+                    right: 8px !important;
+                  }
+                  .lifesync-neon-calendar .react-datepicker__navigation-icon::before {
+                    border-color: rgba(248,250,252,0.92) !important;
+                    border-width: 2px 2px 0 0 !important;
+                    height: 9px !important;
+                    width: 9px !important;
+                  }
+                  @media (max-width: 380px) {
+                    .lifesync-neon-calendar .react-datepicker__day {
+                      height: 36px !important;
+                      line-height: 36px !important;
+                      font-size: 16px !important;
+                    }
+                    .lifesync-neon-calendar .react-datepicker__current-month {
+                      font-size: 18px !important;
+                    }
                   }
                 `}</style>
               </div>
 
               {/* Esemény hozzáadása gomb + nap eseményei */}
-              <div style={{ marginTop: "16px" }}>
+              <div
+                style={{
+                  position: "relative",
+                  marginTop: "16px",
+                  padding: "14px",
+                  borderRadius: "24px",
+                  overflow: "hidden",
+                  background: "linear-gradient(145deg, rgba(7,12,31,0.86), rgba(20,24,67,0.72))",
+                  border: "1px solid rgba(96,165,250,0.22)",
+                  boxShadow: "0 0 26px rgba(59,130,246,0.10), inset 0 1px 0 rgba(255,255,255,0.07)",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "radial-gradient(circle at 86% 20%, rgba(139,92,246,0.16), transparent 34%), radial-gradient(circle at 16% 90%, rgba(34,211,238,0.09), transparent 30%)",
+                    pointerEvents: "none",
+                  }}
+                />
+
                 {/* Kiválasztott nap jelzése */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", opacity: 0.7, fontSize: "13px" }}>
-                  <span>📅</span>
-                  <span>{lang === "hu" ? "Események" : "Events"}: {newEventDate ? new Date(newEventDate + "T00:00:00").toLocaleDateString(lang === "hu" ? "hu-HU" : "en-US", { year: "numeric", month: "long", day: "numeric", weekday: "long" }) : ""}</span>
+                <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                  <div
+                    style={{
+                      width: "42px",
+                      height: "42px",
+                      borderRadius: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "linear-gradient(135deg, rgba(56,189,248,0.22), rgba(139,92,246,0.22))",
+                      border: "1px solid rgba(167,139,250,0.24)",
+                      boxShadow: "0 0 18px rgba(139,92,246,0.14)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    📅
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ color: "rgba(248,250,252,0.96)", fontSize: "clamp(15px, 4vw, 18px)", fontWeight: 900, lineHeight: 1.2 }}>
+                      {lang === "hu" ? "Események" : "Events"}
+                    </div>
+                    <div style={{ color: "rgba(203,213,225,0.68)", fontSize: "13px", lineHeight: 1.35, marginTop: "3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {newEventDate ? new Date(newEventDate + "T00:00:00").toLocaleDateString(lang === "hu" ? "hu-HU" : "en-US", { year: "numeric", month: "long", day: "numeric", weekday: "long" }) : ""}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setAddViewMode("form")}
+                    style={{
+                      width: "46px",
+                      height: "46px",
+                      borderRadius: "16px",
+                      border: "1px solid rgba(125,211,252,0.28)",
+                      background: "linear-gradient(135deg, #38bdf8 0%, #8b5cf6 100%)",
+                      color: "#ffffff",
+                      fontSize: "25px",
+                      fontWeight: 700,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 0 22px rgba(56,189,248,0.25), 0 0 24px rgba(139,92,246,0.25)",
+                      flexShrink: 0,
+                    }}
+                    aria-label={lang === "hu" ? "Esemény hozzáadása" : "Add event"}
+                  >
+                    +
+                  </button>
                 </div>
 
-                {/* Új esemény gomb */}
-                <button
-                  onClick={() => setAddViewMode("form")}
-                  style={{
-                    width: "100%", padding: "14px",
-                    borderRadius: "14px", border: "none",
-                    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-                    color: "#ffffff", fontSize: "16px", fontWeight: 600,
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                    cursor: "pointer", marginBottom: "10px",
-                    boxShadow: "0 4px 20px rgba(99,102,241,0.4)",
-                  }}
-                >
-                  <span style={{ fontSize: "18px" }}>+</span>
-                  {lang === "hu" ? "Esemény hozzáadása" : "Add event"}
-                </button>
-
                 {/* Nap eseményei */}
-                {(() => {
-                  const selectedDateEvents = events.filter(e => e.event_date === newEventDate);
-                  if (selectedDateEvents.length === 0) return (
-                    <p style={{ textAlign: "center", opacity: 0.45, fontSize: "13px", padding: "8px 0" }}>
-                      {lang === "hu" ? "Nincs esemény ezen a napon" : "No events on this day"}
-                    </p>
-                  );
-                  return (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <p style={{ fontSize: "13px", opacity: 0.6, marginBottom: "4px" }}>
-                        {selectedDateEvents.length} {lang === "hu" ? "esemény erre a napra" : "events on this day"}
-                      </p>
-                      {selectedDateEvents.map(event => (
-                        <div
-                          key={event.id}
-                          onClick={() => { setScrollToEventId(event.id); setActiveTab("Timeline"); }}
-                          style={{
-                            padding: "12px 14px",
-                            background: "rgba(99,102,241,0.08)",
-                            borderRadius: "12px",
-                            cursor: "pointer",
-                            border: "1px solid rgba(99,102,241,0.2)",
-                            display: "flex", alignItems: "center", gap: "10px",
-                            transition: "all 0.2s"
-                          }}
-                        >
-                          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: event.category === 'event' ? '#6366f1' : event.category === 'utility' ? '#f59e0b' : '#10b981', flexShrink: 0 }} />
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, fontSize: "14px" }}>{event.title}</div>
-                            {event.description && (
-                              <div style={{ fontSize: "12px", opacity: 0.6, marginTop: "2px" }}>
-                                {event.description.substring(0, 50)}{event.description.length > 50 ? "..." : ""}
-                              </div>
-                            )}
-                          </div>
-                          <span style={{ fontSize: "12px", opacity: 0.4 }}>›</span>
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  {(() => {
+                    const selectedDateEvents = events.filter(e => e.event_date === newEventDate);
+                    if (selectedDateEvents.length === 0) return (
+                      <div
+                        style={{
+                          padding: "14px 14px",
+                          borderRadius: "18px",
+                          background: "rgba(15,23,42,0.38)",
+                          border: "1px solid rgba(148,163,184,0.14)",
+                          color: "rgba(203,213,225,0.58)",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          textAlign: "center",
+                        }}
+                      >
+                        {lang === "hu" ? "Nincs esemény ezen a napon" : "No events on this day"}
+                      </div>
+                    );
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+                        <div style={{ fontSize: "12px", color: "rgba(203,213,225,0.58)", fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                          {selectedDateEvents.length} {lang === "hu" ? "esemény erre a napra" : "events on this day"}
                         </div>
-                      ))}
-                    </div>
-                  );
-                })()}
+                        {selectedDateEvents.map(event => (
+                          <div
+                            key={event.id}
+                            onClick={() => { setScrollToEventId(event.id); setActiveTab("Timeline"); }}
+                            style={{
+                              padding: "12px 13px",
+                              background: "linear-gradient(135deg, rgba(30,41,59,0.58), rgba(15,23,42,0.46))",
+                              borderRadius: "16px",
+                              cursor: "pointer",
+                              border: "1px solid rgba(125,211,252,0.18)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "11px",
+                              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+                              transition: "transform 0.18s ease, border-color 0.18s ease",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "10px",
+                                height: "10px",
+                                borderRadius: "50%",
+                                background: event.category === 'event' ? '#8b5cf6' : event.category === 'utility' ? '#f59e0b' : '#22c55e',
+                                boxShadow: event.category === 'event' ? "0 0 12px rgba(139,92,246,0.75)" : event.category === 'utility' ? "0 0 12px rgba(245,158,11,0.70)" : "0 0 12px rgba(34,197,94,0.70)",
+                                flexShrink: 0
+                              }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 850, fontSize: "14px", color: "rgba(248,250,252,0.95)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {event.title}
+                              </div>
+                              {event.description && (
+                                <div style={{ fontSize: "12px", color: "rgba(203,213,225,0.56)", marginTop: "3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {event.description.substring(0, 70)}{event.description.length > 70 ? "..." : ""}
+                                </div>
+                              )}
+                            </div>
+                            <span style={{ fontSize: "18px", color: "rgba(226,232,240,0.44)", lineHeight: 1 }}>›</span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
 
