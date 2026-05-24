@@ -1443,7 +1443,7 @@ export default function Home() {
     >
       {/* ═══ FŐ TARTALOM ═══ */}
 
-      <section className="header">
+      <section className="header" style={{ marginTop: "12px", paddingTop: "4px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
           {/* Hamburger gomb */}
           <button
@@ -1977,7 +1977,7 @@ export default function Home() {
       )}
 
       {activeTab === "Timeline" && (
-        <div key="Timeline" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 100px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "26px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", gap: "18px", overscrollBehavior: "contain", background: "radial-gradient(circle at 78% 12%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 6% 58%, rgba(56,189,248,0.12), transparent 34%)" }}>
+        <div key="Timeline" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 100px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "26px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", gap: "18px", overscrollBehavior: "contain", background: "transparent" }}>
           <div style={{ padding: "2px 4px 0" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
               <h2 style={{ fontSize: "32px", fontWeight: 900, letterSpacing: "-0.04em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.26)" }}>{t("timelineTitle")}</h2>
@@ -2175,7 +2175,7 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "radial-gradient(circle at 75% 18%, rgba(139,92,246,0.18), transparent 34%), radial-gradient(circle at 8% 58%, rgba(56,189,248,0.12), transparent 32%)" }}>
+        <div key="Add" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "transparent" }}>
           <div style={{ padding: "2px 4px 0", marginBottom: "18px" }}>
             <h2 style={{ fontSize: "30px", fontWeight: 850, marginBottom: "6px", letterSpacing: "-0.03em", color: "#fff", textShadow: "0 0 24px rgba(96,165,250,0.25)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
