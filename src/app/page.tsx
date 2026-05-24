@@ -121,7 +121,7 @@ export default function Home() {
         max-width: 100%;
         box-sizing: border-box;
         scroll-margin-top: 110px;
-        scroll-margin-bottom: 340px;
+        scroll-margin-bottom: 140px;
       }
       .custom-datepicker, .mobile-datetime-input {
         width: 100% !important;
@@ -1037,12 +1037,9 @@ export default function Home() {
     setIsUpdatingProfile(false);
   };
 
-  const handleLoginInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleLoginInputFocus = () => {
+    // iPhone-on a scrollIntoView túl nagy ugrást okozott, ezért itt csak állapotot váltunk.
     setIsLoginInputFocused(true);
-    const target = e.currentTarget;
-    window.setTimeout(() => {
-      target.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-    }, 180);
   };
 
   const handleLoginInputBlur = () => {
@@ -1056,12 +1053,23 @@ export default function Home() {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail || !password) {
+      showToast("Add meg az email címet és a jelszót.", 'error');
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      (document.activeElement as HTMLElement | null)?.blur?.();
+    }
+
     if (isLoginMode) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
       if (error) {
         showToast("Hiba a belépésnél: " + error.message, 'error');
       } else {
-        localStorage.setItem('remembered_login_email', email);
+        localStorage.setItem('remembered_login_email', cleanEmail);
         if (typeof window !== "undefined") {
           (document.activeElement as HTMLElement | null)?.blur?.();
           window.scrollTo(0, 0);
@@ -1074,10 +1082,10 @@ export default function Home() {
         setTimeout(() => setShowSplash(false), 4000);
       }
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ email: cleanEmail, password });
       if (error) showToast("Hiba a regisztrációnál: " + error.message, 'error');
       else {
-        localStorage.setItem('remembered_login_email', email);
+        localStorage.setItem('remembered_login_email', cleanEmail);
         showToast(t("registeredOk"), 'success');
         setIsLoginMode(true);
         setPassword("");
@@ -1396,7 +1404,7 @@ export default function Home() {
           width: "100%",
           height: showSplash ? "var(--app-height, 100dvh)" : "var(--app-height, 100dvh)",
           minHeight: "var(--app-height, 100dvh)",
-          padding: showSplash ? "24px" : "calc(env(safe-area-inset-top, 0px) + 18px) 24px 360px",
+          padding: showSplash ? "24px" : "calc(env(safe-area-inset-top, 0px) + 18px) 24px 56px",
           overflowY: showSplash ? "hidden" : "auto",
           overflowX: "hidden",
           WebkitOverflowScrolling: "touch",
@@ -1489,7 +1497,8 @@ export default function Home() {
               overscrollBehavior: "contain",
               padding: "24px 20px", 
               borderRadius: "28px", 
-              zIndex: 5,
+              position: "relative",
+              zIndex: 30,
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
               marginBottom: "40px",
@@ -1508,11 +1517,11 @@ export default function Home() {
                   type="email"
                   required
                   value={email}
-                  onPointerDown={(e) => e.currentTarget.focus()}
-                  onTouchStart={(e) => e.currentTarget.focus()}
                   onFocus={handleLoginInputFocus}
                   onBlur={handleLoginInputBlur}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  inputMode="email"
                   placeholder={t("emailPlaceholder")}
                   style={{
                     width: "100%",
@@ -1541,11 +1550,10 @@ export default function Home() {
                     type={showPassword ? "text" : "password"} 
                     required 
                     value={password} 
-                    onPointerDown={(e) => e.currentTarget.focus()}
-                    onTouchStart={(e) => e.currentTarget.focus()}
                     onFocus={handleLoginInputFocus}
                     onBlur={handleLoginInputBlur}
-                    onChange={(e) => setPassword(e.target.value)} 
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete={isLoginMode ? "current-password" : "new-password"} 
                     placeholder="••••••••" 
                     style={{ 
                       width: "100%", 
