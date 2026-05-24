@@ -1355,72 +1355,6 @@ export default function Home() {
     }
   };
 
-  const isPasskeyAvailable = () => {
-    return typeof window !== "undefined" &&
-      typeof window.PublicKeyCredential !== "undefined" &&
-      window.isSecureContext;
-  };
-
-  const handlePasskeyLogin = async () => {
-    if (!isPasskeyAvailable()) {
-      showToast("A Face ID / Passkey csak HTTPS-en és támogatott eszközön működik.", "error");
-      return;
-    }
-
-    if (typeof window !== "undefined") {
-      (document.activeElement as HTMLElement | null)?.blur?.();
-      window.scrollTo(0, 0);
-      const height = window.innerHeight;
-      document.documentElement.style.setProperty("--app-height", `${height}px`);
-      document.documentElement.style.setProperty("--app-width", `${Math.min(window.innerWidth, 430)}px`);
-      document.documentElement.style.setProperty("--login-keyboard-height", "0px");
-      window.dispatchEvent(new Event("resize"));
-    }
-
-    try {
-      const { data, error } = await (supabase.auth as any).signInWithPasskey();
-      if (error) {
-        showToast("Face ID belépési hiba: " + error.message, "error");
-        return;
-      }
-      if (data?.session) {
-        setSession(data.session);
-      }
-      showToast("Sikeres Face ID / Passkey belépés.", "success");
-    } catch (err: any) {
-      console.error("Passkey login error:", err);
-      showToast("A Face ID / Passkey belépés nem sikerült.", "error");
-    }
-  };
-
-  const handleRegisterPasskey = async () => {
-    if (!session) {
-      showToast("Előbb jelentkezz be, utána tudod beállítani a Face ID-t.", "info");
-      return;
-    }
-    if (!isPasskeyAvailable()) {
-      showToast("A Face ID / Passkey csak HTTPS-en és támogatott eszközön működik.", "error");
-      return;
-    }
-
-    try {
-      const passkeyName = `LifeSync ${new Date().toLocaleDateString("hu-HU")}`;
-      const { error } = await (supabase.auth as any).registerPasskey({
-        friendlyName: passkeyName,
-      });
-
-      if (error) {
-        showToast("Face ID beállítási hiba: " + error.message, "error");
-        return;
-      }
-
-      showToast("Face ID / Passkey sikeresen beállítva.", "success");
-    } catch (err: any) {
-      console.error("Passkey register error:", err);
-      showToast("A Face ID / Passkey beállítása nem sikerült.", "error");
-    }
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -1755,7 +1689,7 @@ export default function Home() {
           width: "100%",
           height: showSplash ? "var(--app-height, 100dvh)" : "var(--app-height, 100dvh)",
           minHeight: "var(--app-height, 100dvh)",
-          padding: showSplash ? "24px" : isLoginKeyboardOpen ? "calc(env(safe-area-inset-top, 0px) + 4px) 20px 18px" : "calc(env(safe-area-inset-top, 0px) + 18px) 24px 56px",
+          padding: showSplash ? "24px" : isLoginKeyboardOpen ? "calc(env(safe-area-inset-top, 0px) + 4px) 20px 18px" : "calc(env(safe-area-inset-top, 0px) + 8px) 24px 32px",
           overflowY: showSplash ? "hidden" : "auto",
           overflowX: "hidden",
           WebkitOverflowScrolling: "touch",
@@ -1763,7 +1697,7 @@ export default function Home() {
           flexDirection: "column",
           justifyContent: showSplash ? "center" : "flex-start",
           alignItems: "center",
-          gap: showSplash ? "20px" : isLoginKeyboardOpen ? "8px" : "16px",
+          gap: showSplash ? "20px" : isLoginKeyboardOpen ? "6px" : "10px",
         }}
       >
         {!showSplash && (
@@ -1799,21 +1733,23 @@ export default function Home() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: showSplash ? "auto" : isLoginKeyboardOpen ? "0px" : "18px",
-            marginBottom: showSplash ? "auto" : isLoginKeyboardOpen ? "0px" : "4px",
+            marginTop: showSplash ? "auto" : isLoginKeyboardOpen ? "0px" : "4px",
+            marginBottom: showSplash ? "auto" : "0px",
             textAlign: "center", 
             zIndex: 10, 
             transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)", 
             cursor: "pointer",
+            opacity: showSplash ? 1 : isLoginKeyboardOpen ? 0.42 : 0.68,
+            transform: showSplash ? "translateY(0) scale(1)" : isLoginKeyboardOpen ? "translateY(-4px) scale(0.92)" : "translateY(-2px) scale(0.96)",
             flexShrink: 0
           }}
         >
-          <div style={{ width: showSplash ? "110px" : isLoginKeyboardOpen ? "42px" : "82px", height: showSplash ? "110px" : isLoginKeyboardOpen ? "42px" : "82px", margin: isLoginKeyboardOpen ? "0 auto 2px" : "0 auto 8px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
+          <div style={{ width: showSplash ? "110px" : isLoginKeyboardOpen ? "38px" : "64px", height: showSplash ? "110px" : isLoginKeyboardOpen ? "38px" : "64px", margin: isLoginKeyboardOpen ? "0 auto 2px" : "0 auto 8px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "0", boxShadow: "none", transition: "all 0.8s" }} />
           </div>
           <h1 style={{ 
-            fontSize: showSplash ? "40px" : isLoginKeyboardOpen ? "24px" : "34px", 
+            fontSize: showSplash ? "40px" : isLoginKeyboardOpen ? "22px" : "28px", 
             fontWeight: 900, 
             letterSpacing: "1px", 
             margin: 0, 
@@ -1842,7 +1778,7 @@ export default function Home() {
             style={{
               width: "100%",
               maxWidth: "360px",
-              height: "220px",
+              height: "170px",
               borderRadius: "28px",
               background: "rgba(8, 15, 35, 0.42)",
               border: "1px solid rgba(96,165,250,0.18)",
@@ -1865,14 +1801,14 @@ export default function Home() {
               maxHeight: "none",
               overflowY: "visible",
               overscrollBehavior: "contain",
-              padding: isLoginKeyboardOpen ? "18px 18px" : "24px 20px", 
+              padding: isLoginKeyboardOpen ? "18px 18px" : "22px 20px", 
               borderRadius: isLoginKeyboardOpen ? "24px" : "28px", 
               position: "relative",
               zIndex: 30,
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-              marginBottom: isLoginKeyboardOpen ? "0px" : "40px",
-              transform: isLoginKeyboardOpen && isPwaLoginBootReady ? `translateY(-${Math.min(Math.max(loginKeyboardHeight * 0.12, 14), 48)}px)` : "translateY(0)",
+              marginBottom: isLoginKeyboardOpen ? "0px" : "20px",
+              transform: isLoginKeyboardOpen && isPwaLoginBootReady ? `translateY(-${Math.min(Math.max(loginKeyboardHeight * 0.12, 14), 48)}px)` : "translateY(-10px)",
               transition: "box-shadow 0.25s ease, padding 0.25s ease"
             }}
           >
@@ -2016,32 +1952,6 @@ export default function Home() {
                     G
                   </span>
                   Belépés Google-fiókkal
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePasskeyLogin}
-                  style={{
-                    width: "100%",
-                    minHeight: "48px",
-                    marginTop: "10px",
-                    borderRadius: "16px",
-                    border: "1px solid rgba(168,85,247,0.42)",
-                    background: "linear-gradient(145deg, rgba(22,13,54,0.78), rgba(7,18,38,0.62))",
-                    color: "rgba(248,250,252,0.96)",
-                    fontWeight: 850,
-                    fontSize: "15px",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 26px rgba(124,58,237,0.18)",
-                    touchAction: "manipulation",
-                  }}
-                >
-                  <span aria-hidden="true" style={{ fontSize: "19px" }}>🔐</span>
-                  Belépés Face ID-val
                 </button>
               </div>
             )}
@@ -3734,7 +3644,6 @@ export default function Home() {
                 { icon: "🌙", title: t("darkMode"), sub: isDarkMode ? "Bekapcsolva" : "Kikapcsolva", onClick: toggleTheme, right: <div style={{ width: "44px", height: "26px", borderRadius: "999px", background: isDarkMode ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(71,85,105,0.45)", position: "relative" }}><div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "white", position: "absolute", left: isDarkMode ? "21px" : "3px", top: "3px", transition: "all 0.25s" }} /></div> },
                 { icon: "📧", title: t("savedLogin"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? localStorage.getItem("remembered_login_email") || "" : t("notSaved"), right: typeof window !== "undefined" && localStorage.getItem("remembered_login_email") ? <button onClick={(e) => { e.stopPropagation(); localStorage.removeItem("remembered_login_email"); setEmail(""); showToast("Bejelentkezési email törölve a memóriából!", 'info'); }} style={{ padding: "8px 10px", background: "rgba(244,63,94,0.12)", border: "1px solid rgba(244,63,94,0.65)", borderRadius: "12px", color: "#fb7185", fontWeight: 850, cursor: "pointer", fontSize: "11.5px", whiteSpace: "nowrap" }}>Törlés 🗑</button> : <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "24px" }}>›</span> },
                 { icon: "✉️", title: t("savedRecipient"), sub: typeof window !== "undefined" && localStorage.getItem("remembered_custom_email") ? localStorage.getItem("remembered_custom_email") || "" : t("notSaved"), right: <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "30px" }}>›</span> },
-                { icon: "🔐", title: "Face ID / Passkey", sub: lang === "hu" ? "Gyors belépés beállítása ezen az eszközön" : "Set up quick sign-in on this device", onClick: handleRegisterPasskey, right: <span style={{ color: "rgba(125,211,252,0.85)", fontSize: "24px" }}>›</span> },
                 { icon: "🚪", title: t("signOutLabel"), sub: "", onClick: () => supabase.auth.signOut(), danger: true, right: <span style={{ color: "rgba(148,163,184,0.55)", fontSize: "30px" }}>›</span> },
               ].map((item, idx) => (
                 <div key={idx} onClick={item.onClick} style={{ padding: "13px 12px", display: "grid", gridTemplateColumns: "42px minmax(0, 1fr) auto", gap: "10px", alignItems: "center", borderBottom: idx === 6 ? "none" : "1px solid rgba(148,163,184,0.12)", cursor: item.onClick ? "pointer" : "default", minHeight: "72px" }}>
