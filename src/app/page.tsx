@@ -81,6 +81,17 @@ export default function Home() {
   const [isLoginKeyboardOpen, setIsLoginKeyboardOpen] = useState(false);
   const [loginKeyboardHeight, setLoginKeyboardHeight] = useState(0);
   const loginCardRef = useRef<HTMLDivElement | null>(null);
+  const addScrollRef = useRef<HTMLDivElement | null>(null);
+  const saveActionsRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollAddSaveButtonIntoView = () => {
+    if (typeof window === "undefined") return;
+    const scrollToSave = () => {
+      saveActionsRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    };
+    window.setTimeout(scrollToSave, 80);
+    window.setTimeout(scrollToSave, 260);
+  };
 
   // iOS PWA első indítás fix: ikonról nyitva a Safari/WebKit késve ad pontos viewportot.
   // Emiatt a login panel első rendernél elcsúszhat vagy nehezen kattintható lehet.
@@ -248,6 +259,16 @@ export default function Home() {
         font-weight: 850 !important;
         white-space: nowrap !important;
         box-shadow: 0 16px 38px rgba(124,58,237,0.35), 0 0 28px rgba(56,189,248,0.24) !important;
+      }
+      .add-save-actions {
+        position: sticky !important;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 14px) !important;
+        z-index: 60 !important;
+        padding: 10px 0 6px !important;
+        border-radius: 22px !important;
+        background: linear-gradient(180deg, rgba(6,17,31,0.02), rgba(6,17,31,0.88) 32%, rgba(6,17,31,0.96)) !important;
+        backdrop-filter: blur(14px) !important;
+        -webkit-backdrop-filter: blur(14px) !important;
       }
       .add-neon-card [style*="border: 1px dashed"] {
         border-radius: 18px !important;
@@ -2963,14 +2984,14 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "transparent" }}>
+        <div key="Add" ref={addScrollRef} className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 190px)", scrollPaddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 190px)", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "transparent" }}>
           <div style={{ padding: "2px 4px 0", marginBottom: "18px" }}>
             <h2 style={{ fontSize: "32px", fontWeight: 900, marginBottom: "8px", letterSpacing: "-0.04em", color: "#fff", textShadow: "0 0 28px rgba(139,92,246,0.35), 0 0 18px rgba(56,189,248,0.18)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
           </div>
 
           {addViewMode === "form" ? (
-          <div className="glass-card add-neon-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "hidden" }}>
+          <div className="glass-card add-neon-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "visible" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
                 <div style={{ width: "50px", height: "50px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", boxShadow: "0 0 24px rgba(56,189,248,0.22)" }}>✦</div>
@@ -3227,7 +3248,7 @@ export default function Home() {
 
                             {/* EMAIL SZEKCIÓ - összecsukható */}
               <div style={{ marginTop: "8px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.36))", borderRadius: "18px", border: "1px solid rgba(139,92,246,0.26)", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-                <button className="add-accordion-button" type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
+                <button className="add-accordion-button" type="button" onClick={() => { const next = !showEmailSection; setShowEmailSection(next); if (next) scrollAddSaveButtonIntoView(); }} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📧</span> Email értesítés
                   </span>
@@ -3237,7 +3258,7 @@ export default function Home() {
                 <div style={{ padding: "0 12px 12px" }}>
                 <div style={{ marginBottom: "10px" }}>
                   <label style={{ fontSize: "11.5px", opacity: 0.8, marginBottom: "4px", display: "block" }}>{t("recipientEmail")}</label>
-                  <input type="email" value={customEmail} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px", backdropFilter: "blur(10px)", WebkitAppearance: "none", appearance: "none" }} />
+                  <input type="email" value={customEmail} onFocus={scrollAddSaveButtonIntoView} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px", backdropFilter: "blur(10px)", WebkitAppearance: "none", appearance: "none" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
@@ -3249,7 +3270,7 @@ export default function Home() {
                     Emlékeztető 1 nappal előtte
                   </label>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
-                    <input type="checkbox" checked={emailNotifyCustom} onChange={e => setEmailNotifyCustom(e.target.checked)} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
+                    <input type="checkbox" checked={emailNotifyCustom} onChange={e => { setEmailNotifyCustom(e.target.checked); if (e.target.checked) scrollAddSaveButtonIntoView(); }} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
                     Dátum és idő szerint
                   </label>
                   {emailNotifyCustom && (
@@ -3258,6 +3279,7 @@ export default function Home() {
                         type="datetime-local"
                         className="mobile-datetime-input"
                         value={customNotifyDateTime ? new Date(customNotifyDateTime.getTime() - customNotifyDateTime.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                        onFocus={scrollAddSaveButtonIntoView}
                         onChange={(e) => setCustomNotifyDateTime(e.target.value ? new Date(e.target.value) : null)}
                         style={{
                           width: "100%",
@@ -3281,11 +3303,11 @@ export default function Home() {
                 )}
               </div>
 
-              <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+              <div ref={saveActionsRef} className="add-save-actions" style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
                 {editingEventId && (
                   <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "rgba(15,23,42,0.82)", border: "1px solid rgba(148,163,184,0.28)", borderRadius: "20px", color: "rgba(226,232,240,0.96)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
                 )}
-                <button className="add-save-button" type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
+                <button className="add-save-button" type="submit" disabled={isUploading} style={{ flex: 2, padding: "16px", minHeight: "60px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1, cursor: isUploading ? "default" : "pointer" }}>
                   {isUploading ? t("uploading") : (editingEventId ? t("saveChanges") : t("save"))}
                 </button>
               </div>
