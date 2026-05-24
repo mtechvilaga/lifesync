@@ -132,11 +132,26 @@ export default function Home() {
         min-width: 0 !important;
         box-sizing: border-box !important;
       }
+      html, body {
+        background: #06111f;
+      }
       .phone {
         width: min(100vw, 430px) !important;
         max-width: 430px !important;
         min-width: 0 !important;
         overflow-x: hidden !important;
+        background-image:
+          linear-gradient(180deg, rgba(6,17,31,0.52) 0%, rgba(6,17,31,0.34) 38%, rgba(6,17,31,0.74) 100%),
+          radial-gradient(circle at 50% 0%, rgba(56,189,248,0.18), transparent 36%),
+          url('/lifesync-bg.png') !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        background-color: #06111f !important;
+      }
+      .phone > * {
+        position: relative;
+        z-index: 1;
       }
       .page-transition {
         min-width: 0 !important;
