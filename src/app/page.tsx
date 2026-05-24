@@ -76,6 +76,8 @@ export default function Home() {
   // Login keyboard-aware layout state
   const [isLoginInputFocused, setIsLoginInputFocused] = useState(false);
   const [isLoginKeyboardOpen, setIsLoginKeyboardOpen] = useState(false);
+  const [loginKeyboardHeight, setLoginKeyboardHeight] = useState(0);
+  const loginCardRef = useRef<HTMLDivElement | null>(null);
 
   // Drawer (oldalsáv) state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -229,13 +231,43 @@ export default function Home() {
     };
   }, [session, showSplash]);
 
-  // Login képernyő stabilizálás: nem mozgatjuk agresszíven a teljes panelt,
-  // mert iPhone-on ez megnehezítheti az inputok megérintését.
+  // Login képernyő stabilizálás: a panel a tényleges billentyűzet-magassághoz igazodik.
+  // Nem globális scroll/fixed trükköt használunk, így nem rontja el az Add / dátum / email mezőket.
   useEffect(() => {
-    if (!session && !showSplash) {
-      setIsLoginKeyboardOpen(false);
-    }
-  }, [session, showSplash]);
+    if (typeof window === "undefined") return;
+
+    const updateLoginKeyboard = () => {
+      if (session || showSplash) {
+        setIsLoginKeyboardOpen(false);
+        setLoginKeyboardHeight(0);
+        document.documentElement.style.setProperty("--login-keyboard-height", "0px");
+        return;
+      }
+
+      const viewport = window.visualViewport;
+      const fullHeight = window.innerHeight;
+      const visibleHeight = viewport?.height ?? fullHeight;
+      const offsetTop = viewport?.offsetTop ?? 0;
+      const keyboardHeight = Math.max(0, fullHeight - visibleHeight - offsetTop);
+      const keyboardOpen = isLoginInputFocused && keyboardHeight > 80;
+
+      setIsLoginKeyboardOpen(keyboardOpen);
+      setLoginKeyboardHeight(keyboardOpen ? keyboardHeight : 0);
+      document.documentElement.style.setProperty("--login-keyboard-height", `${keyboardOpen ? keyboardHeight : 0}px`);
+    };
+
+    updateLoginKeyboard();
+    const viewport = window.visualViewport;
+    viewport?.addEventListener("resize", updateLoginKeyboard);
+    viewport?.addEventListener("scroll", updateLoginKeyboard);
+    window.addEventListener("resize", updateLoginKeyboard);
+
+    return () => {
+      viewport?.removeEventListener("resize", updateLoginKeyboard);
+      viewport?.removeEventListener("scroll", updateLoginKeyboard);
+      window.removeEventListener("resize", updateLoginKeyboard);
+    };
+  }, [session, showSplash, isLoginInputFocused]);
 
   // Service Worker regisztráció
   useEffect(() => {
@@ -1038,7 +1070,7 @@ export default function Home() {
   };
 
   const handleLoginInputFocus = () => {
-    // iPhone-on a scrollIntoView túl nagy ugrást okozott, ezért itt csak állapotot váltunk.
+    // Csak a login layout állapotát váltjuk. A pozíciót a visualViewport alapján számoljuk.
     setIsLoginInputFocused(true);
   };
 
@@ -1047,8 +1079,11 @@ export default function Home() {
       const active = document.activeElement;
       if (!active || !["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName)) {
         setIsLoginInputFocused(false);
+        setIsLoginKeyboardOpen(false);
+        setLoginKeyboardHeight(0);
+        document.documentElement.style.setProperty("--login-keyboard-height", "0px");
       }
-    }, 120);
+    }, 180);
   };
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -1404,7 +1439,7 @@ export default function Home() {
           width: "100%",
           height: showSplash ? "var(--app-height, 100dvh)" : "var(--app-height, 100dvh)",
           minHeight: "var(--app-height, 100dvh)",
-          padding: showSplash ? "24px" : "calc(env(safe-area-inset-top, 0px) + 18px) 24px 56px",
+          padding: showSplash ? "24px" : isLoginKeyboardOpen ? "calc(env(safe-area-inset-top, 0px) + 4px) 20px 18px" : "calc(env(safe-area-inset-top, 0px) + 18px) 24px 56px",
           overflowY: showSplash ? "hidden" : "auto",
           overflowX: "hidden",
           WebkitOverflowScrolling: "touch",
@@ -1412,7 +1447,7 @@ export default function Home() {
           flexDirection: "column",
           justifyContent: showSplash ? "center" : "flex-start",
           alignItems: "center",
-          gap: showSplash ? "20px" : "16px",
+          gap: showSplash ? "20px" : isLoginKeyboardOpen ? "8px" : "16px",
         }}
       >
         {!showSplash && (
@@ -1426,7 +1461,7 @@ export default function Home() {
               width: "46px",
               height: "46px",
               borderRadius: "18px",
-              display: "flex",
+              display: isLoginKeyboardOpen ? "none" : "flex",
               alignItems: "center",
               justifyContent: "center",
               background: "rgba(255,255,255,0.10)",
@@ -1448,8 +1483,8 @@ export default function Home() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: showSplash ? "auto" : "18px",
-            marginBottom: showSplash ? "auto" : "4px",
+            marginTop: showSplash ? "auto" : isLoginKeyboardOpen ? "0px" : "18px",
+            marginBottom: showSplash ? "auto" : isLoginKeyboardOpen ? "0px" : "4px",
             textAlign: "center", 
             zIndex: 10, 
             transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)", 
@@ -1457,12 +1492,12 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div style={{ width: showSplash ? "110px" : "82px", height: showSplash ? "110px" : "82px", margin: "0 auto 8px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
+          <div style={{ width: showSplash ? "110px" : isLoginKeyboardOpen ? "42px" : "82px", height: showSplash ? "110px" : isLoginKeyboardOpen ? "42px" : "82px", margin: isLoginKeyboardOpen ? "0 auto 2px" : "0 auto 8px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "0", boxShadow: "none", transition: "all 0.8s" }} />
           </div>
           <h1 style={{ 
-            fontSize: showSplash ? "40px" : "34px", 
+            fontSize: showSplash ? "40px" : isLoginKeyboardOpen ? "24px" : "34px", 
             fontWeight: 900, 
             letterSpacing: "1px", 
             margin: 0, 
@@ -1488,29 +1523,30 @@ export default function Home() {
         {/* Login Form */}
         {!showSplash && (
           <div 
-            className="glass-card login-card" 
+            className="glass-card login-card"
+            ref={loginCardRef}
             style={{ 
               width: "100%",
               maxWidth: "360px",
               maxHeight: "none",
               overflowY: "visible",
               overscrollBehavior: "contain",
-              padding: "24px 20px", 
-              borderRadius: "28px", 
+              padding: isLoginKeyboardOpen ? "18px 18px" : "24px 20px", 
+              borderRadius: isLoginKeyboardOpen ? "24px" : "28px", 
               position: "relative",
               zIndex: 30,
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-              marginBottom: "40px",
-              transform: "translateY(0)",
+              marginBottom: isLoginKeyboardOpen ? "0px" : "40px",
+              transform: isLoginKeyboardOpen ? `translateY(-${Math.min(Math.max(loginKeyboardHeight * 0.18, 22), 82)}px)` : "translateY(0)",
               transition: "box-shadow 0.25s ease, padding 0.25s ease"
             }}
           >
-            <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "18px", textAlign: "center" }}>
+            <h2 style={{ fontSize: isLoginKeyboardOpen ? "20px" : "22px", fontWeight: 700, marginBottom: isLoginKeyboardOpen ? "12px" : "18px", textAlign: "center" }}>
               {isLoginMode ? t("signIn") : t("register")}
             </h2>
 
-            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: isLoginKeyboardOpen ? "10px" : "12px" }}>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("emailLabel")}</label>
                 <input
@@ -1598,7 +1634,7 @@ export default function Home() {
               </button>
             </form>
 
-            <div style={{ textAlign: "center", marginTop: "18px", fontSize: "13.5px" }}>
+            <div style={{ textAlign: "center", marginTop: isLoginKeyboardOpen ? "12px" : "18px", fontSize: "13.5px" }}>
               <span style={{ opacity: 0.7 }}>{isLoginMode ? t("noAccount") : t("alreadyHaveAccount")}</span>{" "}
               <span onClick={() => setIsLoginMode(!isLoginMode)} style={{ color: "#ffcc80", fontWeight: 600, cursor: "pointer" }}>
                 {isLoginMode ? t("register") : t("signIn")}
@@ -3345,7 +3381,7 @@ export default function Home() {
       <div style={{
         position: "absolute",
         top: 0, left: 0, bottom: 0,
-        width: "min(300px, 82vw)",
+        width: "min(276px, 76vw)",
         zIndex: 201,
         background: `
           radial-gradient(circle at 18% 4%, rgba(56,189,248,0.26), transparent 25%),
@@ -3356,7 +3392,7 @@ export default function Home() {
         `,
         backdropFilter: "blur(32px)",
         WebkitBackdropFilter: "blur(32px)",
-        borderRadius: "0 28px 28px 0",
+        borderRadius: "0 24px 24px 0",
         borderTop: "1px solid rgba(56,189,248,0.55)",
         borderRight: "1px solid rgba(168,85,247,0.70)",
         borderBottom: "1px solid rgba(37,99,235,0.55)",
@@ -3414,27 +3450,27 @@ export default function Home() {
         {/* ── FEJLÉC ── */}
         <div style={{
           position: "relative", zIndex: 1,
-          minHeight: "86px", flexShrink: 0,
-          padding: "16px 18px 10px",
+          minHeight: "72px", flexShrink: 0,
+          padding: "12px 14px 8px",
           display: "flex", alignItems: "center", justifyContent: "flex-start",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{
-              width: "44px", height: "44px", borderRadius: "16px",
+              width: "38px", height: "38px", borderRadius: "14px",
               background: "radial-gradient(circle, rgba(56,189,248,0.20), transparent 62%)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 0 30px rgba(56,189,248,0.22)"
             }}>
               <img src="/lifesync-icon.png" alt="Logo"
-                style={{ width: "38px", height: "38px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
+                style={{ width: "32px", height: "32px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
             </div>
             <div>
               <div style={{
-                fontSize: "24px", fontWeight: 750, lineHeight: 1.05,
+                fontSize: "21px", fontWeight: 750, lineHeight: 1.05,
                 background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
                 WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent"
               }}>LifeSync</div>
-              <div style={{ fontSize: "12px", color: "rgba(226,232,240,0.72)", marginTop: "4px", letterSpacing: "0.01em" }}>
+              <div style={{ fontSize: "11px", color: "rgba(226,232,240,0.72)", marginTop: "4px", letterSpacing: "0.01em" }}>
                 Memories that matter.
               </div>
             </div>
@@ -3442,22 +3478,22 @@ export default function Home() {
         </div>
 
         {/* ── MENÜ LISTA ── */}
-        <nav style={{ position: "relative", zIndex: 1, padding: "8px 18px 0", display: "flex", flexDirection: "column", gap: "6px" }}>
+        <nav style={{ position: "relative", zIndex: 1, padding: "6px 14px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
           {([
             { tab: "Home",     label: t("home"),           active: activeTab === "Home",
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8L12 3l9 7.8V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9.2z"/><path d="M9 21V12h6v9"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8L12 3l9 7.8V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9.2z"/><path d="M9 21V12h6v9"/></svg> },
             { tab: "Timeline", label: t("timelineTitle"), active: activeTab === "Timeline",
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> },
             { tab: "Add",      label: t("memories"),      active: activeTab === "Add",
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> },
             { tab: "",         label: t("favorites"),     active: false, disabled: true,
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
             { tab: "Vault",    label: t("vault"),         active: activeTab === "Vault",
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> },
             { tab: "",         label: t("shared"),        active: false, disabled: true,
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
             { tab: "Profile",  label: t("profile"),       active: activeTab === "Profile",
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+              icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
           ] as Array<{tab:string,label:string,active:boolean,disabled?:boolean,icon:React.ReactNode}>).map((item, idx) => (
             <button
               key={idx}
@@ -3468,10 +3504,10 @@ export default function Home() {
                 }
               }}
               style={{
-                height: "50px", flexShrink: 0,
-                display: "flex", alignItems: "center", gap: "14px",
-                padding: "0 16px",
-                borderRadius: "18px",
+                height: "44px", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "12px",
+                padding: "0 14px",
+                borderRadius: "16px",
                 border: item.active ? "1px solid rgba(147,197,253,0.72)" : "1px solid transparent",
                 background: item.active
                   ? "linear-gradient(90deg, rgba(139,92,246,0.56) 0%, rgba(37,99,235,0.38) 100%)"
@@ -3484,26 +3520,26 @@ export default function Home() {
               }}
             >
               <span style={{
-                width: "24px", height: "24px", flexShrink: 0,
+                width: "22px", height: "22px", flexShrink: 0,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 color: item.active ? "#FFFFFF" : item.disabled ? "rgba(148,163,184,0.34)" : "rgba(191,219,254,0.86)",
                 filter: item.active ? "drop-shadow(0 0 10px rgba(147,197,253,0.7))" : "drop-shadow(0 0 8px rgba(59,130,246,0.25))"
               }}>{item.icon}</span>
-              <span style={{ fontSize: "16px", fontWeight: item.active ? 750 : 650, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
+              <span style={{ fontSize: "14.5px", fontWeight: item.active ? 740 : 620, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
             </button>
           ))}
         </nav>
 
         {/* ── ÚJ MEMÓRIA GOMB 52px ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "14px 18px 0" }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "10px 14px 0" }}>
           <button
             onClick={() => { setActiveTab("Add"); setIsDrawerOpen(false); }}
             style={{
-              height: "52px", width: "100%",
-              borderRadius: "20px", border: "1px solid rgba(147,197,253,0.45)",
+              height: "46px", width: "100%",
+              borderRadius: "18px", border: "1px solid rgba(147,197,253,0.45)",
               background: "linear-gradient(90deg, #38BDF8 0%, #6366F1 48%, #A855F7 100%)",
               boxShadow: "0 0 34px rgba(99,102,241,0.38), 0 14px 36px rgba(99,102,241,0.28), inset 0 1px 1px rgba(255,255,255,0.30)",
-              color: "#FFFFFF", fontSize: "17px", fontWeight: 750,
+              color: "#FFFFFF", fontSize: "15.5px", fontWeight: 730,
               display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               cursor: "pointer",
             }}
@@ -3514,24 +3550,24 @@ export default function Home() {
         </div>
 
         {/* ── ELVÁLASZTÓ ── */}
-        <div style={{ margin: "16px 30px 10px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.35), transparent)", flexShrink: 0 }} />
+        <div style={{ margin: "12px 26px 8px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.35), transparent)", flexShrink: 0 }} />
 
         {/* ── BEÁLLÍTÁSOK 52px ── */}
-        <div style={{ padding: "0 18px", flexShrink: 0 }}>
+        <div style={{ padding: "0 14px", flexShrink: 0 }}>
           <button
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "48px", width: "100%",
-              display: "flex", alignItems: "center", gap: "14px",
-              padding: "0 16px", borderRadius: "18px",
+              height: "44px", width: "100%",
+              display: "flex", alignItems: "center", gap: "12px",
+              padding: "0 14px", borderRadius: "16px",
               border: "1px solid transparent", background: "transparent",
               color: "rgba(226,232,240,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "16px", fontWeight: 650,
+              fontSize: "14.5px", fontWeight: 620,
               transition: "background 0.18s"
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
@@ -3540,22 +3576,22 @@ export default function Home() {
         </div>
 
         {/* ── NYELV VÁLTÓ ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "0 18px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 14px", flexShrink: 0 }}>
           <button
             onClick={() => setIsLangOpen(!isLangOpen)}
             style={{
-              height: "48px", width: "100%",
-              display: "flex", alignItems: "center", gap: "14px",
-              padding: "0 16px", borderRadius: "18px",
+              height: "44px", width: "100%",
+              display: "flex", alignItems: "center", gap: "12px",
+              padding: "0 14px", borderRadius: "16px",
               border: isLangOpen ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
               background: isLangOpen ? "rgba(126,123,255,0.12)" : "transparent",
               color: "rgba(226,232,240,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "16px", fontWeight: 650,
+              fontSize: "14.5px", fontWeight: 620,
               transition: "all 0.18s"
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="2" y1="12" x2="22" y2="12"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -3663,21 +3699,21 @@ export default function Home() {
         <div style={{ position: "relative", zIndex: 1, margin: "14px 30px 10px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.32), transparent)", flexShrink: 0 }} />
 
         {/* ── KIJELENTKEZÉS ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "0 18px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 14px", flexShrink: 0 }}>
           <button
             onClick={() => { supabase.auth.signOut(); setIsDrawerOpen(false); }}
             style={{
-              height: "48px", width: "100%",
-              display: "flex", alignItems: "center", gap: "14px",
-              padding: "0 16px", borderRadius: "18px",
+              height: "44px", width: "100%",
+              display: "flex", alignItems: "center", gap: "12px",
+              padding: "0 14px", borderRadius: "16px",
               border: "1px solid transparent", background: "transparent",
               color: "rgba(248,113,113,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "16px", fontWeight: 650,
+              fontSize: "14.5px", fontWeight: 620,
               transition: "background 0.18s"
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
@@ -3690,12 +3726,12 @@ export default function Home() {
         <div style={{ flex: 1 }} />
 
         {/* ── PROFIL KÁRTYA 72px alul ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "0 18px 20px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 14px 14px", flexShrink: 0 }}>
           <div
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "74px", padding: "0 16px",
-              borderRadius: "22px",
+              height: "64px", padding: "0 14px",
+              borderRadius: "20px",
               background: "linear-gradient(135deg, rgba(15,23,42,0.78), rgba(17,24,39,0.58))",
               border: "1px solid rgba(147,197,253,0.26)",
               boxShadow: "0 0 34px rgba(59,130,246,0.16), 0 0 28px rgba(168,85,247,0.12), inset 0 1px 1px rgba(255,255,255,0.12)",
@@ -3704,10 +3740,10 @@ export default function Home() {
             }}
           >
             <div style={{
-              width: "42px", height: "42px", borderRadius: "50%",
+              width: "36px", height: "36px", borderRadius: "50%",
               background: "linear-gradient(135deg, #7E7BFF, #9B7BFF)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "22px", fontWeight: 800, color: "white",
+              fontSize: "18px", fontWeight: 800, color: "white",
               boxShadow: "0 0 26px rgba(168,85,247,0.34)",
               flexShrink: 0, overflow: "hidden"
             }}>
@@ -3717,7 +3753,7 @@ export default function Home() {
               }
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
-              <div style={{ fontSize: "22px", fontWeight: 750, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: "18px", fontWeight: 750, color: "#F8FAFC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {formattedName}
               </div>
               <div style={{ fontSize: "16px", color: "rgba(203,213,225,0.64)", marginTop: "6px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
