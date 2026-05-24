@@ -31,6 +31,7 @@ export default function Home() {
   
   // Real data state
   const [events, setEvents] = useState<any[]>([]);
+  const [scheduledEmails, setScheduledEmails] = useState<any[]>([]);
   const [vaultFolders, setVaultFolders] = useState<any[]>([]);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
@@ -902,6 +903,7 @@ export default function Home() {
   useEffect(() => {
     if (session) {
       fetchEvents();
+      fetchScheduledEmails();
       fetchVaultFolders();
       fetchAllVaultFiles();
     }
@@ -925,6 +927,19 @@ export default function Home() {
   const fetchEvents = async () => {
     const { data, error } = await supabase.from('events').select('*').order('event_date', { ascending: false });
     if (data) setEvents(data);
+  };
+
+  const fetchScheduledEmails = async () => {
+    if (!session) return;
+    const { data, error } = await supabase
+      .from('scheduled_emails')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('send_at', { ascending: true });
+
+    if (!error && data) {
+      setScheduledEmails(data);
+    }
   };
 
   const fetchVaultFolders = async () => {
@@ -1171,6 +1186,103 @@ export default function Home() {
       return false;
     });
   };
+
+  const formatEmailDateTime = (value?: string | Date | null) => {
+    if (!value) return '';
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleString(lang === 'hu' ? 'hu-HU' : 'en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getOneDayEmailDate = (eventDate: string) => {
+    const sendAt = new Date(eventDate);
+    sendAt.setDate(sendAt.getDate() - 1);
+    sendAt.setHours(8, 0, 0, 0);
+    return sendAt;
+  };
+
+  const buildEmailNotifyMeta = () => {
+    const oneDaySendAt = emailNotify1Day ? getOneDayEmailDate(newEventDate).toISOString() : null;
+    return {
+      email_notify_now: emailNotifyNow,
+      email_notify_1day: emailNotify1Day,
+      email_notify_custom: emailNotifyCustom,
+      email_one_day_send_at: oneDaySendAt,
+      email_custom_send_at: emailNotifyCustom && customNotifyDateTime ? customNotifyDateTime.toISOString() : null,
+      email_notify_to: customEmail.trim() || session?.user?.email || null,
+    };
+  };
+
+  const getEventScheduledEmails = (event: any) => {
+    return scheduledEmails.filter((mail) => {
+      if (mail.event_id && event.id) return mail.event_id === event.id;
+      return mail.event_title === event.title && mail.event_date === event.event_date;
+    });
+  };
+
+  const getEventEmailBadges = (event: any) => {
+    const badges: { key: string; label: string; detail?: string; tone: 'sent' | 'scheduled' | 'instant' }[] = [];
+
+    if (event.email_notify_now) {
+      badges.push({
+        key: 'instant',
+        label: lang === 'hu' ? 'Azonnali email' : 'Instant email',
+        detail: lang === 'hu' ? 'elküldve mentéskor' : 'sent on save',
+        tone: 'instant',
+      });
+    }
+
+    const eventMails = getEventScheduledEmails(event);
+    const oneDayMail = eventMails.find((mail) => mail.notify_type === 'one_day') || null;
+    const customMail = eventMails.find((mail) => mail.notify_type === 'custom') || null;
+
+    if (event.email_notify_1day || oneDayMail) {
+      const sendAt = oneDayMail?.send_at || event.email_one_day_send_at || getOneDayEmailDate(event.event_date).toISOString();
+      const sentAt = oneDayMail?.sent_at;
+      badges.push({
+        key: 'one-day',
+        label: lang === 'hu' ? '1 nappal előtte' : '1 day before',
+        detail: oneDayMail?.sent
+          ? `${lang === 'hu' ? 'Elküldve' : 'Sent'}: ${formatEmailDateTime(sentAt || sendAt)}`
+          : `${lang === 'hu' ? 'Megy' : 'Sends'}: ${formatEmailDateTime(sendAt)}`,
+        tone: oneDayMail?.sent ? 'sent' : 'scheduled',
+      });
+    }
+
+    if (event.email_notify_custom || customMail) {
+      const sendAt = customMail?.send_at || event.email_custom_send_at;
+      const sentAt = customMail?.sent_at;
+      badges.push({
+        key: 'custom',
+        label: lang === 'hu' ? 'Időzített email' : 'Scheduled email',
+        detail: customMail?.sent
+          ? `${lang === 'hu' ? 'Elküldve' : 'Sent'}: ${formatEmailDateTime(sentAt || sendAt)}`
+          : `${lang === 'hu' ? 'Megy' : 'Sends'}: ${formatEmailDateTime(sendAt)}`,
+        tone: customMail?.sent ? 'sent' : 'scheduled',
+      });
+    }
+
+    return badges;
+  };
+
+  const emailBadgeStyle = (tone: 'sent' | 'scheduled' | 'instant') => ({
+    display: 'inline-flex',
+    flexDirection: 'column' as const,
+    gap: '2px',
+    maxWidth: '100%',
+    borderRadius: '14px',
+    padding: '6px 9px',
+    border: tone === 'sent' ? '1px solid rgba(34,197,94,0.42)' : tone === 'instant' ? '1px solid rgba(56,189,248,0.42)' : '1px solid rgba(168,85,247,0.46)',
+    background: tone === 'sent' ? 'rgba(34,197,94,0.10)' : tone === 'instant' ? 'rgba(56,189,248,0.10)' : 'rgba(168,85,247,0.12)',
+    color: tone === 'sent' ? '#86efac' : tone === 'instant' ? '#7dd3fc' : '#d8b4fe',
+    boxShadow: tone === 'sent' ? '0 0 14px rgba(34,197,94,0.08)' : tone === 'instant' ? '0 0 14px rgba(56,189,248,0.08)' : '0 0 14px rgba(168,85,247,0.10)',
+  });
 
   const recentMemories = events.slice(0, 8);
 
@@ -1443,6 +1555,11 @@ export default function Home() {
     setNewEventDate(event.event_date);
     setNewEventType(event.category);
     setNewEventDesc(event.description || "");
+    setEmailNotifyNow(!!event.email_notify_now);
+    setEmailNotify1Day(!!event.email_notify_1day);
+    setEmailNotifyCustom(!!event.email_notify_custom);
+    setCustomNotifyDateTime(event.email_custom_send_at ? new Date(event.email_custom_send_at) : null);
+    setCustomEmail(event.email_notify_to || (typeof window !== "undefined" ? localStorage.getItem("remembered_custom_email") || "" : ""));
     
     // Parse attachments from image_url
     let parsedAttachments: any[] = [];
@@ -1475,7 +1592,7 @@ export default function Home() {
     }
   };
 
-  const handleEventEmailNotifications = async () => {
+  const handleEventEmailNotifications = async (eventId?: string) => {
     if (!session) return;
 
     const userEmail = customEmail.trim() || session.user.email;
@@ -1514,7 +1631,7 @@ export default function Home() {
     }
 
     let scheduledCount = 0;
-    const saveScheduledEmail = async (sendAt: Date, label: string) => {
+    const saveScheduledEmail = async (sendAt: Date, label: string, notifyType: "one_day" | "custom") => {
       if (sendAt <= new Date()) {
         showToast(`${label} időpont már elmúlt, ezért nem lett időzítve.`, "info");
         return;
@@ -1522,6 +1639,8 @@ export default function Home() {
 
       const { error: scheduleError } = await supabase.from("scheduled_emails").insert({
         user_id: session.user.id,
+        event_id: eventId || null,
+        notify_type: notifyType,
         to_email: userEmail,
         event_title: newEventTitle,
         event_date: newEventDate,
@@ -1542,15 +1661,16 @@ export default function Home() {
       const sendAt = new Date(newEventDate);
       sendAt.setDate(sendAt.getDate() - 1);
       sendAt.setHours(8, 0, 0, 0);
-      await saveScheduledEmail(sendAt, "Az 1 nappal előtte email");
+      await saveScheduledEmail(sendAt, "Az 1 nappal előtte email", "one_day");
     }
 
     if (emailNotifyCustom && customNotifyDateTime) {
-      await saveScheduledEmail(customNotifyDateTime, "Az egyedi email emlékeztető");
+      await saveScheduledEmail(customNotifyDateTime, "Az egyedi email emlékeztető", "custom");
     }
 
     if (scheduledCount > 0) {
       showToast(`${scheduledCount} email emlékeztető időzítve.`, "success");
+      await fetchScheduledEmails();
     }
   };
 
@@ -1604,12 +1724,14 @@ export default function Home() {
     `;
 
     if (editingEventId) {
+      const emailMeta = buildEmailNotifyMeta();
       const { data: updateData, error } = await supabase.from('events').update({
         title: newEventTitle,
         event_date: newEventDate,
         category: newEventType,
         description: newEventDesc,
-        image_url: finalImageUrl
+        image_url: finalImageUrl,
+        ...emailMeta
       }).eq('id', editingEventId).select();
 
       if (error) {
@@ -1621,13 +1743,15 @@ export default function Home() {
         resetForm();
         const { data } = await supabase.from('events').select('*').order('event_date', { ascending: false });
         if (data) setEvents(data);
+        fetchScheduledEmails();
         setActiveTab(t("timelineTitle"));
       }
     } else {
       if (isRecurring) {
         // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
         const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
-        const { error } = await supabase.from('events').insert([{
+        const emailMeta = buildEmailNotifyMeta();
+        const { data: insertData, error } = await supabase.from('events').insert([{
           title: newEventTitle,
           event_date: newEventDate,
           category: newEventType,
@@ -1636,36 +1760,41 @@ export default function Home() {
           image_url: finalImageUrl,
           recurring_type: recurringType,
           recurring_days: recurringDaysStr,
-        }]);
+          ...emailMeta
+        }]).select('id');
         if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
         } else {
           showToast(t("toastRecurring"), 'success');
-          await handleEventEmailNotifications();
+          await handleEventEmailNotifications(insertData?.[0]?.id);
           resetForm();
           fetchEvents();
+          fetchScheduledEmails();
           setActiveTab(t("timelineTitle"));
         }
       } else {
-      const { error } = await supabase.from('events').insert([
+      const emailMeta = buildEmailNotifyMeta();
+      const { data: insertData, error } = await supabase.from('events').insert([
           { 
               title: newEventTitle, 
               event_date: newEventDate, 
               category: newEventType, 
               description: newEventDesc,
               user_id: session.user.id,
-              image_url: finalImageUrl
+              image_url: finalImageUrl,
+              ...emailMeta
           }
-      ]);
+      ]).select('id');
 
       if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
       } else {
-          await handleEventEmailNotifications();
+          await handleEventEmailNotifications(insertData?.[0]?.id);
 
           showToast(t("toastSaved"), 'success');
           resetForm();
           fetchEvents();
+          fetchScheduledEmails();
           setActiveTab(t("timelineTitle"));
       }
       } // end non-recurring else
@@ -2701,6 +2830,19 @@ export default function Home() {
                    <h3 style={{ fontSize: "19px", fontWeight: 850, marginBottom: expandedEvents[event.id] ? "8px" : "0", color: "#fff", letterSpacing: "-0.02em", textShadow: "0 0 18px rgba(96,165,250,0.14)" }}>
                      <span>{event.title}</span>
                    </h3>
+
+                   {getEventEmailBadges(event).length > 0 && (
+                     <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "9px", marginBottom: expandedEvents[event.id] ? "8px" : "0" }}>
+                       {getEventEmailBadges(event).map((badge) => (
+                         <span key={badge.key} style={emailBadgeStyle(badge.tone)}>
+                           <span style={{ fontSize: "11px", fontWeight: 900, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📧 {badge.label}</span>
+                           {badge.detail && (
+                             <span style={{ fontSize: "10.5px", color: "rgba(226,232,240,0.72)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{badge.detail}</span>
+                           )}
+                         </span>
+                       ))}
+                     </div>
+                   )}
 
                    {!expandedEvents[event.id] && (
                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
