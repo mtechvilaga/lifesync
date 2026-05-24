@@ -73,6 +73,10 @@ export default function Home() {
   // Password Visibility Toggle State
   const [showPassword, setShowPassword] = useState(false);
 
+  // Login keyboard-aware layout state
+  const [isLoginInputFocused, setIsLoginInputFocused] = useState(false);
+  const [isLoginKeyboardOpen, setIsLoginKeyboardOpen] = useState(false);
+
   // Drawer (oldalsáv) state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -126,6 +130,9 @@ export default function Home() {
       .page-transition {
         min-width: 0 !important;
         overflow-x: hidden !important;
+      }
+      .login-card {
+        -webkit-overflow-scrolling: touch;
       }
     `;
   }, []);
@@ -210,6 +217,30 @@ export default function Home() {
       window.clearTimeout(lateTimer);
     };
   }, [session, showSplash]);
+
+  // Login képernyő billentyűzet-kezelés: iOS-en a visualViewport jelzi, ha a klaviatúra elvesz a látható magasságból.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateLoginKeyboardState = () => {
+      const vv = window.visualViewport;
+      const visibleHeight = vv?.height ?? window.innerHeight;
+      const layoutHeight = window.innerHeight;
+      const keyboardLooksOpen = !session && !showSplash && (isLoginInputFocused || visibleHeight < layoutHeight - 120);
+      setIsLoginKeyboardOpen(keyboardLooksOpen);
+    };
+
+    updateLoginKeyboardState();
+    window.addEventListener("resize", updateLoginKeyboardState);
+    window.visualViewport?.addEventListener("resize", updateLoginKeyboardState);
+    window.visualViewport?.addEventListener("scroll", updateLoginKeyboardState);
+
+    return () => {
+      window.removeEventListener("resize", updateLoginKeyboardState);
+      window.visualViewport?.removeEventListener("resize", updateLoginKeyboardState);
+      window.visualViewport?.removeEventListener("scroll", updateLoginKeyboardState);
+    };
+  }, [session, showSplash, isLoginInputFocused]);
 
   // Service Worker regisztráció
   useEffect(() => {
@@ -1011,6 +1042,23 @@ export default function Home() {
     setIsUpdatingProfile(false);
   };
 
+  const handleLoginInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsLoginInputFocused(true);
+    const target = e.currentTarget;
+    window.setTimeout(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+  };
+
+  const handleLoginInputBlur = () => {
+    window.setTimeout(() => {
+      const active = document.activeElement;
+      if (!active || !["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName)) {
+        setIsLoginInputFocused(false);
+      }
+    }, 120);
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoginMode) {
@@ -1345,9 +1393,47 @@ export default function Home() {
 
   if (!session || showSplash) {
     return (
-      <main className="phone" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "var(--app-height, 100dvh)", minHeight: "100dvh", padding: "24px", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: showSplash ? "center" : "flex-start", alignItems: "center", gap: "20px" }}>
+      <main
+        className="phone"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "var(--app-height, 100dvh)",
+          minHeight: "100dvh",
+          padding: showSplash ? "24px" : (isLoginKeyboardOpen ? "10px 20px 16px" : "22px 24px 24px"),
+          overflowY: showSplash ? "hidden" : "auto",
+          overflowX: "hidden",
+          WebkitOverflowScrolling: "touch",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: showSplash ? "center" : "flex-start",
+          alignItems: "center",
+          gap: showSplash ? "20px" : (isLoginKeyboardOpen ? "8px" : "18px"),
+        }}
+      >
         {!showSplash && (
-          <div className="theme-toggle" onClick={toggleTheme} style={{ position: "absolute", top: "25px", right: "25px", cursor: "pointer", zIndex: 100 }}>
+          <div
+            className="theme-toggle"
+            onClick={toggleTheme}
+            style={{
+              position: "absolute",
+              top: isLoginKeyboardOpen ? "16px" : "calc(env(safe-area-inset-top, 0px) + 56px)",
+              right: "28px",
+              width: "46px",
+              height: "46px",
+              borderRadius: "18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(255,255,255,0.10)",
+              border: "1px solid rgba(255,255,255,0.16)",
+              boxShadow: "0 10px 26px rgba(0,0,0,0.18)",
+              cursor: "pointer",
+              zIndex: 100
+            }}
+          >
             {isDarkMode ? "☀️" : "🌙"}
           </div>
         )}
@@ -1360,8 +1446,8 @@ export default function Home() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: showSplash ? "auto" : "16px",
-            marginBottom: showSplash ? "auto" : "6px",
+            marginTop: showSplash ? "auto" : (isLoginKeyboardOpen ? "2px" : "20px"),
+            marginBottom: showSplash ? "auto" : (isLoginKeyboardOpen ? "0px" : "4px"),
             textAlign: "center", 
             zIndex: 10, 
             transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)", 
@@ -1369,12 +1455,12 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div style={{ width: showSplash ? "110px" : "92px", height: showSplash ? "110px" : "92px", margin: "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.8s" }}>
+          <div style={{ width: showSplash ? "110px" : (isLoginKeyboardOpen ? "58px" : "86px"), height: showSplash ? "110px" : (isLoginKeyboardOpen ? "58px" : "86px"), margin: isLoginKeyboardOpen ? "0 auto 4px" : "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "0", boxShadow: "none", transition: "all 0.8s" }} />
           </div>
           <h1 style={{ 
-            fontSize: showSplash ? "40px" : "36px", 
+            fontSize: showSplash ? "40px" : (isLoginKeyboardOpen ? "28px" : "36px"), 
             fontWeight: 900, 
             letterSpacing: "1px", 
             margin: 0, 
@@ -1404,25 +1490,27 @@ export default function Home() {
             style={{ 
               width: "100%",
               maxWidth: "360px",
-              maxHeight: "calc(100vh - 280px)",
+              maxHeight: isLoginKeyboardOpen ? "calc(var(--app-height, 100dvh) - 150px)" : "calc(var(--app-height, 100dvh) - 285px)",
               overflowY: "auto",
               overscrollBehavior: "contain",
-              padding: "26px 20px", 
-              borderRadius: "28px", 
+              padding: isLoginKeyboardOpen ? "18px 18px" : "26px 20px", 
+              borderRadius: isLoginKeyboardOpen ? "24px" : "28px", 
               zIndex: 5,
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-              marginBottom: "40px"
+              marginBottom: isLoginKeyboardOpen ? "14px" : "40px",
+              transform: isLoginKeyboardOpen ? "translateY(-10px)" : "translateY(0)",
+              transition: "transform 0.25s ease, max-height 0.25s ease, padding 0.25s ease"
             }}
           >
-            <h2 style={{ fontSize: "22px", fontWeight: 600, marginBottom: "20px", textAlign: "center" }}>
+            <h2 style={{ fontSize: isLoginKeyboardOpen ? "19px" : "22px", fontWeight: 700, marginBottom: isLoginKeyboardOpen ? "12px" : "20px", textAlign: "center" }}>
               {isLoginMode ? t("signIn") : t("register")}
             </h2>
 
-            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: isLoginKeyboardOpen ? "8px" : "10px" }}>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("emailLabel")}</label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("emailPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "14px" }} />
+                <input type="email" required value={email} onFocus={handleLoginInputFocus} onBlur={handleLoginInputBlur} onChange={(e) => setEmail(e.target.value)} placeholder={t("emailPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: isLoginKeyboardOpen ? "10px 14px" : "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px" }} />
               </div>
               
                             <div>
@@ -1432,17 +1520,19 @@ export default function Home() {
                     type={showPassword ? "text" : "password"} 
                     required 
                     value={password} 
+                    onFocus={handleLoginInputFocus}
+                    onBlur={handleLoginInputBlur}
                     onChange={(e) => setPassword(e.target.value)} 
                     placeholder="••••••••" 
                     style={{ 
                       width: "100%", 
                       background: "rgba(255,255,255,0.08)", 
                       border: "1px solid rgba(255,255,255,0.2)", 
-                      padding: "12px 42px 12px 14px", 
+                      padding: isLoginKeyboardOpen ? "10px 42px 10px 14px" : "12px 42px 12px 14px", 
                       borderRadius: "14px", 
                       color: "white", 
                       outline: "none", 
-                      fontSize: "14px" 
+                      fontSize: "16px" 
                     }} 
                   />
                   <span 
@@ -1465,12 +1555,12 @@ export default function Home() {
                 </div>
               </div>
 
-              <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "15px", cursor: "pointer" }}>
+              <button type="submit" style={{ marginTop: isLoginKeyboardOpen ? "6px" : "8px", padding: isLoginKeyboardOpen ? "12px" : "14px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "16px", cursor: "pointer" }}>
                 {isLoginMode ? t("login") : t("createAccount")}
               </button>
             </form>
 
-            <div style={{ textAlign: "center", marginTop: "18px", fontSize: "13.5px" }}>
+            <div style={{ textAlign: "center", marginTop: isLoginKeyboardOpen ? "12px" : "18px", fontSize: "13.5px" }}>
               <span style={{ opacity: 0.7 }}>{isLoginMode ? t("noAccount") : t("alreadyHaveAccount")}</span>{" "}
               <span onClick={() => setIsLoginMode(!isLoginMode)} style={{ color: "#ffcc80", fontWeight: 600, cursor: "pointer" }}>
                 {isLoginMode ? t("register") : t("signIn")}
