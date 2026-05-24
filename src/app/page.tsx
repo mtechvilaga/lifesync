@@ -2110,21 +2110,21 @@ export default function Home() {
           </div>
 
           {addViewMode === "form" ? (
-          <div className="glass-card" style={{ padding: "22px", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)" }}>
+          <div className="glass-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "hidden" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("titleLabel")}</label>
-                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", fontSize: "15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} />
+                <input required type="text" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} placeholder={t("titlePlaceholder")} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.6vw, 15px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)", transition: "border-color 0.2s ease, box-shadow 0.2s ease" }} />
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("dateLabel")}</label>
-                  <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }} />
+                  <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.6vw, 15px)", lineHeight: 1.2, colorScheme: "dark", WebkitAppearance: "none", appearance: "none", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("categoryLabel")}</label>
-                  <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "14px 16px", borderRadius: "18px", color: "white", outline: "none", appearance: "none", fontSize: "15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+                  <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", appearance: "none", fontSize: "clamp(14px, 3.6vw, 15px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
                     <option value="event" style={{color: "black"}}>{t("categoryEvent")}</option>
                     <option value="utility" style={{color: "black"}}>{t("categoryUtility")}</option>
                     <option value="photo" style={{color: "black"}}>{t("categoryPhoto")}</option>
