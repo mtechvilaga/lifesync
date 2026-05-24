@@ -133,6 +133,11 @@ export default function Home() {
       }
       .login-card {
         -webkit-overflow-scrolling: touch;
+        touch-action: manipulation;
+        pointer-events: auto;
+      }
+      .login-card input, .login-card button, .login-card span {
+        pointer-events: auto;
       }
     `;
   }, []);
@@ -218,29 +223,13 @@ export default function Home() {
     };
   }, [session, showSplash]);
 
-  // Login képernyő billentyűzet-kezelés: iOS-en a visualViewport jelzi, ha a klaviatúra elvesz a látható magasságból.
+  // Login képernyő stabilizálás: nem mozgatjuk agresszíven a teljes panelt,
+  // mert iPhone-on ez megnehezítheti az inputok megérintését.
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const updateLoginKeyboardState = () => {
-      const vv = window.visualViewport;
-      const visibleHeight = vv?.height ?? window.innerHeight;
-      const layoutHeight = window.innerHeight;
-      const keyboardLooksOpen = !session && !showSplash && visibleHeight < layoutHeight - 140;
-      setIsLoginKeyboardOpen(keyboardLooksOpen);
-    };
-
-    updateLoginKeyboardState();
-    window.addEventListener("resize", updateLoginKeyboardState);
-    window.visualViewport?.addEventListener("resize", updateLoginKeyboardState);
-    window.visualViewport?.addEventListener("scroll", updateLoginKeyboardState);
-
-    return () => {
-      window.removeEventListener("resize", updateLoginKeyboardState);
-      window.visualViewport?.removeEventListener("resize", updateLoginKeyboardState);
-      window.visualViewport?.removeEventListener("scroll", updateLoginKeyboardState);
-    };
-  }, [session, showSplash, isLoginInputFocused]);
+    if (!session && !showSplash) {
+      setIsLoginKeyboardOpen(false);
+    }
+  }, [session, showSplash]);
 
   // Service Worker regisztráció
   useEffect(() => {
@@ -1046,8 +1035,8 @@ export default function Home() {
     setIsLoginInputFocused(true);
     const target = e.currentTarget;
     window.setTimeout(() => {
-      target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
-    }, 260);
+      target.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }, 180);
   };
 
   const handleLoginInputBlur = () => {
@@ -1400,9 +1389,9 @@ export default function Home() {
           top: 0,
           left: 0,
           width: "100%",
-          height: showSplash ? "var(--app-height, 100dvh)" : "100dvh",
-          minHeight: "100dvh",
-          padding: showSplash ? "24px" : (isLoginKeyboardOpen ? "calc(env(safe-area-inset-top, 0px) + 12px) 20px 340px" : "calc(env(safe-area-inset-top, 0px) + 20px) 24px 24px"),
+          height: showSplash ? "var(--app-height, 100dvh)" : "var(--app-height, 100dvh)",
+          minHeight: "var(--app-height, 100dvh)",
+          padding: showSplash ? "24px" : "calc(env(safe-area-inset-top, 0px) + 18px) 24px 360px",
           overflowY: showSplash ? "hidden" : "auto",
           overflowX: "hidden",
           WebkitOverflowScrolling: "touch",
@@ -1410,7 +1399,7 @@ export default function Home() {
           flexDirection: "column",
           justifyContent: showSplash ? "center" : "flex-start",
           alignItems: "center",
-          gap: showSplash ? "20px" : (isLoginKeyboardOpen ? "6px" : "18px"),
+          gap: showSplash ? "20px" : "16px",
         }}
       >
         {!showSplash && (
@@ -1419,8 +1408,8 @@ export default function Home() {
             onClick={toggleTheme}
             style={{
               position: "absolute",
-              top: "calc(env(safe-area-inset-top, 0px) + 18px)",
-              right: "28px",
+              top: "calc(env(safe-area-inset-top, 0px) + 54px)",
+              right: "22px",
               width: "46px",
               height: "46px",
               borderRadius: "18px",
@@ -1446,8 +1435,8 @@ export default function Home() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: showSplash ? "auto" : (isLoginKeyboardOpen ? "0px" : "20px"),
-            marginBottom: showSplash ? "auto" : (isLoginKeyboardOpen ? "0px" : "4px"),
+            marginTop: showSplash ? "auto" : "18px",
+            marginBottom: showSplash ? "auto" : "4px",
             textAlign: "center", 
             zIndex: 10, 
             transition: "all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)", 
@@ -1455,12 +1444,12 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div style={{ width: showSplash ? "110px" : (isLoginKeyboardOpen ? "54px" : "86px"), height: showSplash ? "110px" : (isLoginKeyboardOpen ? "54px" : "86px"), margin: isLoginKeyboardOpen ? "0 auto 4px" : "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
+          <div style={{ width: showSplash ? "110px" : "82px", height: showSplash ? "110px" : "82px", margin: "0 auto 8px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "0", boxShadow: "none", transition: "all 0.8s" }} />
           </div>
           <h1 style={{ 
-            fontSize: showSplash ? "40px" : (isLoginKeyboardOpen ? "26px" : "36px"), 
+            fontSize: showSplash ? "40px" : "34px", 
             fontWeight: 900, 
             letterSpacing: "1px", 
             margin: 0, 
@@ -1490,27 +1479,54 @@ export default function Home() {
             style={{ 
               width: "100%",
               maxWidth: "360px",
-              maxHeight: isLoginKeyboardOpen ? "none" : "calc(100dvh - 285px)",
-              overflowY: "auto",
+              maxHeight: "none",
+              overflowY: "visible",
               overscrollBehavior: "contain",
-              padding: isLoginKeyboardOpen ? "18px 18px" : "26px 20px", 
-              borderRadius: isLoginKeyboardOpen ? "24px" : "28px", 
+              padding: "24px 20px", 
+              borderRadius: "28px", 
               zIndex: 5,
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-              marginBottom: isLoginKeyboardOpen ? "0px" : "40px",
+              marginBottom: "40px",
               transform: "translateY(0)",
-              transition: "transform 0.25s ease, max-height 0.25s ease, padding 0.25s ease"
+              transition: "box-shadow 0.25s ease, padding 0.25s ease"
             }}
           >
-            <h2 style={{ fontSize: isLoginKeyboardOpen ? "19px" : "22px", fontWeight: 700, marginBottom: isLoginKeyboardOpen ? "12px" : "20px", textAlign: "center" }}>
+            <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "18px", textAlign: "center" }}>
               {isLoginMode ? t("signIn") : t("register")}
             </h2>
 
-            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: isLoginKeyboardOpen ? "8px" : "10px" }}>
+            <form onSubmit={handleAuth} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <div>
                 <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("emailLabel")}</label>
-                <input type="email" required value={email} onFocus={handleLoginInputFocus} onBlur={handleLoginInputBlur} onChange={(e) => setEmail(e.target.value)} placeholder={t("emailPlaceholder")} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: isLoginKeyboardOpen ? "10px 14px" : "12px 14px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px" }} />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onPointerDown={(e) => e.currentTarget.focus()}
+                  onTouchStart={(e) => e.currentTarget.focus()}
+                  onFocus={handleLoginInputFocus}
+                  onBlur={handleLoginInputBlur}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("emailPlaceholder")}
+                  style={{
+                    width: "100%",
+                    position: "relative",
+                    zIndex: 20,
+                    pointerEvents: "auto",
+                    WebkitUserSelect: "text",
+                    userSelect: "text",
+                    touchAction: "manipulation",
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    padding: "12px 14px",
+                    borderRadius: "14px",
+                    color: "white",
+                    outline: "none",
+                    fontSize: "16px",
+                    boxSizing: "border-box",
+                  }}
+                />
               </div>
               
                             <div>
@@ -1520,19 +1536,28 @@ export default function Home() {
                     type={showPassword ? "text" : "password"} 
                     required 
                     value={password} 
+                    onPointerDown={(e) => e.currentTarget.focus()}
+                    onTouchStart={(e) => e.currentTarget.focus()}
                     onFocus={handleLoginInputFocus}
                     onBlur={handleLoginInputBlur}
                     onChange={(e) => setPassword(e.target.value)} 
                     placeholder="••••••••" 
                     style={{ 
                       width: "100%", 
+                      position: "relative",
+                      zIndex: 20,
+                      pointerEvents: "auto",
+                      WebkitUserSelect: "text",
+                      userSelect: "text",
+                      touchAction: "manipulation",
                       background: "rgba(255,255,255,0.08)", 
                       border: "1px solid rgba(255,255,255,0.2)", 
-                      padding: isLoginKeyboardOpen ? "10px 42px 10px 14px" : "12px 42px 12px 14px", 
+                      padding: "12px 42px 12px 14px", 
                       borderRadius: "14px", 
                       color: "white", 
                       outline: "none", 
-                      fontSize: "16px" 
+                      fontSize: "16px",
+                      boxSizing: "border-box"
                     }} 
                   />
                   <span 
@@ -1555,12 +1580,12 @@ export default function Home() {
                 </div>
               </div>
 
-              <button type="submit" style={{ marginTop: isLoginKeyboardOpen ? "6px" : "8px", padding: isLoginKeyboardOpen ? "12px" : "14px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "16px", cursor: "pointer" }}>
+              <button type="submit" style={{ marginTop: "8px", padding: "14px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "16px", color: "white", fontWeight: 600, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "16px", cursor: "pointer" }}>
                 {isLoginMode ? t("login") : t("createAccount")}
               </button>
             </form>
 
-            <div style={{ textAlign: "center", marginTop: isLoginKeyboardOpen ? "12px" : "18px", fontSize: "13.5px" }}>
+            <div style={{ textAlign: "center", marginTop: "18px", fontSize: "13.5px" }}>
               <span style={{ opacity: 0.7 }}>{isLoginMode ? t("noAccount") : t("alreadyHaveAccount")}</span>{" "}
               <span onClick={() => setIsLoginMode(!isLoginMode)} style={{ color: "#ffcc80", fontWeight: 600, cursor: "pointer" }}>
                 {isLoginMode ? t("register") : t("signIn")}
