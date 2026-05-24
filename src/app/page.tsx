@@ -226,7 +226,7 @@ export default function Home() {
       const vv = window.visualViewport;
       const visibleHeight = vv?.height ?? window.innerHeight;
       const layoutHeight = window.innerHeight;
-      const keyboardLooksOpen = !session && !showSplash && (isLoginInputFocused || visibleHeight < layoutHeight - 120);
+      const keyboardLooksOpen = !session && !showSplash && visibleHeight < layoutHeight - 140;
       setIsLoginKeyboardOpen(keyboardLooksOpen);
     };
 
@@ -1046,8 +1046,8 @@ export default function Home() {
     setIsLoginInputFocused(true);
     const target = e.currentTarget;
     window.setTimeout(() => {
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 80);
+      target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    }, 260);
   };
 
   const handleLoginInputBlur = () => {
@@ -1400,9 +1400,9 @@ export default function Home() {
           top: 0,
           left: 0,
           width: "100%",
-          height: "var(--app-height, 100dvh)",
+          height: showSplash ? "var(--app-height, 100dvh)" : "100dvh",
           minHeight: "100dvh",
-          padding: showSplash ? "24px" : (isLoginKeyboardOpen ? "10px 20px 16px" : "22px 24px 24px"),
+          padding: showSplash ? "24px" : (isLoginKeyboardOpen ? "calc(env(safe-area-inset-top, 0px) + 12px) 20px 340px" : "calc(env(safe-area-inset-top, 0px) + 20px) 24px 24px"),
           overflowY: showSplash ? "hidden" : "auto",
           overflowX: "hidden",
           WebkitOverflowScrolling: "touch",
@@ -1410,7 +1410,7 @@ export default function Home() {
           flexDirection: "column",
           justifyContent: showSplash ? "center" : "flex-start",
           alignItems: "center",
-          gap: showSplash ? "20px" : (isLoginKeyboardOpen ? "8px" : "18px"),
+          gap: showSplash ? "20px" : (isLoginKeyboardOpen ? "6px" : "18px"),
         }}
       >
         {!showSplash && (
@@ -1419,7 +1419,7 @@ export default function Home() {
             onClick={toggleTheme}
             style={{
               position: "absolute",
-              top: isLoginKeyboardOpen ? "16px" : "calc(env(safe-area-inset-top, 0px) + 56px)",
+              top: "calc(env(safe-area-inset-top, 0px) + 18px)",
               right: "28px",
               width: "46px",
               height: "46px",
@@ -1446,7 +1446,7 @@ export default function Home() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: showSplash ? "auto" : (isLoginKeyboardOpen ? "2px" : "20px"),
+            marginTop: showSplash ? "auto" : (isLoginKeyboardOpen ? "0px" : "20px"),
             marginBottom: showSplash ? "auto" : (isLoginKeyboardOpen ? "0px" : "4px"),
             textAlign: "center", 
             zIndex: 10, 
@@ -1455,12 +1455,12 @@ export default function Home() {
             flexShrink: 0
           }}
         >
-          <div style={{ width: showSplash ? "110px" : (isLoginKeyboardOpen ? "58px" : "86px"), height: showSplash ? "110px" : (isLoginKeyboardOpen ? "58px" : "86px"), margin: isLoginKeyboardOpen ? "0 auto 4px" : "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
+          <div style={{ width: showSplash ? "110px" : (isLoginKeyboardOpen ? "54px" : "86px"), height: showSplash ? "110px" : (isLoginKeyboardOpen ? "54px" : "86px"), margin: isLoginKeyboardOpen ? "0 auto 4px" : "0 auto 10px", background: "transparent", border: "none", boxShadow: "none", transition: "all 0.25s ease" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lifesync-icon.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "0", boxShadow: "none", transition: "all 0.8s" }} />
           </div>
           <h1 style={{ 
-            fontSize: showSplash ? "40px" : (isLoginKeyboardOpen ? "28px" : "36px"), 
+            fontSize: showSplash ? "40px" : (isLoginKeyboardOpen ? "26px" : "36px"), 
             fontWeight: 900, 
             letterSpacing: "1px", 
             margin: 0, 
@@ -1490,7 +1490,7 @@ export default function Home() {
             style={{ 
               width: "100%",
               maxWidth: "360px",
-              maxHeight: isLoginKeyboardOpen ? "calc(var(--app-height, 100dvh) - 150px)" : "calc(var(--app-height, 100dvh) - 285px)",
+              maxHeight: isLoginKeyboardOpen ? "none" : "calc(100dvh - 285px)",
               overflowY: "auto",
               overscrollBehavior: "contain",
               padding: isLoginKeyboardOpen ? "18px 18px" : "26px 20px", 
@@ -1498,8 +1498,8 @@ export default function Home() {
               zIndex: 5,
               animation: "form-slide-up 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards",
               boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-              marginBottom: isLoginKeyboardOpen ? "14px" : "40px",
-              transform: isLoginKeyboardOpen ? "translateY(-10px)" : "translateY(0)",
+              marginBottom: isLoginKeyboardOpen ? "0px" : "40px",
+              transform: "translateY(0)",
               transition: "transform 0.25s ease, max-height 0.25s ease, padding 0.25s ease"
             }}
           >
@@ -3298,7 +3298,7 @@ export default function Home() {
       <div style={{
         position: "absolute",
         top: 0, left: 0, bottom: 0,
-        width: "min(340px, 88vw)",
+        width: "min(300px, 82vw)",
         zIndex: 201,
         background: `
           radial-gradient(circle at 18% 4%, rgba(56,189,248,0.26), transparent 25%),
@@ -3309,7 +3309,7 @@ export default function Home() {
         `,
         backdropFilter: "blur(32px)",
         WebkitBackdropFilter: "blur(32px)",
-        borderRadius: "0 34px 34px 0",
+        borderRadius: "0 28px 28px 0",
         borderTop: "1px solid rgba(56,189,248,0.55)",
         borderRight: "1px solid rgba(168,85,247,0.70)",
         borderBottom: "1px solid rgba(37,99,235,0.55)",
@@ -3367,42 +3367,35 @@ export default function Home() {
         {/* ── FEJLÉC ── */}
         <div style={{
           position: "relative", zIndex: 1,
-          minHeight: "120px", flexShrink: 0,
-          padding: "26px 28px 16px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
+          minHeight: "86px", flexShrink: 0,
+          padding: "16px 18px 10px",
+          display: "flex", alignItems: "center", justifyContent: "flex-start",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{
-              width: "62px", height: "62px", borderRadius: "22px",
+              width: "44px", height: "44px", borderRadius: "16px",
               background: "radial-gradient(circle, rgba(56,189,248,0.20), transparent 62%)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 0 30px rgba(56,189,248,0.22)"
             }}>
               <img src="/lifesync-icon.png" alt="Logo"
-                style={{ width: "54px", height: "54px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
+                style={{ width: "38px", height: "38px", borderRadius: "0", objectFit: "contain", background: "transparent" }} />
             </div>
             <div>
               <div style={{
-                fontSize: "32px", fontWeight: 750, lineHeight: 1.05,
+                fontSize: "24px", fontWeight: 750, lineHeight: 1.05,
                 background: "linear-gradient(90deg, #B8E7FF 0%, #6AB7FF 42%, #7E7BFF 72%, #9B7BFF 100%)",
                 WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent"
               }}>LifeSync</div>
-              <div style={{ fontSize: "14px", color: "rgba(226,232,240,0.72)", marginTop: "6px", letterSpacing: "0.01em" }}>
+              <div style={{ fontSize: "12px", color: "rgba(226,232,240,0.72)", marginTop: "4px", letterSpacing: "0.01em" }}>
                 Memories that matter.
               </div>
             </div>
           </div>
-          <button onClick={() => setIsDrawerOpen(false)} style={{
-            width: "54px", height: "54px", borderRadius: "20px",
-            background: "rgba(15,23,42,0.50)", border: "1px solid rgba(167,139,250,0.34)",
-            color: "#FFFFFF", fontSize: "24px", cursor: "pointer",
-            boxShadow: "0 0 26px rgba(168,85,247,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
-            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
-          }}>✕</button>
         </div>
 
         {/* ── MENÜ LISTA ── */}
-        <nav style={{ position: "relative", zIndex: 1, padding: "18px 26px 0", display: "flex", flexDirection: "column", gap: "12px" }}>
+        <nav style={{ position: "relative", zIndex: 1, padding: "8px 18px 0", display: "flex", flexDirection: "column", gap: "6px" }}>
           {([
             { tab: "Home",     label: t("home"),           active: activeTab === "Home",
               icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.8L12 3l9 7.8V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9.2z"/><path d="M9 21V12h6v9"/></svg> },
@@ -3428,10 +3421,10 @@ export default function Home() {
                 }
               }}
               style={{
-                height: "66px", flexShrink: 0,
-                display: "flex", alignItems: "center", gap: "22px",
-                padding: "0 28px",
-                borderRadius: "22px",
+                height: "50px", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "14px",
+                padding: "0 16px",
+                borderRadius: "18px",
                 border: item.active ? "1px solid rgba(147,197,253,0.72)" : "1px solid transparent",
                 background: item.active
                   ? "linear-gradient(90deg, rgba(139,92,246,0.56) 0%, rgba(37,99,235,0.38) 100%)"
@@ -3444,26 +3437,26 @@ export default function Home() {
               }}
             >
               <span style={{
-                width: "30px", height: "30px", flexShrink: 0,
+                width: "24px", height: "24px", flexShrink: 0,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 color: item.active ? "#FFFFFF" : item.disabled ? "rgba(148,163,184,0.34)" : "rgba(191,219,254,0.86)",
                 filter: item.active ? "drop-shadow(0 0 10px rgba(147,197,253,0.7))" : "drop-shadow(0 0 8px rgba(59,130,246,0.25))"
               }}>{item.icon}</span>
-              <span style={{ fontSize: "22px", fontWeight: item.active ? 750 : 650, letterSpacing: "0.01em" }}>{item.label}</span>
+              <span style={{ fontSize: "16px", fontWeight: item.active ? 750 : 650, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
             </button>
           ))}
         </nav>
 
         {/* ── ÚJ MEMÓRIA GOMB 52px ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "22px 26px 0" }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "14px 18px 0" }}>
           <button
             onClick={() => { setActiveTab("Add"); setIsDrawerOpen(false); }}
             style={{
-              height: "66px", width: "100%",
-              borderRadius: "24px", border: "1px solid rgba(147,197,253,0.45)",
+              height: "52px", width: "100%",
+              borderRadius: "20px", border: "1px solid rgba(147,197,253,0.45)",
               background: "linear-gradient(90deg, #38BDF8 0%, #6366F1 48%, #A855F7 100%)",
               boxShadow: "0 0 34px rgba(99,102,241,0.38), 0 14px 36px rgba(99,102,241,0.28), inset 0 1px 1px rgba(255,255,255,0.30)",
-              color: "#FFFFFF", fontSize: "21px", fontWeight: 750,
+              color: "#FFFFFF", fontSize: "17px", fontWeight: 750,
               display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               cursor: "pointer",
             }}
@@ -3474,20 +3467,20 @@ export default function Home() {
         </div>
 
         {/* ── ELVÁLASZTÓ ── */}
-        <div style={{ margin: "24px 40px 16px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.35), transparent)", flexShrink: 0 }} />
+        <div style={{ margin: "16px 30px 10px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.35), transparent)", flexShrink: 0 }} />
 
         {/* ── BEÁLLÍTÁSOK 52px ── */}
-        <div style={{ padding: "0 26px", flexShrink: 0 }}>
+        <div style={{ padding: "0 18px", flexShrink: 0 }}>
           <button
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "60px", width: "100%",
-              display: "flex", alignItems: "center", gap: "22px",
-              padding: "0 28px", borderRadius: "20px",
+              height: "48px", width: "100%",
+              display: "flex", alignItems: "center", gap: "14px",
+              padding: "0 16px", borderRadius: "18px",
               border: "1px solid transparent", background: "transparent",
               color: "rgba(226,232,240,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "21px", fontWeight: 650,
+              fontSize: "16px", fontWeight: 650,
               transition: "background 0.18s"
             }}
           >
@@ -3500,18 +3493,18 @@ export default function Home() {
         </div>
 
         {/* ── NYELV VÁLTÓ ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "0 26px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 18px", flexShrink: 0 }}>
           <button
             onClick={() => setIsLangOpen(!isLangOpen)}
             style={{
-              height: "60px", width: "100%",
-              display: "flex", alignItems: "center", gap: "22px",
-              padding: "0 28px", borderRadius: "20px",
+              height: "48px", width: "100%",
+              display: "flex", alignItems: "center", gap: "14px",
+              padding: "0 16px", borderRadius: "18px",
               border: isLangOpen ? "1px solid rgba(180,190,255,0.28)" : "1px solid transparent",
               background: isLangOpen ? "rgba(126,123,255,0.12)" : "transparent",
               color: "rgba(226,232,240,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "21px", fontWeight: 650,
+              fontSize: "16px", fontWeight: 650,
               transition: "all 0.18s"
             }}
           >
@@ -3620,20 +3613,20 @@ export default function Home() {
         </div>
 
         {/* ── ELVÁLASZTÓ ── */}
-        <div style={{ position: "relative", zIndex: 1, margin: "18px 40px 14px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.32), transparent)", flexShrink: 0 }} />
+        <div style={{ position: "relative", zIndex: 1, margin: "14px 30px 10px", height: "1px", background: "linear-gradient(90deg, transparent, rgba(148,163,255,0.32), transparent)", flexShrink: 0 }} />
 
         {/* ── KIJELENTKEZÉS ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "0 26px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 18px", flexShrink: 0 }}>
           <button
             onClick={() => { supabase.auth.signOut(); setIsDrawerOpen(false); }}
             style={{
-              height: "60px", width: "100%",
-              display: "flex", alignItems: "center", gap: "22px",
-              padding: "0 28px", borderRadius: "20px",
+              height: "48px", width: "100%",
+              display: "flex", alignItems: "center", gap: "14px",
+              padding: "0 16px", borderRadius: "18px",
               border: "1px solid transparent", background: "transparent",
               color: "rgba(248,113,113,0.82)",
               cursor: "pointer", textAlign: "left",
-              fontSize: "21px", fontWeight: 650,
+              fontSize: "16px", fontWeight: 650,
               transition: "background 0.18s"
             }}
           >
@@ -3650,16 +3643,16 @@ export default function Home() {
         <div style={{ flex: 1 }} />
 
         {/* ── PROFIL KÁRTYA 72px alul ── */}
-        <div style={{ position: "relative", zIndex: 1, padding: "0 26px 28px", flexShrink: 0 }}>
+        <div style={{ position: "relative", zIndex: 1, padding: "0 18px 20px", flexShrink: 0 }}>
           <div
             onClick={() => { setActiveTab("Profile"); setIsDrawerOpen(false); }}
             style={{
-              height: "92px", padding: "0 22px",
-              borderRadius: "26px",
+              height: "74px", padding: "0 16px",
+              borderRadius: "22px",
               background: "linear-gradient(135deg, rgba(15,23,42,0.78), rgba(17,24,39,0.58))",
               border: "1px solid rgba(147,197,253,0.26)",
               boxShadow: "0 0 34px rgba(59,130,246,0.16), 0 0 28px rgba(168,85,247,0.12), inset 0 1px 1px rgba(255,255,255,0.12)",
-              display: "flex", alignItems: "center", gap: "18px",
+              display: "flex", alignItems: "center", gap: "12px",
               cursor: "pointer",
             }}
           >
