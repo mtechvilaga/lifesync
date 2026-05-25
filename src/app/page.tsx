@@ -31,7 +31,6 @@ export default function Home() {
   
   // Real data state
   const [events, setEvents] = useState<any[]>([]);
-  const [scheduledEmails, setScheduledEmails] = useState<any[]>([]);
   const [vaultFolders, setVaultFolders] = useState<any[]>([]);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
@@ -81,17 +80,6 @@ export default function Home() {
   const [isLoginKeyboardOpen, setIsLoginKeyboardOpen] = useState(false);
   const [loginKeyboardHeight, setLoginKeyboardHeight] = useState(0);
   const loginCardRef = useRef<HTMLDivElement | null>(null);
-  const addScrollRef = useRef<HTMLDivElement | null>(null);
-  const saveActionsRef = useRef<HTMLDivElement | null>(null);
-
-  const scrollAddSaveButtonIntoView = () => {
-    if (typeof window === "undefined") return;
-    const scrollToSave = () => {
-      saveActionsRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    };
-    window.setTimeout(scrollToSave, 80);
-    window.setTimeout(scrollToSave, 260);
-  };
 
   // iOS PWA első indítás fix: ikonról nyitva a Safari/WebKit késve ad pontos viewportot.
   // Emiatt a login panel első rendernél elcsúszhat vagy nehezen kattintható lehet.
@@ -259,16 +247,6 @@ export default function Home() {
         font-weight: 850 !important;
         white-space: nowrap !important;
         box-shadow: 0 16px 38px rgba(124,58,237,0.35), 0 0 28px rgba(56,189,248,0.24) !important;
-      }
-      .add-save-actions {
-        position: sticky !important;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 14px) !important;
-        z-index: 60 !important;
-        padding: 10px 0 6px !important;
-        border-radius: 22px !important;
-        background: linear-gradient(180deg, rgba(6,17,31,0.02), rgba(6,17,31,0.88) 32%, rgba(6,17,31,0.96)) !important;
-        backdrop-filter: blur(14px) !important;
-        -webkit-backdrop-filter: blur(14px) !important;
       }
       .add-neon-card [style*="border: 1px dashed"] {
         border-radius: 18px !important;
@@ -924,7 +902,6 @@ export default function Home() {
   useEffect(() => {
     if (session) {
       fetchEvents();
-      fetchScheduledEmails();
       fetchVaultFolders();
       fetchAllVaultFiles();
     }
@@ -948,19 +925,6 @@ export default function Home() {
   const fetchEvents = async () => {
     const { data, error } = await supabase.from('events').select('*').order('event_date', { ascending: false });
     if (data) setEvents(data);
-  };
-
-  const fetchScheduledEmails = async () => {
-    if (!session) return;
-    const { data, error } = await supabase
-      .from('scheduled_emails')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('send_at', { ascending: true });
-
-    if (!error && data) {
-      setScheduledEmails(data);
-    }
   };
 
   const fetchVaultFolders = async () => {
@@ -1207,103 +1171,6 @@ export default function Home() {
       return false;
     });
   };
-
-  const formatEmailDateTime = (value?: string | Date | null) => {
-    if (!value) return '';
-    const date = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
-    return date.toLocaleString(lang === 'hu' ? 'hu-HU' : 'en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const getOneDayEmailDate = (eventDate: string) => {
-    const sendAt = new Date(eventDate);
-    sendAt.setDate(sendAt.getDate() - 1);
-    sendAt.setHours(8, 0, 0, 0);
-    return sendAt;
-  };
-
-  const buildEmailNotifyMeta = () => {
-    const oneDaySendAt = emailNotify1Day ? getOneDayEmailDate(newEventDate).toISOString() : null;
-    return {
-      email_notify_now: emailNotifyNow,
-      email_notify_1day: emailNotify1Day,
-      email_notify_custom: emailNotifyCustom,
-      email_one_day_send_at: oneDaySendAt,
-      email_custom_send_at: emailNotifyCustom && customNotifyDateTime ? customNotifyDateTime.toISOString() : null,
-      email_notify_to: customEmail.trim() || session?.user?.email || null,
-    };
-  };
-
-  const getEventScheduledEmails = (event: any) => {
-    return scheduledEmails.filter((mail) => {
-      if (mail.event_id && event.id) return mail.event_id === event.id;
-      return mail.event_title === event.title && mail.event_date === event.event_date;
-    });
-  };
-
-  const getEventEmailBadges = (event: any) => {
-    const badges: { key: string; label: string; detail?: string; tone: 'sent' | 'scheduled' | 'instant' }[] = [];
-
-    if (event.email_notify_now) {
-      badges.push({
-        key: 'instant',
-        label: lang === 'hu' ? 'Azonnali email' : 'Instant email',
-        detail: lang === 'hu' ? 'elküldve mentéskor' : 'sent on save',
-        tone: 'instant',
-      });
-    }
-
-    const eventMails = getEventScheduledEmails(event);
-    const oneDayMail = eventMails.find((mail) => mail.notify_type === 'one_day') || null;
-    const customMail = eventMails.find((mail) => mail.notify_type === 'custom') || null;
-
-    if (event.email_notify_1day || oneDayMail) {
-      const sendAt = oneDayMail?.send_at || event.email_one_day_send_at || getOneDayEmailDate(event.event_date).toISOString();
-      const sentAt = oneDayMail?.sent_at;
-      badges.push({
-        key: 'one-day',
-        label: lang === 'hu' ? '1 nappal előtte' : '1 day before',
-        detail: oneDayMail?.sent
-          ? `${lang === 'hu' ? 'Elküldve' : 'Sent'}: ${formatEmailDateTime(sentAt || sendAt)}`
-          : `${lang === 'hu' ? 'Megy' : 'Sends'}: ${formatEmailDateTime(sendAt)}`,
-        tone: oneDayMail?.sent ? 'sent' : 'scheduled',
-      });
-    }
-
-    if (event.email_notify_custom || customMail) {
-      const sendAt = customMail?.send_at || event.email_custom_send_at;
-      const sentAt = customMail?.sent_at;
-      badges.push({
-        key: 'custom',
-        label: lang === 'hu' ? 'Időzített email' : 'Scheduled email',
-        detail: customMail?.sent
-          ? `${lang === 'hu' ? 'Elküldve' : 'Sent'}: ${formatEmailDateTime(sentAt || sendAt)}`
-          : `${lang === 'hu' ? 'Megy' : 'Sends'}: ${formatEmailDateTime(sendAt)}`,
-        tone: customMail?.sent ? 'sent' : 'scheduled',
-      });
-    }
-
-    return badges;
-  };
-
-  const emailBadgeStyle = (tone: 'sent' | 'scheduled' | 'instant') => ({
-    display: 'inline-flex',
-    flexDirection: 'column' as const,
-    gap: '2px',
-    maxWidth: '100%',
-    borderRadius: '14px',
-    padding: '6px 9px',
-    border: tone === 'sent' ? '1px solid rgba(34,197,94,0.42)' : tone === 'instant' ? '1px solid rgba(56,189,248,0.42)' : '1px solid rgba(168,85,247,0.46)',
-    background: tone === 'sent' ? 'rgba(34,197,94,0.10)' : tone === 'instant' ? 'rgba(56,189,248,0.10)' : 'rgba(168,85,247,0.12)',
-    color: tone === 'sent' ? '#86efac' : tone === 'instant' ? '#7dd3fc' : '#d8b4fe',
-    boxShadow: tone === 'sent' ? '0 0 14px rgba(34,197,94,0.08)' : tone === 'instant' ? '0 0 14px rgba(56,189,248,0.08)' : '0 0 14px rgba(168,85,247,0.10)',
-  });
 
   const recentMemories = events.slice(0, 8);
 
@@ -1576,11 +1443,6 @@ export default function Home() {
     setNewEventDate(event.event_date);
     setNewEventType(event.category);
     setNewEventDesc(event.description || "");
-    setEmailNotifyNow(!!event.email_notify_now);
-    setEmailNotify1Day(!!event.email_notify_1day);
-    setEmailNotifyCustom(!!event.email_notify_custom);
-    setCustomNotifyDateTime(event.email_custom_send_at ? new Date(event.email_custom_send_at) : null);
-    setCustomEmail(event.email_notify_to || (typeof window !== "undefined" ? localStorage.getItem("remembered_custom_email") || "" : ""));
     
     // Parse attachments from image_url
     let parsedAttachments: any[] = [];
@@ -1613,7 +1475,7 @@ export default function Home() {
     }
   };
 
-  const handleEventEmailNotifications = async (eventId?: string) => {
+  const handleEventEmailNotifications = async () => {
     if (!session) return;
 
     const userEmail = customEmail.trim() || session.user.email;
@@ -1652,7 +1514,7 @@ export default function Home() {
     }
 
     let scheduledCount = 0;
-    const saveScheduledEmail = async (sendAt: Date, label: string, notifyType: "one_day" | "custom") => {
+    const saveScheduledEmail = async (sendAt: Date, label: string) => {
       if (sendAt <= new Date()) {
         showToast(`${label} időpont már elmúlt, ezért nem lett időzítve.`, "info");
         return;
@@ -1660,8 +1522,6 @@ export default function Home() {
 
       const { error: scheduleError } = await supabase.from("scheduled_emails").insert({
         user_id: session.user.id,
-        event_id: eventId || null,
-        notify_type: notifyType,
         to_email: userEmail,
         event_title: newEventTitle,
         event_date: newEventDate,
@@ -1682,16 +1542,15 @@ export default function Home() {
       const sendAt = new Date(newEventDate);
       sendAt.setDate(sendAt.getDate() - 1);
       sendAt.setHours(8, 0, 0, 0);
-      await saveScheduledEmail(sendAt, "Az 1 nappal előtte email", "one_day");
+      await saveScheduledEmail(sendAt, "Az 1 nappal előtte email");
     }
 
     if (emailNotifyCustom && customNotifyDateTime) {
-      await saveScheduledEmail(customNotifyDateTime, "Az egyedi email emlékeztető", "custom");
+      await saveScheduledEmail(customNotifyDateTime, "Az egyedi email emlékeztető");
     }
 
     if (scheduledCount > 0) {
       showToast(`${scheduledCount} email emlékeztető időzítve.`, "success");
-      await fetchScheduledEmails();
     }
   };
 
@@ -1745,14 +1604,12 @@ export default function Home() {
     `;
 
     if (editingEventId) {
-      const emailMeta = buildEmailNotifyMeta();
       const { data: updateData, error } = await supabase.from('events').update({
         title: newEventTitle,
         event_date: newEventDate,
         category: newEventType,
         description: newEventDesc,
-        image_url: finalImageUrl,
-        ...emailMeta
+        image_url: finalImageUrl
       }).eq('id', editingEventId).select();
 
       if (error) {
@@ -1764,15 +1621,13 @@ export default function Home() {
         resetForm();
         const { data } = await supabase.from('events').select('*').order('event_date', { ascending: false });
         if (data) setEvents(data);
-        fetchScheduledEmails();
         setActiveTab(t("timelineTitle"));
       }
     } else {
       if (isRecurring) {
         // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
         const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
-        const emailMeta = buildEmailNotifyMeta();
-        const { data: insertData, error } = await supabase.from('events').insert([{
+        const { error } = await supabase.from('events').insert([{
           title: newEventTitle,
           event_date: newEventDate,
           category: newEventType,
@@ -1781,41 +1636,36 @@ export default function Home() {
           image_url: finalImageUrl,
           recurring_type: recurringType,
           recurring_days: recurringDaysStr,
-          ...emailMeta
-        }]).select('id');
+        }]);
         if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
         } else {
           showToast(t("toastRecurring"), 'success');
-          await handleEventEmailNotifications(insertData?.[0]?.id);
+          await handleEventEmailNotifications();
           resetForm();
           fetchEvents();
-          fetchScheduledEmails();
           setActiveTab(t("timelineTitle"));
         }
       } else {
-      const emailMeta = buildEmailNotifyMeta();
-      const { data: insertData, error } = await supabase.from('events').insert([
+      const { error } = await supabase.from('events').insert([
           { 
               title: newEventTitle, 
               event_date: newEventDate, 
               category: newEventType, 
               description: newEventDesc,
               user_id: session.user.id,
-              image_url: finalImageUrl,
-              ...emailMeta
+              image_url: finalImageUrl
           }
-      ]).select('id');
+      ]);
 
       if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
       } else {
-          await handleEventEmailNotifications(insertData?.[0]?.id);
+          await handleEventEmailNotifications();
 
           showToast(t("toastSaved"), 'success');
           resetForm();
           fetchEvents();
-          fetchScheduledEmails();
           setActiveTab(t("timelineTitle"));
       }
       } // end non-recurring else
@@ -2852,19 +2702,6 @@ export default function Home() {
                      <span>{event.title}</span>
                    </h3>
 
-                   {getEventEmailBadges(event).length > 0 && (
-                     <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "9px", marginBottom: expandedEvents[event.id] ? "8px" : "0" }}>
-                       {getEventEmailBadges(event).map((badge) => (
-                         <span key={badge.key} style={emailBadgeStyle(badge.tone)}>
-                           <span style={{ fontSize: "11px", fontWeight: 900, letterSpacing: "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📧 {badge.label}</span>
-                           {badge.detail && (
-                             <span style={{ fontSize: "10.5px", color: "rgba(226,232,240,0.72)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{badge.detail}</span>
-                           )}
-                         </span>
-                       ))}
-                     </div>
-                   )}
-
                    {!expandedEvents[event.id] && (
                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
                        {(() => {
@@ -2984,14 +2821,14 @@ export default function Home() {
       )}
 
       {activeTab === "Add" && (
-        <div key="Add" ref={addScrollRef} className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 190px)", scrollPaddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 190px)", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "transparent" }}>
+        <div key="Add" className="page-transition" style={{ height: "calc(var(--app-height, 100dvh) - 65px)", overflowY: "auto", overflowX: "hidden", paddingBottom: "24px", scrollbarWidth: "none", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", background: "transparent" }}>
           <div style={{ padding: "2px 4px 0", marginBottom: "18px" }}>
             <h2 style={{ fontSize: "32px", fontWeight: 900, marginBottom: "8px", letterSpacing: "-0.04em", color: "#fff", textShadow: "0 0 28px rgba(139,92,246,0.35), 0 0 18px rgba(56,189,248,0.18)" }}>{editingEventId ? t("editEntry") : addViewMode === "calendar" ? t("chooseDate") : t("newEntry")}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? t("editHint") : addViewMode === "calendar" ? t("tapDayHint") : t("newHint")}</p>
           </div>
 
           {addViewMode === "form" ? (
-          <div className="glass-card add-neon-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "visible" }}>
+          <div className="glass-card add-neon-card" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", padding: "clamp(14px, 4vw, 22px)", borderRadius: "28px", border: "1px solid rgba(139,92,246,0.55)", background: "linear-gradient(145deg, rgba(10,18,32,0.88), rgba(15,23,42,0.74))", boxShadow: "0 0 0 1px rgba(56,189,248,0.12), 0 24px 60px rgba(0,0,0,0.42), 0 0 38px rgba(124,58,237,0.18)", backdropFilter: "blur(18px)", overflow: "hidden" }}>
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
                 <div style={{ width: "50px", height: "50px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", boxShadow: "0 0 24px rgba(56,189,248,0.22)" }}>✦</div>
@@ -3248,7 +3085,7 @@ export default function Home() {
 
                             {/* EMAIL SZEKCIÓ - összecsukható */}
               <div style={{ marginTop: "8px", background: "linear-gradient(145deg, rgba(15,23,42,0.72), rgba(30,41,59,0.36))", borderRadius: "18px", border: "1px solid rgba(139,92,246,0.26)", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-                <button className="add-accordion-button" type="button" onClick={() => { const next = !showEmailSection; setShowEmailSection(next); if (next) scrollAddSaveButtonIntoView(); }} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
+                <button className="add-accordion-button" type="button" onClick={() => setShowEmailSection(!showEmailSection)} style={{ width: "100%", padding: "12px 16px", background: showEmailSection ? "rgba(139,92,246,0.18)" : "transparent", border: "none", color: showEmailSection ? "#a78bfa" : "var(--text-color)", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", transition: "all 0.2s", borderRadius: "16px" }}>
                   <span style={{ fontSize: "13.5px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                     <span>📧</span> Email értesítés
                   </span>
@@ -3258,7 +3095,7 @@ export default function Home() {
                 <div style={{ padding: "0 12px 12px" }}>
                 <div style={{ marginBottom: "10px" }}>
                   <label style={{ fontSize: "11.5px", opacity: 0.8, marginBottom: "4px", display: "block" }}>{t("recipientEmail")}</label>
-                  <input type="email" value={customEmail} onFocus={scrollAddSaveButtonIntoView} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px", backdropFilter: "blur(10px)", WebkitAppearance: "none", appearance: "none" }} />
+                  <input type="email" value={customEmail} onChange={e => setCustomEmail(e.target.value)} placeholder={session?.user?.email || "Email cím..."} style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px", backdropFilter: "blur(10px)", WebkitAppearance: "none", appearance: "none" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
@@ -3270,7 +3107,7 @@ export default function Home() {
                     Emlékeztető 1 nappal előtte
                   </label>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", cursor: "pointer" }}>
-                    <input type="checkbox" checked={emailNotifyCustom} onChange={e => { setEmailNotifyCustom(e.target.checked); if (e.target.checked) scrollAddSaveButtonIntoView(); }} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
+                    <input type="checkbox" checked={emailNotifyCustom} onChange={e => setEmailNotifyCustom(e.target.checked)} style={{ accentColor: "#a78bfa", width: "18px", height: "18px" }} />
                     Dátum és idő szerint
                   </label>
                   {emailNotifyCustom && (
@@ -3279,7 +3116,6 @@ export default function Home() {
                         type="datetime-local"
                         className="mobile-datetime-input"
                         value={customNotifyDateTime ? new Date(customNotifyDateTime.getTime() - customNotifyDateTime.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
-                        onFocus={scrollAddSaveButtonIntoView}
                         onChange={(e) => setCustomNotifyDateTime(e.target.value ? new Date(e.target.value) : null)}
                         style={{
                           width: "100%",
@@ -3303,11 +3139,11 @@ export default function Home() {
                 )}
               </div>
 
-              <div ref={saveActionsRef} className="add-save-actions" style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+              <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
                 {editingEventId && (
                   <button type="button" onClick={() => { resetForm(); setActiveTab(t("timelineTitle")); }} style={{ flex: 1, padding: "18px", background: "rgba(15,23,42,0.82)", border: "1px solid rgba(148,163,184,0.28)", borderRadius: "20px", color: "rgba(226,232,240,0.96)", fontWeight: 600, fontSize: "17px" }}>{t("cancel")}</button>
                 )}
-                <button className="add-save-button" type="submit" disabled={isUploading} style={{ flex: 2, padding: "16px", minHeight: "60px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1, cursor: isUploading ? "default" : "pointer" }}>
+                <button className="add-save-button" type="submit" disabled={isUploading} style={{ flex: 2, padding: "18px", background: "linear-gradient(135deg, #38bdf8, #8b5cf6)", border: "none", borderRadius: "20px", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(124,58,237,0.35), 0 0 22px rgba(56,189,248,0.16)", fontSize: "17px", opacity: isUploading ? 0.7 : 1 }}>
                   {isUploading ? t("uploading") : (editingEventId ? t("saveChanges") : t("save"))}
                 </button>
               </div>
