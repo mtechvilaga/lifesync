@@ -1250,18 +1250,25 @@ export default function Home() {
   const getEventEmailBadges = (event: any) => {
     const badges: { key: string; label: string; detail?: string; tone: 'sent' | 'scheduled' | 'instant' }[] = [];
 
-    if (event.email_notify_now) {
+    const eventMails = getEventScheduledEmails(event);
+    const instantMail = eventMails.find((mail) => mail.notify_type === 'instant') || null;
+    const oneDayMail = eventMails.find((mail) => mail.notify_type === 'one_day') || null;
+    const customMail = eventMails.find((mail) => mail.notify_type === 'custom') || null;
+
+    if (event.email_notify_now || instantMail) {
+      const sendAt = instantMail?.send_at;
+      const sentAt = instantMail?.sent_at;
       badges.push({
         key: 'instant',
         label: lang === 'hu' ? 'Azonnali email' : 'Instant email',
-        detail: lang === 'hu' ? 'elküldve mentéskor' : 'sent on save',
-        tone: 'instant',
+        detail: instantMail?.sent
+          ? `${lang === 'hu' ? 'Elküldve' : 'Sent'}: ${formatEmailDateTime(sentAt || sendAt)}`
+          : instantMail
+            ? `${lang === 'hu' ? 'Küldés alatt' : 'Sending'}: ${formatEmailDateTime(sendAt)}`
+            : (lang === 'hu' ? 'elküldve mentéskor' : 'sent on save'),
+        tone: instantMail?.sent ? 'sent' : 'instant',
       });
     }
-
-    const eventMails = getEventScheduledEmails(event);
-    const oneDayMail = eventMails.find((mail) => mail.notify_type === 'one_day') || null;
-    const customMail = eventMails.find((mail) => mail.notify_type === 'custom') || null;
 
     if (event.email_notify_1day || oneDayMail) {
       const sendAt = oneDayMail?.send_at || event.email_one_day_send_at || getOneDayEmailDate(event.event_date).toISOString();
@@ -1626,36 +1633,18 @@ export default function Home() {
       localStorage.setItem("remembered_custom_email", customEmail.trim());
     }
 
-    const SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "";
-    const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "";
-    const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "";
-
-    const templateParams = {
-      to_email: userEmail,
-      event_title: newEventTitle,
-      event_date: newEventDate,
-      event_desc: newEventDesc || "Nincs leírás",
-      subject: `LifeSync: ${newEventTitle}`,
-    };
-
-    if (emailNotifyNow) {
-      if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
-        showToast("Az azonnali email nincs beállítva: hiányzik az EmailJS adat.", "error");
-      } else {
-        try {
-          await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
-        } catch (emailErr: any) {
-          console.error("Email küldési hiba:", emailErr);
-          showToast("Az azonnali email küldése nem sikerült.", "error");
-        }
-      }
-    }
-
     let scheduledCount = 0;
-    const saveScheduledEmail = async (sendAt: Date, label: string, notifyType: "one_day" | "custom") => {
-      if (sendAt <= new Date()) {
+    let instantQueued = false;
+
+    const saveScheduledEmail = async (
+      sendAt: Date,
+      label: string,
+      notifyType: "instant" | "one_day" | "custom",
+      allowPast = false
+    ) => {
+      if (!allowPast && sendAt <= new Date()) {
         showToast(`${label} időpont már elmúlt, ezért nem lett időzítve.`, "info");
-        return;
+        return false;
       }
 
       const { error: scheduleError } = await supabase.from("scheduled_emails").insert({
@@ -1665,18 +1654,40 @@ export default function Home() {
         to_email: userEmail,
         event_title: newEventTitle,
         event_date: newEventDate,
-        event_desc: newEventDesc || "",
+        event_desc: newEventDesc || "Nincs leírás",
         send_at: sendAt.toISOString(),
         sent: false,
       });
 
       if (scheduleError) {
-        console.error("Időzített email mentési hiba:", scheduleError);
-        showToast("Email időzítés mentési hiba: " + scheduleError.message, "error");
-      } else {
-        scheduledCount += 1;
+        console.error("Email mentési/időzítési hiba:", scheduleError);
+        showToast("Email mentési hiba: " + scheduleError.message, "error");
+        return false;
       }
+
+      scheduledCount += 1;
+      return true;
     };
+
+    if (emailNotifyNow) {
+      const sendAt = new Date(Date.now() - 1000);
+      instantQueued = await saveScheduledEmail(sendAt, "Az azonnali email", "instant", true);
+
+      if (instantQueued) {
+        try {
+          const { error: invokeError } = await supabase.functions.invoke("send-scheduled-emails", {
+            body: {},
+          });
+          if (invokeError) {
+            console.error("Azonnali email function hiba:", invokeError);
+            showToast("Az azonnali email sorba került, a rendszer pár percen belül elküldi.", "info");
+          }
+        } catch (invokeErr) {
+          console.error("Azonnali email function kivétel:", invokeErr);
+          showToast("Az azonnali email sorba került, a rendszer pár percen belül elküldi.", "info");
+        }
+      }
+    }
 
     if (emailNotify1Day) {
       const sendAt = new Date(newEventDate);
