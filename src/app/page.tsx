@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import  hu  from 'date-fns/locale/hu';
+import { hu } from 'date-fns/locale/hu';
 import BottomNav from "./components/BottomNav";
 
 registerLocale('hu', hu);
@@ -2009,17 +2009,17 @@ export default function Home() {
                   inline
                   locale="hu"
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date: Date | null) => {
+                  onChange={(date) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
                       setAddViewMode("form"); // Vált form-ra
                     }
                   }}
                   calendarClassName="custom-calendar"
-                  dayClassName={(date: Date): string => {
-  const dateStr = date.toISOString().split("T")[0];
-  const hasEvent = events.some(e => e.event_date === dateStr);
-  const isSunday = date.getDay() === 0;
+                  dayClassName={(date) => {
+                    const dateStr = date.toISOString().split("T")[0];
+                    const hasEvent = events.some(e => e.event_date === dateStr);
+                    const isSunday = date.getDay() === 0;
                     const isToday = new Date().toISOString().split("T")[0] === dateStr;
                     
                     if (isSunday && hasEvent) return "has-event-day sunday-day";
