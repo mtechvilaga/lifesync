@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { hu } from 'date-fns/locale/hu';
+import  hu  from 'date-fns/locale/hu';
 import BottomNav from "./components/BottomNav";
 
 registerLocale('hu', hu);
