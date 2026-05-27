@@ -142,6 +142,7 @@ export default function Home() {
   // Add Event form state
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split("T")[0]);
+  const [newEventTime, setNewEventTime] = useState("08:00");
   const [newEventType, setNewEventType] = useState("event");
   const [newEventDesc, setNewEventDesc] = useState("");
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -442,6 +443,7 @@ export default function Home() {
   const resetForm = () => {
     setNewEventTitle("");
     setNewEventDate(new Date().toISOString().split("T")[0]);
+    setNewEventTime("08:00");
     setNewEventType("event");
     setNewEventDesc("");
     setEditingEventId(null);
@@ -922,6 +924,30 @@ export default function Home() {
     daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
   };
 
+  const splitEventTimeFromDescription = (description?: string | null) => {
+    const raw = description || "";
+    const match = raw.match(/^⏰ Időpont:\s*(\d{2}:\d{2})\n?/);
+    if (!match) return { time: "08:00", description: raw };
+    return {
+      time: match[1],
+      description: raw.replace(/^⏰ Időpont:\s*\d{2}:\d{2}\n?/, "")
+    };
+  };
+
+  const buildDescriptionWithTime = () => {
+    const cleanDescription = newEventDesc.replace(/^⏰ Időpont:\s*\d{2}:\d{2}\n?/, "").trim();
+    return `⏰ Időpont: ${newEventTime}${cleanDescription ? `\n${cleanDescription}` : ""}`;
+  };
+
+  const getEventDisplayTime = (event: any) => {
+    const parsed = splitEventTimeFromDescription(event.description);
+    return event.event_time ? String(event.event_time).slice(0, 5) : parsed.time;
+  };
+
+  const getEventCleanDescription = (description?: string | null) => {
+    return splitEventTimeFromDescription(description).description;
+  };
+
   const handleDeleteAll = async () => {
     if (!session) return;
     const { error } = await supabase.from('events').delete().eq('user_id', session.user.id);
@@ -938,8 +964,10 @@ export default function Home() {
     setEditingEventId(event.id);
     setNewEventTitle(event.title);
     setNewEventDate(event.event_date);
+    const parsedEventTime = splitEventTimeFromDescription(event.description);
+    setNewEventTime(event.event_time ? String(event.event_time).slice(0, 5) : parsedEventTime.time);
     setNewEventType(event.category);
-    setNewEventDesc(event.description || "");
+    setNewEventDesc(parsedEventTime.description || "");
     
     // Parse attachments from image_url
     let parsedAttachments: any[] = [];
@@ -1014,6 +1042,7 @@ export default function Home() {
         <div style="padding: 30px;">
           <h2 style="color: #ffb74d; margin-top: 0;">${newEventTitle}</h2>
           <p style="opacity: 0.8;">📅 Dátum: <strong>${newEventDate}</strong></p>
+          <p style="opacity: 0.8;">⏰ Időpont: <strong>${newEventTime}</strong></p>
           ${newEventDesc ? `<p style="opacity: 0.8;">📝 ${newEventDesc}</p>` : ''}
           <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
           <p style="opacity: 0.5; font-size: 12px; text-align: center;">Ez egy automatikus értesítő a LifeSync alkalmazásból.</p>
@@ -1026,7 +1055,7 @@ export default function Home() {
         title: newEventTitle,
         event_date: newEventDate,
         category: newEventType,
-        description: newEventDesc,
+        description: buildDescriptionWithTime(),
         image_url: finalImageUrl
       }).eq('id', editingEventId).select();
 
@@ -1049,7 +1078,7 @@ export default function Home() {
           title: newEventTitle,
           event_date: newEventDate,
           category: newEventType,
-          description: newEventDesc,
+          description: buildDescriptionWithTime(),
           user_id: session.user.id,
           image_url: finalImageUrl,
           recurring_type: recurringType,
@@ -1069,7 +1098,7 @@ export default function Home() {
               title: newEventTitle, 
               event_date: newEventDate, 
               category: newEventType, 
-              description: newEventDesc,
+              description: buildDescriptionWithTime(),
               user_id: session.user.id,
               image_url: finalImageUrl
           }
@@ -1093,6 +1122,7 @@ export default function Home() {
                 to_email: userEmail,
                 event_title: newEventTitle,
                 event_date: newEventDate,
+                event_time: newEventTime,
                 event_desc: newEventDesc || 'Nincs leírás',
                 subject: `LifeSync: ${newEventTitle}`,
               };
@@ -1105,7 +1135,8 @@ export default function Home() {
               if (emailNotify1Day) {
                 const sendAt = new Date(newEventDate);
                 sendAt.setDate(sendAt.getDate() - 1);
-                sendAt.setHours(8, 0, 0, 0);
+                const [eventHour, eventMinute] = newEventTime.split(":").map(Number);
+                sendAt.setHours(Number.isFinite(eventHour) ? eventHour : 8, Number.isFinite(eventMinute) ? eventMinute : 0, 0, 0);
                 if (sendAt > new Date()) {
                   await supabase.from('scheduled_emails').insert({
                     user_id: session.user.id,
@@ -1491,7 +1522,7 @@ export default function Home() {
         <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div style={{ padding: "0 4px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <h2 style={{ fontSize: "28px", fontWeight: 600 }}>Timeline</h2>
+              <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Timeline</h2>
               {events.length > 0 && (
                 <button
                   onClick={() => setShowDeleteAllConfirm(true)}
@@ -1532,11 +1563,11 @@ export default function Home() {
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                        <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>
-                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}
+                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date} · {getEventDisplayTime(event)}
                        </span>
                        {event.recurring_type && (
                          <span style={{ fontSize: "10px", background: "rgba(0,212,255,0.2)", border: "1px solid rgba(0,212,255,0.5)", borderRadius: "10px", padding: "1px 7px", color: "#00D4FF", fontWeight: 600 }}>
-                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}
+                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type} · {getEventDisplayTime(event)}
                          </span>
                        )}
                      </div>
@@ -1598,9 +1629,9 @@ export default function Home() {
                            </span>
                          );
                        })()}
-                       {event.description && (
+                       {getEventCleanDescription(event.description) && (
                          <span style={{ fontSize: "13px", opacity: 0.5, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
-                           {event.description}
+                           {getEventCleanDescription(event.description)}
                          </span>
                        )}
                      </div>
@@ -1608,8 +1639,8 @@ export default function Home() {
 
                    {expandedEvents[event.id] && (
                      <div style={{ marginTop: "12px", animation: "fade-in 0.2s ease-out" }} onClick={(e) => e.stopPropagation()}>
-                       {event.description && (
-                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{event.description}</p>
+                       {getEventCleanDescription(event.description) && (
+                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{getEventCleanDescription(event.description)}</p>
                        )}
 
                        {(() => {
@@ -1688,7 +1719,7 @@ export default function Home() {
       {activeTab === "Add" && (
         <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "300px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "16px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 600, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : addViewMode === "calendar" ? "Válassz dátumot" : "Új bejegyzés"}</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : addViewMode === "calendar" ? "Válassz dátumot" : "Új bejegyzés"}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? "Módosítsd a kiválasztott emléket." : addViewMode === "calendar" ? "Kattints egy napra az új bejegyzéshez" : "Rögzíts egy emléket vagy számlát."}</p>
           </div>
 
@@ -1704,6 +1735,10 @@ export default function Home() {
                 <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Dátum</label>
                   <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Időpont</label>
+                  <input required type="time" value={newEventTime} onChange={e => setNewEventTime(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
                 </div>
                 <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Kategória</label>
@@ -1750,7 +1785,7 @@ export default function Home() {
                           </div>
                         )}
                         <div style={{ fontSize: "12px", opacity: 0.6, fontStyle: "italic" }}>
-                          📅 2 évre előre generálja ({recurringType === "daily" ? "~730" : recurringType === "weekly" ? recurringDays.length > 0 ? `~${recurringDays.length * 104}` : "~104" : recurringType === "biweekly" ? "~52" : recurringType === "monthly" ? "~24" : "~2"} alkalom)
+                          ⏰ Az ismétlődés mindig a megadott időpontban történik: {newEventTime}.
                         </div>
                       </div>
                     )}
@@ -2009,7 +2044,7 @@ export default function Home() {
                   inline
                   locale="hu"
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date: Date | null) => {
+                  onChange={(date) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
                       setAddViewMode("form"); // Vált form-ra
@@ -2026,7 +2061,7 @@ export default function Home() {
                     if (isSunday) return "sunday-day";
                     if (isToday) return "today-day";
                     if (hasEvent) return "has-event-day";
-                    return undefined;
+                    return "";
                   }}
                 />
                 <style>{`
@@ -2177,7 +2212,7 @@ export default function Home() {
       {activeTab === "Profile" && (
         <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 600, marginBottom: "4px" }}>Profil</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>Profil</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>Személyes beállítások és fiók.</p>
           </div>
 
@@ -2470,7 +2505,7 @@ export default function Home() {
             <>
               <div style={{ padding: "0 4px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "4px" }}>Projektek</h2>
+                  <h2 style={{ fontSize: "26px", fontWeight: 650, marginBottom: "4px" }}>Projektek</h2>
                   <p style={{ opacity: 0.75, fontSize: "14px" }}>Projektek, bizalmas dokumentumok és számlák.</p>
                 </div>
                 <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", boxShadow: "0 8px 20px rgba(0,0,0,0.1)" }}>🗂️</div>
@@ -2650,7 +2685,7 @@ export default function Home() {
       {isSearchOpen && (
         <div className="page-transition" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, background: "rgba(23, 36, 54, 0.95)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", display: "flex", flexDirection: "column", padding: "40px 22px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 600 }}>Keresés</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Keresés</h2>
             <button onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", width: "42px", height: "42px", borderRadius: "14px", color: "var(--text-color)", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
           
