@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import emailjs from '@emailjs/browser';
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { hu } from 'date-fns/locale';
+import { hu } from 'date-fns/locale/hu';
 import BottomNav from "./components/BottomNav";
 
 registerLocale('hu', hu);
@@ -2009,7 +2009,7 @@ export default function Home() {
                   inline
                   locale="hu"
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date) => {
+                  onChange={(date: Date | null) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
                       setAddViewMode("form"); // Vált form-ra
