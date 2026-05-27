@@ -924,9 +924,28 @@ export default function Home() {
     daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
   };
 
-  const isMissingEventTimeColumn = (error: any) => {
-    const message = String(error?.message || "").toLowerCase();
-    return message.includes("event_time") || message.includes("schema cache");
+  const splitEventTimeFromDescription = (description?: string | null) => {
+    const raw = description || "";
+    const match = raw.match(/^⏰ Időpont:\s*(\d{2}:\d{2})\n?/);
+    if (!match) return { time: "08:00", description: raw };
+    return {
+      time: match[1],
+      description: raw.replace(/^⏰ Időpont:\s*\d{2}:\d{2}\n?/, "")
+    };
+  };
+
+  const buildDescriptionWithTime = () => {
+    const cleanDescription = newEventDesc.replace(/^⏰ Időpont:\s*\d{2}:\d{2}\n?/, "").trim();
+    return `⏰ Időpont: ${newEventTime}${cleanDescription ? `\n${cleanDescription}` : ""}`;
+  };
+
+  const getEventDisplayTime = (event: any) => {
+    const parsed = splitEventTimeFromDescription(event.description);
+    return event.event_time ? String(event.event_time).slice(0, 5) : parsed.time;
+  };
+
+  const getEventCleanDescription = (description?: string | null) => {
+    return splitEventTimeFromDescription(description).description;
   };
 
   const handleDeleteAll = async () => {
@@ -945,9 +964,10 @@ export default function Home() {
     setEditingEventId(event.id);
     setNewEventTitle(event.title);
     setNewEventDate(event.event_date);
-    setNewEventTime(event.event_time ? String(event.event_time).slice(0, 5) : "08:00");
+    const parsedEventTime = splitEventTimeFromDescription(event.description);
+    setNewEventTime(event.event_time ? String(event.event_time).slice(0, 5) : parsedEventTime.time);
     setNewEventType(event.category);
-    setNewEventDesc(event.description || "");
+    setNewEventDesc(parsedEventTime.description || "");
     
     // Parse attachments from image_url
     let parsedAttachments: any[] = [];
@@ -1031,24 +1051,13 @@ export default function Home() {
     `;
 
     if (editingEventId) {
-      const updatePayload: any = {
+      const { data: updateData, error } = await supabase.from('events').update({
         title: newEventTitle,
         event_date: newEventDate,
-        event_time: newEventTime,
         category: newEventType,
-        description: newEventDesc,
+        description: buildDescriptionWithTime(),
         image_url: finalImageUrl
-      };
-
-      let { data: updateData, error } = await supabase.from('events').update(updatePayload).eq('id', editingEventId).select();
-
-      if (error && isMissingEventTimeColumn(error)) {
-        const fallbackPayload = { ...updatePayload };
-        delete fallbackPayload.event_time;
-        const retry = await supabase.from('events').update(fallbackPayload).eq('id', editingEventId).select();
-        updateData = retry.data;
-        error = retry.error;
-      }
+      }).eq('id', editingEventId).select();
 
       if (error) {
         showToast("Hiba módosítás közben: " + error.message, 'error');
@@ -1065,26 +1074,16 @@ export default function Home() {
       if (isRecurring) {
         // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
         const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
-        const recurringPayload: any = {
+        const { error } = await supabase.from('events').insert([{
           title: newEventTitle,
           event_date: newEventDate,
-          event_time: newEventTime,
           category: newEventType,
-          description: newEventDesc,
+          description: buildDescriptionWithTime(),
           user_id: session.user.id,
           image_url: finalImageUrl,
           recurring_type: recurringType,
           recurring_days: recurringDaysStr,
-        };
-
-        let { error } = await supabase.from('events').insert([recurringPayload]);
-
-        if (error && isMissingEventTimeColumn(error)) {
-          const fallbackPayload = { ...recurringPayload };
-          delete fallbackPayload.event_time;
-          const retry = await supabase.from('events').insert([fallbackPayload]);
-          error = retry.error;
-        }
+        }]);
         if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
         } else {
@@ -1094,24 +1093,16 @@ export default function Home() {
           setActiveTab("Timeline");
         }
       } else {
-      const eventPayload: any = { 
-          title: newEventTitle, 
-          event_date: newEventDate, 
-          event_time: newEventTime,
-          category: newEventType, 
-          description: newEventDesc,
-          user_id: session.user.id,
-          image_url: finalImageUrl
-      };
-
-      let { error } = await supabase.from('events').insert([eventPayload]);
-
-      if (error && isMissingEventTimeColumn(error)) {
-          const fallbackPayload = { ...eventPayload };
-          delete fallbackPayload.event_time;
-          const retry = await supabase.from('events').insert([fallbackPayload]);
-          error = retry.error;
-      }
+      const { error } = await supabase.from('events').insert([
+          { 
+              title: newEventTitle, 
+              event_date: newEventDate, 
+              category: newEventType, 
+              description: buildDescriptionWithTime(),
+              user_id: session.user.id,
+              image_url: finalImageUrl
+          }
+      ]);
 
       if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
@@ -1572,11 +1563,11 @@ export default function Home() {
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                        <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>
-                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}{event.event_time ? ` · ${String(event.event_time).slice(0,5)}` : ""}
+                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date} · {getEventDisplayTime(event)}
                        </span>
                        {event.recurring_type && (
                          <span style={{ fontSize: "10px", background: "rgba(0,212,255,0.2)", border: "1px solid rgba(0,212,255,0.5)", borderRadius: "10px", padding: "1px 7px", color: "#00D4FF", fontWeight: 600 }}>
-                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}{event.event_time ? ` · ${String(event.event_time).slice(0,5)}` : ""}
+                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type} · {getEventDisplayTime(event)}
                          </span>
                        )}
                      </div>
@@ -1638,9 +1629,9 @@ export default function Home() {
                            </span>
                          );
                        })()}
-                       {event.description && (
+                       {getEventCleanDescription(event.description) && (
                          <span style={{ fontSize: "13px", opacity: 0.5, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
-                           {event.description}
+                           {getEventCleanDescription(event.description)}
                          </span>
                        )}
                      </div>
@@ -1648,8 +1639,8 @@ export default function Home() {
 
                    {expandedEvents[event.id] && (
                      <div style={{ marginTop: "12px", animation: "fade-in 0.2s ease-out" }} onClick={(e) => e.stopPropagation()}>
-                       {event.description && (
-                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{event.description}</p>
+                       {getEventCleanDescription(event.description) && (
+                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{getEventCleanDescription(event.description)}</p>
                        )}
 
                        {(() => {
