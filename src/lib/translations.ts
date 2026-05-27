@@ -95,7 +95,7 @@ export const translations = {
     yearly: "Évente",
 
     // Timeline
-    timelineTitle: "Timeline",
+    timelineTitle: "Idővonal",
     timelineSubtitle: "Az összes esemény és dokumentum egy helyen.",
     noTimeline: "Még nincs esemény. Adj hozzá egyet a + gombbal!",
     modify: "Módosítás",
