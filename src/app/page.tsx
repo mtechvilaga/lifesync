@@ -142,7 +142,6 @@ export default function Home() {
   // Add Event form state
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split("T")[0]);
-  const [newEventTime, setNewEventTime] = useState("08:00");
   const [newEventType, setNewEventType] = useState("event");
   const [newEventDesc, setNewEventDesc] = useState("");
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -443,7 +442,6 @@ export default function Home() {
   const resetForm = () => {
     setNewEventTitle("");
     setNewEventDate(new Date().toISOString().split("T")[0]);
-    setNewEventTime("08:00");
     setNewEventType("event");
     setNewEventDesc("");
     setEditingEventId(null);
@@ -924,30 +922,6 @@ export default function Home() {
     daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
   };
 
-  const splitEventTimeFromDescription = (description?: string | null) => {
-    const raw = description || "";
-    const match = raw.match(/^⏰ Időpont:\s*(\d{2}:\d{2})\n?/);
-    if (!match) return { time: "08:00", description: raw };
-    return {
-      time: match[1],
-      description: raw.replace(/^⏰ Időpont:\s*\d{2}:\d{2}\n?/, "")
-    };
-  };
-
-  const buildDescriptionWithTime = () => {
-    const cleanDescription = newEventDesc.replace(/^⏰ Időpont:\s*\d{2}:\d{2}\n?/, "").trim();
-    return `⏰ Időpont: ${newEventTime}${cleanDescription ? `\n${cleanDescription}` : ""}`;
-  };
-
-  const getEventDisplayTime = (event: any) => {
-    const parsed = splitEventTimeFromDescription(event.description);
-    return event.event_time ? String(event.event_time).slice(0, 5) : parsed.time;
-  };
-
-  const getEventCleanDescription = (description?: string | null) => {
-    return splitEventTimeFromDescription(description).description;
-  };
-
   const handleDeleteAll = async () => {
     if (!session) return;
     const { error } = await supabase.from('events').delete().eq('user_id', session.user.id);
@@ -964,10 +938,8 @@ export default function Home() {
     setEditingEventId(event.id);
     setNewEventTitle(event.title);
     setNewEventDate(event.event_date);
-    const parsedEventTime = splitEventTimeFromDescription(event.description);
-    setNewEventTime(event.event_time ? String(event.event_time).slice(0, 5) : parsedEventTime.time);
     setNewEventType(event.category);
-    setNewEventDesc(parsedEventTime.description || "");
+    setNewEventDesc(event.description || "");
     
     // Parse attachments from image_url
     let parsedAttachments: any[] = [];
@@ -1042,7 +1014,6 @@ export default function Home() {
         <div style="padding: 30px;">
           <h2 style="color: #ffb74d; margin-top: 0;">${newEventTitle}</h2>
           <p style="opacity: 0.8;">📅 Dátum: <strong>${newEventDate}</strong></p>
-          <p style="opacity: 0.8;">⏰ Időpont: <strong>${newEventTime}</strong></p>
           ${newEventDesc ? `<p style="opacity: 0.8;">📝 ${newEventDesc}</p>` : ''}
           <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
           <p style="opacity: 0.5; font-size: 12px; text-align: center;">Ez egy automatikus értesítő a LifeSync alkalmazásból.</p>
@@ -1055,7 +1026,7 @@ export default function Home() {
         title: newEventTitle,
         event_date: newEventDate,
         category: newEventType,
-        description: buildDescriptionWithTime(),
+        description: newEventDesc,
         image_url: finalImageUrl
       }).eq('id', editingEventId).select();
 
@@ -1078,7 +1049,7 @@ export default function Home() {
           title: newEventTitle,
           event_date: newEventDate,
           category: newEventType,
-          description: buildDescriptionWithTime(),
+          description: newEventDesc,
           user_id: session.user.id,
           image_url: finalImageUrl,
           recurring_type: recurringType,
@@ -1098,7 +1069,7 @@ export default function Home() {
               title: newEventTitle, 
               event_date: newEventDate, 
               category: newEventType, 
-              description: buildDescriptionWithTime(),
+              description: newEventDesc,
               user_id: session.user.id,
               image_url: finalImageUrl
           }
@@ -1122,7 +1093,6 @@ export default function Home() {
                 to_email: userEmail,
                 event_title: newEventTitle,
                 event_date: newEventDate,
-                event_time: newEventTime,
                 event_desc: newEventDesc || 'Nincs leírás',
                 subject: `LifeSync: ${newEventTitle}`,
               };
@@ -1135,8 +1105,7 @@ export default function Home() {
               if (emailNotify1Day) {
                 const sendAt = new Date(newEventDate);
                 sendAt.setDate(sendAt.getDate() - 1);
-                const [eventHour, eventMinute] = newEventTime.split(":").map(Number);
-                sendAt.setHours(Number.isFinite(eventHour) ? eventHour : 8, Number.isFinite(eventMinute) ? eventMinute : 0, 0, 0);
+                sendAt.setHours(8, 0, 0, 0);
                 if (sendAt > new Date()) {
                   await supabase.from('scheduled_emails').insert({
                     user_id: session.user.id,
@@ -1563,11 +1532,11 @@ export default function Home() {
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                        <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>
-                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date} · {getEventDisplayTime(event)}
+                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}
                        </span>
                        {event.recurring_type && (
                          <span style={{ fontSize: "10px", background: "rgba(0,212,255,0.2)", border: "1px solid rgba(0,212,255,0.5)", borderRadius: "10px", padding: "1px 7px", color: "#00D4FF", fontWeight: 600 }}>
-                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type} · {getEventDisplayTime(event)}
+                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}
                          </span>
                        )}
                      </div>
@@ -1629,9 +1598,9 @@ export default function Home() {
                            </span>
                          );
                        })()}
-                       {getEventCleanDescription(event.description) && (
+                       {event.description && (
                          <span style={{ fontSize: "13px", opacity: 0.5, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
-                           {getEventCleanDescription(event.description)}
+                           {event.description}
                          </span>
                        )}
                      </div>
@@ -1639,8 +1608,8 @@ export default function Home() {
 
                    {expandedEvents[event.id] && (
                      <div style={{ marginTop: "12px", animation: "fade-in 0.2s ease-out" }} onClick={(e) => e.stopPropagation()}>
-                       {getEventCleanDescription(event.description) && (
-                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{getEventCleanDescription(event.description)}</p>
+                       {event.description && (
+                         <p style={{ fontSize: "14px", opacity: 0.8, lineHeight: 1.4, marginBottom: "14px" }}>{event.description}</p>
                        )}
 
                        {(() => {
@@ -1737,10 +1706,6 @@ export default function Home() {
                   <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Időpont</label>
-                  <input required type="time" value={newEventTime} onChange={e => setNewEventTime(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", fontSize: "15px", colorScheme: "dark" }} />
-                </div>
-                <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.9, marginBottom: "6px", display: "block", fontWeight: 500 }}>Kategória</label>
                   <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", padding: "12px 14px", borderRadius: "16px", color: "white", outline: "none", appearance: "none", fontSize: "15px" }}>
                     <option value="event" style={{color: "black"}}>Esemény 🎂</option>
@@ -1785,7 +1750,7 @@ export default function Home() {
                           </div>
                         )}
                         <div style={{ fontSize: "12px", opacity: 0.6, fontStyle: "italic" }}>
-                          ⏰ Az ismétlődés mindig a megadott időpontban történik: {newEventTime}.
+                          📅 2 évre előre generálja ({recurringType === "daily" ? "~730" : recurringType === "weekly" ? recurringDays.length > 0 ? `~${recurringDays.length * 104}` : "~104" : recurringType === "biweekly" ? "~52" : recurringType === "monthly" ? "~24" : "~2"} alkalom)
                         </div>
                       </div>
                     )}
