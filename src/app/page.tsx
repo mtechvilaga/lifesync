@@ -150,6 +150,7 @@ export default function Home() {
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringType, setRecurringType] = useState<"daily" | "weekly" | "biweekly" | "monthly" | "yearly">("weekly");
   const [recurringDays, setRecurringDays] = useState<number[]>([]);
+  const [recurringDayTimes, setRecurringDayTimes] = useState<Record<number, string>>({});
   const [eventToDeleteGroupId, setEventToDeleteGroupId] = useState<string | null>(null);
   const [deleteMode, setDeleteMode] = useState<"single" | "all" | null>(null);
 
@@ -454,6 +455,7 @@ export default function Home() {
     setIsRecurring(false);
     setRecurringType("weekly");
     setRecurringDays([]);
+    setRecurringDayTimes({});
   };
 
   useEffect(() => {
@@ -1045,6 +1047,7 @@ export default function Home() {
       if (isRecurring) {
         // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
         const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
+        const recurringTimesStr = recurringDays.length > 0 ? recurringDays.map(d => recurringDayTimes[d] || "").join(",") : null;
         const { error } = await supabase.from('events').insert([{
           title: newEventTitle,
           event_date: newEventDate,
@@ -1054,6 +1057,7 @@ export default function Home() {
           image_url: finalImageUrl,
           recurring_type: recurringType,
           recurring_days: recurringDaysStr,
+          recurring_times: recurringTimesStr,
         }]);
         if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
@@ -1742,11 +1746,38 @@ export default function Home() {
                             <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>Melyik napokon? (opcionális)</label>
                             <div style={{ display: "flex", gap: "6px" }}>
                               {["H", "K", "Sz", "Cs", "P", "Szo", "V"].map((day, idx) => (
-                                <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
+                                <button key={idx} type="button" onClick={() => {
+                                  setRecurringDays(prev => {
+                                    const next = prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx];
+                                    if (!next.includes(idx)) {
+                                      setRecurringDayTimes(t => { const copy = {...t}; delete copy[idx]; return copy; });
+                                    }
+                                    return next;
+                                  });
+                                }} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #ffb74d, #ff7043)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                   {day}
                                 </button>
                               ))}
                             </div>
+                            {recurringDays.length > 0 && (
+                              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <label style={{ fontSize: "12px", opacity: 0.6, display: "block" }}>Időpontok naponként (opcionális)</label>
+                                {[...recurringDays].sort((a, b) => a - b).map(dayIdx => {
+                                  const dayNames = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
+                                  return (
+                                    <div key={dayIdx} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                      <span style={{ fontSize: "12px", fontWeight: 600, minWidth: "72px", opacity: 0.9 }}>{dayNames[dayIdx]}</span>
+                                      <input
+                                        type="time"
+                                        value={recurringDayTimes[dayIdx] || ""}
+                                        onChange={e => setRecurringDayTimes(prev => ({ ...prev, [dayIdx]: e.target.value }))}
+                                        style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", padding: "6px 10px", color: "white", fontSize: "13px", outline: "none", colorScheme: "dark", flex: 1 }}
+                                      />
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         )}
                         <div style={{ fontSize: "12px", opacity: 0.6, fontStyle: "italic" }}>
