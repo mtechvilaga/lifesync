@@ -940,12 +940,9 @@ export default function Home() {
     setEditingEventId(event.id);
     setNewEventTitle(event.title);
     setNewEventDate(event.event_date);
-    setNewEventTime(event.event_time || "08:00");
+    setNewEventTime(event.event_time ? String(event.event_time).slice(0, 5) : "08:00");
     setNewEventType(event.category);
     setNewEventDesc(event.description || "");
-    setIsRecurring(!!event.recurring_type);
-    setRecurringType(event.recurring_type || "weekly");
-    setRecurringDays(event.recurring_days ? event.recurring_days.split(",").map(Number) : []);
     
     // Parse attachments from image_url
     let parsedAttachments: any[] = [];
@@ -1019,7 +1016,8 @@ export default function Home() {
         </div>
         <div style="padding: 30px;">
           <h2 style="color: #ffb74d; margin-top: 0;">${newEventTitle}</h2>
-          <p style="opacity: 0.8;">📅 Dátum: <strong>${newEventDate}</strong></p>\n          <p style="opacity: 0.8;">⏰ Időpont: <strong>${newEventTime}</strong></p>
+          <p style="opacity: 0.8;">📅 Dátum: <strong>${newEventDate}</strong></p>
+          <p style="opacity: 0.8;">⏰ Időpont: <strong>${newEventTime}</strong></p>
           ${newEventDesc ? `<p style="opacity: 0.8;">📝 ${newEventDesc}</p>` : ''}
           <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
           <p style="opacity: 0.5; font-size: 12px; text-align: center;">Ez egy automatikus értesítő a LifeSync alkalmazásból.</p>
@@ -1034,9 +1032,7 @@ export default function Home() {
         event_time: newEventTime,
         category: newEventType,
         description: newEventDesc,
-        image_url: finalImageUrl,
-        recurring_type: isRecurring ? recurringType : null,
-        recurring_days: isRecurring && recurringDays.length > 0 ? recurringDays.join(",") : null
+        image_url: finalImageUrl
       }).eq('id', editingEventId).select();
 
       if (error) {
@@ -1545,11 +1541,11 @@ export default function Home() {
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                        <span style={{ fontSize: "12px", opacity: 0.7, fontWeight: 600 }}>
-                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}{event.event_time ? ` · ${event.event_time.slice(0,5)}` : ""}
+                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}{event.event_time ? ` · ${String(event.event_time).slice(0,5)}` : ""}
                        </span>
                        {event.recurring_type && (
                          <span style={{ fontSize: "10px", background: "rgba(0,212,255,0.2)", border: "1px solid rgba(0,212,255,0.5)", borderRadius: "10px", padding: "1px 7px", color: "#00D4FF", fontWeight: 600 }}>
-                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}{event.event_time ? ` · ${event.event_time.slice(0,5)}` : ""}
+                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}{event.event_time ? ` · ${String(event.event_time).slice(0,5)}` : ""}
                          </span>
                        )}
                      </div>
