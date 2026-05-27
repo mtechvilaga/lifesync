@@ -1491,7 +1491,7 @@ export default function Home() {
         <div key="Timeline" className="page-transition" style={{ height: "calc(100% - 120px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div style={{ padding: "0 4px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Timeline</h2>
+              <h2 style={{ fontSize: "28px", fontWeight: 600 }}>Timeline</h2>
               {events.length > 0 && (
                 <button
                   onClick={() => setShowDeleteAllConfirm(true)}
@@ -1688,7 +1688,7 @@ export default function Home() {
       {activeTab === "Add" && (
         <div key="Add" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "300px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "16px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : addViewMode === "calendar" ? "Válassz dátumot" : "Új bejegyzés"}</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 600, marginBottom: "4px" }}>{editingEventId ? "Bejegyzés módosítása" : addViewMode === "calendar" ? "Válassz dátumot" : "Új bejegyzés"}</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>{editingEventId ? "Módosítsd a kiválasztott emléket." : addViewMode === "calendar" ? "Kattints egy napra az új bejegyzéshez" : "Rögzíts egy emléket vagy számlát."}</p>
           </div>
 
@@ -2009,14 +2009,14 @@ export default function Home() {
                   inline
                   locale="hu"
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date) => {
+                  onChange={(date: Date | null) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
                       setAddViewMode("form"); // Vált form-ra
                     }
                   }}
                   calendarClassName="custom-calendar"
-                  dayClassName={(date) => {
+                  dayClassName={(date: Date): string => {
                     const dateStr = date.toISOString().split("T")[0];
                     const hasEvent = events.some(e => e.event_date === dateStr);
                     const isSunday = date.getDay() === 0;
@@ -2177,7 +2177,7 @@ export default function Home() {
       {activeTab === "Profile" && (
         <div key="Profile" className="page-transition" style={{ height: "calc(100% - 65px)", overflowY: "auto", paddingBottom: "120px", scrollbarWidth: "none" }}>
           <div style={{ padding: "0 4px", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650, marginBottom: "4px" }}>Profil</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 600, marginBottom: "4px" }}>Profil</h2>
             <p style={{ opacity: 0.75, fontSize: "15px" }}>Személyes beállítások és fiók.</p>
           </div>
 
@@ -2470,7 +2470,7 @@ export default function Home() {
             <>
               <div style={{ padding: "0 4px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 650, marginBottom: "4px" }}>Projektek</h2>
+                  <h2 style={{ fontSize: "26px", fontWeight: 600, marginBottom: "4px" }}>Projektek</h2>
                   <p style={{ opacity: 0.75, fontSize: "14px" }}>Projektek, bizalmas dokumentumok és számlák.</p>
                 </div>
                 <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", boxShadow: "0 8px 20px rgba(0,0,0,0.1)" }}>🗂️</div>
@@ -2650,7 +2650,7 @@ export default function Home() {
       {isSearchOpen && (
         <div className="page-transition" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, background: "rgba(23, 36, 54, 0.95)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", display: "flex", flexDirection: "column", padding: "40px 22px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 650 }}>Keresés</h2>
+            <h2 style={{ fontSize: "28px", fontWeight: 600 }}>Keresés</h2>
             <button onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }} style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)", width: "42px", height: "42px", borderRadius: "14px", color: "var(--text-color)", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
           </div>
           
