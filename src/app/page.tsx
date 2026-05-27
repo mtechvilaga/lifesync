@@ -527,6 +527,8 @@ export default function Home() {
   // Add Event form state
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split("T")[0]);
+  const [newEventTime, setNewEventTime] = useState("09:00");
+  const [recurringDayTimes, setRecurringDayTimes] = useState<Record<number, string>>({});
   const [newEventType, setNewEventType] = useState("event");
   const [newEventDesc, setNewEventDesc] = useState("");
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -872,6 +874,8 @@ export default function Home() {
   const resetForm = () => {
     setNewEventTitle("");
     setNewEventDate(new Date().toISOString().split("T")[0]);
+    setNewEventTime("09:00");
+    setRecurringDayTimes({});
     setNewEventType("event");
     setNewEventDesc("");
     setEditingEventId(null);
@@ -1221,15 +1225,14 @@ export default function Home() {
     });
   };
 
-  const getOneDayEmailDate = (eventDate: string) => {
-    const sendAt = new Date(eventDate);
+  const getOneDayEmailDate = (eventDate: string, eventTime = newEventTime) => {
+    const sendAt = buildDateWithTime(eventDate, eventTime);
     sendAt.setDate(sendAt.getDate() - 1);
-    sendAt.setHours(8, 0, 0, 0);
     return sendAt;
   };
 
   const buildEmailNotifyMeta = () => {
-    const oneDaySendAt = emailNotify1Day ? getOneDayEmailDate(newEventDate).toISOString() : null;
+    const oneDaySendAt = emailNotify1Day ? getOneDayEmailDate(newEventDate, newEventTime).toISOString() : null;
     return {
       email_notify_now: emailNotifyNow,
       email_notify_1day: emailNotify1Day,
@@ -1522,7 +1525,7 @@ export default function Home() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const start = new Date(startDate);
-    const daysList = days ? days.split(",").map(Number) : [];
+    const daysList = parseRecurringDaysWithTimes(days).map((item) => item.day);
 
     if (type === "daily") {
       if (start >= today) return startDate;
@@ -1565,6 +1568,114 @@ export default function Home() {
     daily: t("daily"), weekly: t("weekly"), biweekly: t("biweekly"), monthly: t("monthly"), yearly: t("yearly")
   };
 
+  const weekDayLabels = lang === "hu" ? ["H", "K", "Sz", "Cs", "P", "Szo", "V"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+  const normalizeEventTime = (value?: string | null) => {
+    const raw = String(value || "").slice(0, 5);
+    return /^\d{2}:\d{2}$/.test(raw) ? raw : "09:00";
+  };
+
+  const parseRecurringDaysWithTimes = (days?: string | null) => {
+    if (!days) return [] as { day: number; time: string }[];
+    return days
+      .split(",")
+      .map((part) => {
+        const [dayRaw, timeRaw] = part.split("@");
+        const day = Number(dayRaw);
+        return { day, time: normalizeEventTime(timeRaw || newEventTime) };
+      })
+      .filter((item) => Number.isInteger(item.day) && item.day >= 0 && item.day <= 6);
+  };
+
+  const buildRecurringDaysString = () => {
+    if (recurringDays.length === 0) return null;
+    return recurringDays
+      .slice()
+      .sort((a, b) => a - b)
+      .map((day) => `${day}@${normalizeEventTime(recurringDayTimes[day] || newEventTime)}`)
+      .join(",");
+  };
+
+  const getRecurringTimeForDay = (days: string | null | undefined, day: number) => {
+    const found = parseRecurringDaysWithTimes(days).find((item) => item.day === day);
+    return found?.time || normalizeEventTime(newEventTime);
+  };
+
+  const getDateWeekdayIndex = (dateValue: string) => {
+    const date = new Date(dateValue);
+    const dow = date.getDay();
+    return dow === 0 ? 6 : dow - 1;
+  };
+
+  const getEventDisplayTime = (event: any) => {
+    if (event?.recurring_type === "weekly") {
+      const nextDate = getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days);
+      return getRecurringTimeForDay(event.recurring_days, getDateWeekdayIndex(nextDate));
+    }
+    return normalizeEventTime(event?.event_time || event?.email_one_day_send_at);
+  };
+
+  const getEventDateTimeLabel = (event: any) => {
+    const date = event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date;
+    if (event.recurring_type === "weekly") return `${date} · ${getEventDisplayTime(event)}`;
+    if (event.event_time) return `${date} · ${String(event.event_time).slice(0, 5)}`;
+    return date;
+  };
+
+  const toggleRecurringDay = (idx: number) => {
+    setRecurringDays((prev) => {
+      if (prev.includes(idx)) {
+        setRecurringDayTimes((times) => {
+          const next = { ...times };
+          delete next[idx];
+          return next;
+        });
+        return prev.filter((day) => day !== idx);
+      }
+
+      setRecurringDayTimes((times) => ({
+        ...times,
+        [idx]: times[idx] || normalizeEventTime(newEventTime),
+      }));
+      return [...prev, idx].sort((a, b) => a - b);
+    });
+  };
+
+  const buildDateWithTime = (dateValue: string, timeValue: string) => {
+    const [hour, minute] = normalizeEventTime(timeValue).split(":").map(Number);
+    const date = new Date(dateValue);
+    date.setHours(Number.isFinite(hour) ? hour : 9, Number.isFinite(minute) ? minute : 0, 0, 0);
+    return date;
+  };
+
+  const getUpcomingWeeklyRecurringOccurrences = (monthsAhead = 6) => {
+    if (!isRecurring || recurringType !== "weekly" || recurringDays.length === 0) return [] as { date: string; time: string; label: string }[];
+
+    const start = new Date(newEventDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + monthsAhead);
+
+    const occurrences: { date: string; time: string; label: string }[] = [];
+    const current = new Date(start);
+
+    while (current <= end) {
+      const dayIndex = getDateWeekdayIndex(current.toISOString().split("T")[0]);
+      if (recurringDays.includes(dayIndex)) {
+        const dateStr = current.toISOString().split("T")[0];
+        const time = normalizeEventTime(recurringDayTimes[dayIndex] || newEventTime);
+        occurrences.push({
+          date: dateStr,
+          time,
+          label: `${weekDayLabels[dayIndex]} ${time}`,
+        });
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    return occurrences;
+  };
+
   const handleDeleteAll = async () => {
     if (!session) return;
     const { error } = await supabase.from('events').delete().eq('user_id', session.user.id);
@@ -1581,6 +1692,13 @@ export default function Home() {
     setEditingEventId(event.id);
     setNewEventTitle(event.title);
     setNewEventDate(event.event_date);
+    const parsedRecurringDays = parseRecurringDaysWithTimes(event.recurring_days);
+    const parsedRecurringTimes = parsedRecurringDays.reduce((acc, item) => ({ ...acc, [item.day]: item.time }), {} as Record<number, string>);
+    setNewEventTime(getEventDisplayTime(event));
+    setRecurringDayTimes(parsedRecurringTimes);
+    setRecurringDays(parsedRecurringDays.map((item) => item.day));
+    setIsRecurring(!!event.recurring_type);
+    setRecurringType(event.recurring_type || "weekly");
     setNewEventType(event.category);
     setNewEventDesc(event.description || "");
     setEmailNotifyNow(!!event.email_notify_now);
@@ -1690,10 +1808,16 @@ export default function Home() {
     }
 
     if (emailNotify1Day) {
-      const sendAt = new Date(newEventDate);
-      sendAt.setDate(sendAt.getDate() - 1);
-      sendAt.setHours(8, 0, 0, 0);
-      await saveScheduledEmail(sendAt, "Az 1 nappal előtte email", "one_day");
+      if (isRecurring && recurringType === "weekly" && recurringDays.length > 0) {
+        const occurrences = getUpcomingWeeklyRecurringOccurrences(6);
+        for (const occurrence of occurrences) {
+          const sendAt = getOneDayEmailDate(occurrence.date, occurrence.time);
+          await saveScheduledEmail(sendAt, `Az 1 nappal előtte email (${occurrence.label})`, "one_day");
+        }
+      } else {
+        const sendAt = getOneDayEmailDate(newEventDate, newEventTime);
+        await saveScheduledEmail(sendAt, "Az 1 nappal előtte email", "one_day");
+      }
     }
 
     if (emailNotifyCustom && customNotifyDateTime) {
@@ -1748,6 +1872,8 @@ export default function Home() {
         <div style="padding: 30px;">
           <h2 style="color: #ffb74d; margin-top: 0;">${newEventTitle}</h2>
           <p style="opacity: 0.8;">📅 Dátum: <strong>${newEventDate}</strong></p>
+          <p style="opacity: 0.8;">⏰ Időpont: <strong>${newEventTime}</strong></p>
+          ${isRecurring && recurringType === "weekly" && recurringDays.length > 0 ? `<p style="opacity: 0.8;">🔁 Napok: <strong>${recurringDays.map((day) => `${weekDayLabels[day]} ${normalizeEventTime(recurringDayTimes[day] || newEventTime)}`).join(", ")}</strong></p>` : ''}
           ${newEventDesc ? `<p style="opacity: 0.8;">📝 ${newEventDesc}</p>` : ''}
           <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
           <p style="opacity: 0.5; font-size: 12px; text-align: center;">Ez egy automatikus értesítő a LifeSync alkalmazásból.</p>
@@ -1781,7 +1907,7 @@ export default function Home() {
     } else {
       if (isRecurring) {
         // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
-        const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
+        const recurringDaysStr = recurringType === "weekly" ? buildRecurringDaysString() : recurringDays.length > 0 ? recurringDays.join(",") : null;
         const emailMeta = buildEmailNotifyMeta();
         const { data: insertData, error } = await supabase.from('events').insert([{
           title: newEventTitle,
@@ -2828,11 +2954,11 @@ export default function Home() {
                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                        <span style={{ fontSize: "12px", color: "rgba(186,230,253,0.86)", fontWeight: 800, letterSpacing: "0.02em" }}>
-                         {event.recurring_type ? getNextRecurringDate(event.event_date, event.recurring_type, event.recurring_days) : event.event_date}
+                         {getEventDateTimeLabel(event)}
                        </span>
                        {event.recurring_type && (
                          <span style={{ fontSize: "10px", background: "rgba(56,189,248,0.14)", border: "1px solid rgba(56,189,248,0.45)", borderRadius: "999px", padding: "3px 8px", color: "#67e8f9", fontWeight: 800, boxShadow: "0 0 12px rgba(56,189,248,0.12)" }}>
-                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}
+                           🔁 {recurringTypeLabel[event.recurring_type] || event.recurring_type}{event.recurring_type === "weekly" && parseRecurringDaysWithTimes(event.recurring_days).length > 0 ? ` · ${parseRecurringDaysWithTimes(event.recurring_days).map((item) => `${weekDayLabels[item.day]} ${item.time}`).join(", ")}` : ""}
                          </span>
                        )}
                      </div>
@@ -3022,6 +3148,10 @@ export default function Home() {
                   <input required type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.6vw, 15px)", lineHeight: 1.2, colorScheme: "dark", WebkitAppearance: "none", appearance: "none", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }} />
                 </div>
                 <div>
+                  <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{lang === "hu" ? "Alap időpont" : "Default time"}</label>
+                  <input required type="time" value={newEventTime} onChange={e => setNewEventTime(e.target.value)} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", fontSize: "clamp(14px, 3.6vw, 15px)", lineHeight: 1.2, colorScheme: "dark", WebkitAppearance: "none", appearance: "none", overflow: "hidden", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }} />
+                </div>
+                <div>
                   <label style={{ fontSize: "13.5px", opacity: 0.95, marginBottom: "8px", display: "block", fontWeight: 700, color: "rgba(226,232,240,0.92)" }}>{t("categoryLabel")}</label>
                   <select value={newEventType} onChange={e => setNewEventType(e.target.value)} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", display: "block", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "12px 14px", borderRadius: "18px", color: "white", outline: "none", appearance: "none", fontSize: "clamp(14px, 3.6vw, 15px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
                     <option value="event" style={{color: "black"}}>{t("categoryEvent")}</option>
@@ -3056,17 +3186,33 @@ export default function Home() {
                         {recurringType === "weekly" && (
                           <div>
                             <label style={{ fontSize: "12px", opacity: 0.6, marginBottom: "8px", display: "block" }}>{t("whichDays")}</label>
-                            <div style={{ display: "flex", gap: "6px" }}>
-                              {lang === "hu" ? ["H", "K", "Sz", "Cs", "P", "Szo", "V"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day, idx) => (
-                                <button key={idx} type="button" onClick={() => setRecurringDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])} style={{ width: "30px", height: "30px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
+                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                              {weekDayLabels.map((day, idx) => (
+                                <button key={idx} type="button" onClick={() => toggleRecurringDay(idx)} style={{ width: "34px", height: "34px", borderRadius: "50%", border: "none", fontSize: "11px", fontWeight: 700, cursor: "pointer", background: recurringDays.includes(idx) ? "linear-gradient(135deg, #38bdf8, #8b5cf6)" : "rgba(255,255,255,0.1)", color: "white", transition: "all 0.2s" }}>
                                   {day}
                                 </button>
                               ))}
                             </div>
+
+                            {recurringDays.length > 0 && (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "9px", marginTop: "12px" }}>
+                                {recurringDays.slice().sort((a, b) => a - b).map((day) => (
+                                  <div key={day} style={{ display: "grid", gridTemplateColumns: "44px 1fr", alignItems: "center", gap: "10px" }}>
+                                    <span style={{ fontSize: "13px", fontWeight: 800, color: "rgba(226,232,240,0.9)" }}>{weekDayLabels[day]}</span>
+                                    <input
+                                      type="time"
+                                      value={normalizeEventTime(recurringDayTimes[day] || newEventTime)}
+                                      onChange={(e) => setRecurringDayTimes((prev) => ({ ...prev, [day]: e.target.value }))}
+                                      style={{ width: "100%", background: "rgba(8,15,28,0.72)", border: "1px solid rgba(148,163,184,0.28)", padding: "10px 12px", borderRadius: "14px", color: "white", outline: "none", fontSize: "16px", colorScheme: "dark", WebkitAppearance: "none", appearance: "none" }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
-                        <div style={{ fontSize: "12px", opacity: 0.6, fontStyle: "italic" }}>
-                          📅 A Timeline folyamatosan kiszámolja a következő időpontot – csak 1 sor kerül mentésre.
+                        <div style={{ fontSize: "12px", opacity: 0.68, fontStyle: "italic" }}>
+                          ⏰ Heti ismétlésnél külön időpontot adhatsz meg minden kiválasztott naphoz. Példa: H 09:00, K 10:00.
                         </div>
                       </div>
                     )}
