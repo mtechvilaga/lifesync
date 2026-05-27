@@ -2016,10 +2016,10 @@ export default function Home() {
                     }
                   }}
                   calendarClassName="custom-calendar"
-                  dayClassName={(date) => {
-                    const dateStr = date.toISOString().split("T")[0];
-                    const hasEvent = events.some(e => e.event_date === dateStr);
-                    const isSunday = date.getDay() === 0;
+                  dayClassName={(date: Date): string => {
+  const dateStr = date.toISOString().split("T")[0];
+  const hasEvent = events.some(e => e.event_date === dateStr);
+  const isSunday = date.getDay() === 0;
                     const isToday = new Date().toISOString().split("T")[0] === dateStr;
                     
                     if (isSunday && hasEvent) return "has-event-day sunday-day";
