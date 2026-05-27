@@ -2009,7 +2009,7 @@ export default function Home() {
                   inline
                   locale="hu"
                   selected={newEventDate ? new Date(newEventDate) : new Date()}
-                  onChange={(date) => {
+                  onChange={(date: Date | null) => {
                     if (date) {
                       setNewEventDate(date.toISOString().split("T")[0]);
                       setAddViewMode("form"); // Vált form-ra
