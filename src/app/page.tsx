@@ -924,6 +924,11 @@ export default function Home() {
     daily: "Naponta", weekly: "Hetente", biweekly: "Kéthetente", monthly: "Havonta", yearly: "Évente"
   };
 
+  const isMissingEventTimeColumn = (error: any) => {
+    const message = String(error?.message || "").toLowerCase();
+    return message.includes("event_time") || message.includes("schema cache");
+  };
+
   const handleDeleteAll = async () => {
     if (!session) return;
     const { error } = await supabase.from('events').delete().eq('user_id', session.user.id);
@@ -1026,14 +1031,24 @@ export default function Home() {
     `;
 
     if (editingEventId) {
-      const { data: updateData, error } = await supabase.from('events').update({
+      const updatePayload: any = {
         title: newEventTitle,
         event_date: newEventDate,
         event_time: newEventTime,
         category: newEventType,
         description: newEventDesc,
         image_url: finalImageUrl
-      }).eq('id', editingEventId).select();
+      };
+
+      let { data: updateData, error } = await supabase.from('events').update(updatePayload).eq('id', editingEventId).select();
+
+      if (error && isMissingEventTimeColumn(error)) {
+        const fallbackPayload = { ...updatePayload };
+        delete fallbackPayload.event_time;
+        const retry = await supabase.from('events').update(fallbackPayload).eq('id', editingEventId).select();
+        updateData = retry.data;
+        error = retry.error;
+      }
 
       if (error) {
         showToast("Hiba módosítás közben: " + error.message, 'error');
@@ -1050,7 +1065,7 @@ export default function Home() {
       if (isRecurring) {
         // Csak EGY sort mentünk – a Timeline kiszámolja a következő dátumot
         const recurringDaysStr = recurringDays.length > 0 ? recurringDays.join(",") : null;
-        const { error } = await supabase.from('events').insert([{
+        const recurringPayload: any = {
           title: newEventTitle,
           event_date: newEventDate,
           event_time: newEventTime,
@@ -1060,7 +1075,16 @@ export default function Home() {
           image_url: finalImageUrl,
           recurring_type: recurringType,
           recurring_days: recurringDaysStr,
-        }]);
+        };
+
+        let { error } = await supabase.from('events').insert([recurringPayload]);
+
+        if (error && isMissingEventTimeColumn(error)) {
+          const fallbackPayload = { ...recurringPayload };
+          delete fallbackPayload.event_time;
+          const retry = await supabase.from('events').insert([fallbackPayload]);
+          error = retry.error;
+        }
         if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
         } else {
@@ -1070,17 +1094,24 @@ export default function Home() {
           setActiveTab("Timeline");
         }
       } else {
-      const { error } = await supabase.from('events').insert([
-          { 
-              title: newEventTitle, 
-              event_date: newEventDate, 
-              event_time: newEventTime,
-              category: newEventType, 
-              description: newEventDesc,
-              user_id: session.user.id,
-              image_url: finalImageUrl
-          }
-      ]);
+      const eventPayload: any = { 
+          title: newEventTitle, 
+          event_date: newEventDate, 
+          event_time: newEventTime,
+          category: newEventType, 
+          description: newEventDesc,
+          user_id: session.user.id,
+          image_url: finalImageUrl
+      };
+
+      let { error } = await supabase.from('events').insert([eventPayload]);
+
+      if (error && isMissingEventTimeColumn(error)) {
+          const fallbackPayload = { ...eventPayload };
+          delete fallbackPayload.event_time;
+          const retry = await supabase.from('events').insert([fallbackPayload]);
+          error = retry.error;
+      }
 
       if (error) {
           showToast("Hiba mentés közben: " + error.message, 'error');
